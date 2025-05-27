@@ -114,7 +114,12 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
 
   // Render DND-enabled grid
   return (
-    <Droppable droppableId="contentGridBlocks" isDropDisabled={false} isCombineEnabled={false}>
+    <Droppable 
+      droppableId="contentGridBlocks" 
+      isDropDisabled={false} 
+      isCombineEnabled={false}
+      ignoreContainerClipping={false}
+    >
       {(provided) => (
         <div
           {...provided.droppableProps}
