@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { Trash2 } from 'lucide-react'; // Removed ClipboardCopy
+import { Trash2 } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,8 +36,6 @@ export default function LinkBlock({
       window.open(linkUrl, '_blank');
     }
   };
-
-  // Removed handleCopyLink function
 
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent card click when delete icon is clicked
@@ -75,7 +73,6 @@ export default function LinkBlock({
         </div>
 
         <div className="flex items-center space-x-1 ml-auto"> {/* Icons on the right */}
-          {/* Removed ClipboardCopy button */}
           {onDelete && id && (
             <button
               onClick={handleDeleteClick}
@@ -83,7 +80,7 @@ export default function LinkBlock({
               title="Delete link"
               className="p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+              <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive" />
             </button>
           )}
         </div>
