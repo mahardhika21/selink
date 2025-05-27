@@ -56,7 +56,7 @@ export default function BentoLinkPage() {
         id: crypto.randomUUID(),
         type: 'link',
         title: title,
-        content: normalizedUrl,
+        content: normalizedUrl, // Use the URL as content
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
@@ -84,15 +84,17 @@ export default function BentoLinkPage() {
   const handleOnDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
-    const items = Array.from(blocks);
-    const [reorderedItem] = items.splice(result.source.index, 1);
-    items.splice(result.destination.index, 0, reorderedItem);
-
-    setBlocks(items);
+    setBlocks(currentBlocks => {
+      const items = Array.from(currentBlocks);
+      const [reorderedItem] = items.splice(result.source.index, 1);
+      items.splice(result.destination.index, 0, reorderedItem);
+      return items;
+    });
   };
 
   if (!isMounted) {
     // Render a simplified version or a loader until the client is mounted
+    // to avoid react-beautiful-dnd issues with SSR/initial render.
     return (
       <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
         <div className="fixed top-4 right-4 z-50">
