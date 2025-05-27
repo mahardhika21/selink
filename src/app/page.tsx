@@ -40,22 +40,33 @@ export default function BentoLinkPage() {
   // }, [blocks, isMounted]);
 
   const handleAddLink = async () => {
-    if (!newLinkUrl.trim()) return;
+    if (!newLinkUrl.trim()) {
+      toast({
+        title: "Empty Link",
+        description: "Please enter a URL.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsAddingLink(true);
 
+    let normalizedUrl = newLinkUrl.trim();
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+
     try {
-      let normalizedUrl = newLinkUrl;
-      if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-        normalizedUrl = `https://${normalizedUrl}`;
-      }
+      // Validate URL structure
+      new URL(normalizedUrl); // This will throw an error if the URL is invalid
 
       let title = "New Link";
-      let hostname = newLinkUrl;
+      let hostname = newLinkUrl; // Fallback hostname
       try {
-        const urlObj = new URL(normalizedUrl);
+        const urlObj = new URL(normalizedUrl); // Use the already validated normalizedUrl
         hostname = urlObj.hostname.replace(/^www\./, '');
         title = hostname.length > 40 ? hostname.substring(0, 37) + "..." : hostname;
       } catch (e) {
+        // This catch is for URL parsing for title/hostname, not for overall validation
         title = newLinkUrl.length > 40 ? newLinkUrl.substring(0, 37) + "..." : newLinkUrl;
         console.warn("Could not parse URL for title, using input string:", newLinkUrl);
       }
@@ -65,10 +76,10 @@ export default function BentoLinkPage() {
       const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
 
       const newBlock: BlockItem = {
-        id: crypto.randomUUID(), // crypto.randomUUID is fine here as it's client-side only logic
+        id: crypto.randomUUID(),
         type: 'link',
         title: title,
-        content: normalizedUrl, // Display the full URL as content
+        content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
@@ -77,13 +88,21 @@ export default function BentoLinkPage() {
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
       setNewLinkUrl('');
-    } catch (error) {
-      console.error("Failed to add link:", error);
-      toast({
-        title: "Error Adding Link",
-        description: "Could not add the link. Please try again.",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      if (error instanceof TypeError && error.message.includes('Invalid URL')) {
+        toast({
+          title: "Invalid Link",
+          description: "Please enter a valid URL (e.g., https://example.com).",
+          variant: "destructive",
+        });
+      } else {
+        console.error("Failed to add link:", error);
+        toast({
+          title: "Error Adding Link",
+          description: "Could not add the link. Please try again.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsAddingLink(false);
     }
@@ -102,7 +121,6 @@ export default function BentoLinkPage() {
       const items = Array.from(currentBlocks);
       const [reorderedItem] = items.splice(source.index, 1);
 
-      // Guard against reorderedItem being undefined
       if (reorderedItem === undefined) {
         console.error(
             "Drag and drop error: reorderedItem is undefined. " +
@@ -119,8 +137,6 @@ export default function BentoLinkPage() {
   };
 
   if (!isMounted) {
-    // Render a simplified version or a loader until the client is mounted
-    // to avoid react-beautiful-dnd issues with SSR/initial render.
     return (
       <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
         <div className="fixed top-4 right-4 z-50">
