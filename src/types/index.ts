@@ -17,8 +17,8 @@ export interface BlockItem {
   type: BlockType;
   title?: string;
   content?: string; // For text content or description for link
-  imageUrl?: string;
-  imageAlt?: string;
+  imageUrl?: string; // For ImageBlock
+  imageAlt?: string; // For ImageBlock
   videoUrl?: string; // YouTube or TikTok embed URL
   linkUrl?: string;
   iconName?: string; // Changed from icon?: LucideIcon // For LinkBlock
@@ -26,5 +26,7 @@ export interface BlockItem {
   rowSpan?: number; // Grid row span
   pastelColor?: PastelColor;
   className?: string; // Additional classes for custom styling / grid spanning
-  dataAiHint?: string; // For image blocks
+  dataAiHint?: string; // For ImageBlock's main image
+  thumbnailUrl?: string; // For LinkBlock's thumbnail
+  thumbnailDataAiHint?: string; // For LinkBlock's thumbnail AI hint
 }

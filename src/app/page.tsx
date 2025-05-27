@@ -1,25 +1,21 @@
 
-"use client"; // <-- Added: Make this a client component
+"use client"; 
 
-import { useState } from 'react'; // <-- Added
-import type { FormEvent } from 'react'; // <-- Added (though not strictly used if not using a form element)
-// import Header from '@/components/BentoLink/Header'; <-- Removed
+import { useState, useEffect } from 'react'; 
+import type { FormEvent } from 'react'; 
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import type { BlockItem } from '@/types'; // <-- Removed SocialLink import
-import { Input } from '@/components/ui/input'; // <-- Added
-import { Button } from '@/components/ui/button'; // <-- Added
-import { Link2 } from 'lucide-react'; // <-- Added for button icon
+import type { BlockItem } from '@/types'; 
+import { Input } from '@/components/ui/input'; 
+import { Button } from '@/components/ui/button'; 
+import { Link2 } from 'lucide-react'; 
 
-// Removed profileData object
-
-// Renamed to initialBlocksData
-const initialBlocksData: BlockItem[] = []; // <-- Changed to empty array
+const initialBlocksData: BlockItem[] = []; 
 
 export default function BentoLinkPage() {
-  const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData); // <-- State for blocks
-  const [newLinkUrl, setNewLinkUrl] = useState(''); // <-- State for new link input
+  const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData); 
+  const [newLinkUrl, setNewLinkUrl] = useState(''); 
 
   const handleAddLink = () => {
     if (!newLinkUrl.trim()) return;
@@ -43,13 +39,24 @@ export default function BentoLinkPage() {
       title: title,
       content: `Visit ${hostname}`,
       linkUrl: newLinkUrl.startsWith('http') ? newLinkUrl : `https://${newLinkUrl}`,
-      // iconName: 'Link', // <-- Removed default Link icon
       colSpan: 1,
+      thumbnailUrl: 'https://placehold.co/300x150.png', // Placeholder thumbnail
+      thumbnailDataAiHint: 'website thumbnail', // AI hint for the placeholder thumbnail
     };
 
     setBlocks(prevBlocks => [...prevBlocks, newBlock]);
     setNewLinkUrl('');
   };
+  
+  // Effect to prevent hydration errors with crypto.randomUUID
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
@@ -57,9 +64,7 @@ export default function BentoLinkPage() {
         <ThemeToggle />
       </div>
       <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
-        {/* <Header {...profileData} /> <-- Removed Header component */}
-
-        {/* --- New Paste Link Section --- */}
+        
         <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
           <Input
             type="url"
@@ -75,9 +80,8 @@ export default function BentoLinkPage() {
             Add Link
           </Button>
         </div>
-        {/* --- End New Paste Link Section --- */}
-
-        <ContentGrid blocks={blocks} /> {/* Use state variable here */}
+        
+        <ContentGrid blocks={blocks} /> 
       </main>
       <Footer />
     </div>
