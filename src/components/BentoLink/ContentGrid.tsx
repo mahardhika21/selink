@@ -34,12 +34,16 @@ const BlockRenderer = ({
 }) => {
   // Guards
   if (block == null) { 
-    console.warn(`Skipping rendering of null or undefined block at index ${index}.`);
+    console.warn(`ContentGrid (BlockRenderer): Skipping rendering of null or undefined block at index ${index}.`);
     return null;
   }
   if (typeof block.type !== 'string' || !block.type.trim()) {
-    console.warn(`Skipping rendering of block with invalid or missing type at index ${index}:`, block);
-    return null;
+    console.warn(`ContentGrid (BlockRenderer): Skipping rendering of block with invalid or missing type at index ${index}:`, block);
+    if (innerRef) {
+      // Provide a valid DOM element for react-beautiful-dnd even if the block is invalid
+      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data</div>;
+    }
+    return <div className="hidden">Invalid block data</div>;
   }
 
   const blockClassName = cn(
@@ -67,7 +71,7 @@ const BlockRenderer = ({
       return <TextBlock {...commonProps} />;
     default:
       const typeDisplay = block && typeof block.type === 'string' ? block.type : 'unknown';
-      console.warn(`Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
+      console.warn(`ContentGrid (BlockRenderer): Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
       if (innerRef) {
         return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={blockClassName}>Unsupported block type</div>;
       }
@@ -91,7 +95,7 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           return (
             <BlockRenderer
               key={key}
-              block={block} // block is confirmed non-null here
+              block={block} 
               index={index}
               onDeleteBlock={onDeleteBlock}
             />
@@ -103,7 +107,7 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
 
   // Render DND-enabled grid
   return (
-    <Droppable droppableId="contentGridBlocks" isDropDisabled={false}>
+    <Droppable droppableId="contentGridBlocks" isDropDisabled={false} isCombineEnabled={false}>
       {(provided) => (
         <div
           {...provided.droppableProps}
@@ -113,7 +117,7 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           {blocks.map((block, index) => {
             if (block == null || typeof block.id !== 'string' || !block.id.trim()) {
                 console.warn(`ContentGrid (DND): Skipping draggable block due to null or invalid id at index ${index}:`, block);
-                return null;
+                return null; // Important: return null if block is invalid for DND
             }
             return (
               <Draggable key={block.id} draggableId={block.id} index={index}>
