@@ -103,7 +103,7 @@ export default function BentoLinkPage() {
               Add Link
             </Button>
           </div>
-          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={false} />
         </main>
         <Footer />
       </div>
@@ -135,7 +135,7 @@ export default function BentoLinkPage() {
             </Button>
           </div>
 
-          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={true} />
         </main>
         <Footer />
       </div>
