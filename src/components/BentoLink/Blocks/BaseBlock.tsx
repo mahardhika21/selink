@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -22,7 +23,7 @@ export default function BaseBlock({
   onClick,
   innerRef,
   draggableProps,
-  dragHandleProps
+  dragHandleProps 
 }: BaseBlockProps) {
   const pastelClassName = pastelColor ? `pastel-${pastelColor}` : '';
   
@@ -32,7 +33,7 @@ export default function BaseBlock({
       {...draggableProps}
       {...dragHandleProps}
       className={cn(
-        'rounded-2xl shadow-lg transition-all duration-300 ease-in-out overflow-hidden',
+        'rounded-2xl transition-all duration-300 ease-in-out overflow-hidden', // Removed shadow-lg
         'hover:shadow-xl hover:-translate-y-1',
         onClick ? 'cursor-pointer' : '',
         pastelClassName,
