@@ -57,13 +57,25 @@ function extractOgImage(html: string, baseUrl: string): string | null {
   return null;
 }
 
+function simpleHtmlEntityDecode(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#0*39;/g, "'") // Handles &#39; and &#039;
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
 function extractPageTitle(html: string): string | null {
   const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
   const match = html.match(titleRegex);
   if (match && match[1]) {
-    // Decode HTML entities and trim whitespace
-    const tempElement = new DOMParser().parseFromString(match[1], "text/html");
-    return tempElement.documentElement.textContent?.trim() || null;
+    // Basic decoding for common HTML entities as DOMParser is not available server-side
+    let titleText = match[1];
+    titleText = simpleHtmlEntityDecode(titleText);
+    return titleText.trim() || null;
   }
   return null;
 }
@@ -103,3 +115,4 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     pageTitle: pageTitle,
   };
 }
+
