@@ -28,7 +28,7 @@ export default function LinkBlock({
   className,
   thumbnailUrl,
   thumbnailDataAiHint,
-  faviconUrl, // Added prop
+  faviconUrl,
   onDelete,
   innerRef,
   draggableProps,
@@ -82,12 +82,9 @@ export default function LinkBlock({
           thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6"
         )}
       >
-        <div className="flex-shrink-0"> {/* Icon on the left */}
-          {iconName && <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />}
-        </div>
-        
-        <div className="flex items-center space-x-2 ml-auto"> {/* Group for favicon and delete icon */}
-          {faviconUrl && (
+        {/* Left Icon: Favicon or fallback iconName */}
+        <div className="flex-shrink-0">
+          {faviconUrl ? (
             <img
               src={faviconUrl}
               alt="" // Decorative, alt text provided by link title
@@ -98,7 +95,16 @@ export default function LinkBlock({
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
+          ) : iconName ? (
+            <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
+          ) : (
+            // Optional: Placeholder for consistent spacing if needed, otherwise an empty div is fine for flexbox
+            <div className="w-4 h-4" /> // Ensures space is reserved if delete icon is present
           )}
+        </div>
+        
+        {/* Right Icon: Delete Icon */}
+        <div className="flex-shrink-0">
           {onDelete && id && (
             <button
               onClick={handleDeleteClick}
@@ -123,3 +129,4 @@ export default function LinkBlock({
     </BaseBlock>
   );
 }
+
