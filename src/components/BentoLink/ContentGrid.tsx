@@ -35,15 +35,19 @@ const BlockRenderer = ({
   // Guards
   if (block == null) { 
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of null or undefined block at index ${index}.`);
-    return null;
+    // Provide a valid DOM element for react-beautiful-dnd if innerRef is expected
+    if (innerRef) {
+      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null)</div>;
+    }
+    return null; // For static grid or if no innerRef needed for a null block
   }
   if (typeof block.type !== 'string' || !block.type.trim()) {
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of block with invalid or missing type at index ${index}:`, block);
     if (innerRef) {
       // Provide a valid DOM element for react-beautiful-dnd even if the block is invalid
-      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data</div>;
+      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (type)</div>;
     }
-    return <div className="hidden">Invalid block data</div>;
+    return <div className="hidden">Invalid block data (type)</div>;
   }
 
   const blockClassName = cn(
@@ -70,7 +74,9 @@ const BlockRenderer = ({
     case 'text':
       return <TextBlock {...commonProps} />;
     default:
-      const typeDisplay = block && typeof block.type === 'string' ? block.type : 'unknown';
+      // This const should be safe due to the guards above.
+      // If block were null, first guard would hit. If block.type invalid, second guard would hit.
+      const typeDisplay = block.type; 
       console.warn(`ContentGrid (BlockRenderer): Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
       if (innerRef) {
         return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={blockClassName}>Unsupported block type</div>;
@@ -86,10 +92,11 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
         {blocks.map((block, index) => {
           // Robust check for static grid items
-          if (!block) {
+          if (!block) { // Equivalent to block == null
             console.warn(`ContentGrid (static): Skipping rendering of null/undefined block at index ${index}.`);
             return null;
           }
+          // Ensure key is unique and valid even if id is missing, though id should be present for valid blocks.
           const key = (typeof block.id === 'string' && block.id.trim()) ? block.id : `static-block-${index}`;
           
           return (
@@ -115,15 +122,19 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
           {blocks.map((block, index) => {
+            // Ensure block and block.id are valid before rendering Draggable
             if (block == null || typeof block.id !== 'string' || !block.id.trim()) {
                 console.warn(`ContentGrid (DND): Skipping draggable block due to null or invalid id at index ${index}:`, block);
-                return null; // Important: return null if block is invalid for DND
+                // It's crucial to return something that doesn't break the map,
+                // or to filter out such items before mapping if DND library is sensitive.
+                // Returning null here is standard for React conditional rendering.
+                return null; 
             }
             return (
               <Draggable key={block.id} draggableId={block.id} index={index}>
                 {(providedDraggable) => (
                   <BlockRenderer
-                    block={block}
+                    block={block} // block is guaranteed to be non-null here due to the check above
                     index={index}
                     onDeleteBlock={onDeleteBlock}
                     innerRef={providedDraggable.innerRef}
