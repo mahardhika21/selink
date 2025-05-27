@@ -53,7 +53,6 @@ export default function BentoLinkPage() {
       colSpan: 1,
       thumbnailUrl: fetchedThumbnailUrl,
       thumbnailDataAiHint: isPlaceholder ? 'website thumbnail' : 'retrieved thumbnail',
-      // iconName: 'Link', // Removed default Link icon
     };
 
     setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -85,7 +84,7 @@ export default function BentoLinkPage() {
         <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
           <Input
             type="url"
-            placeholder="https://your-link.com"
+            placeholder="Enter Link"
             value={newLinkUrl}
             onChange={(e) => setNewLinkUrl(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
