@@ -3,6 +3,11 @@
 
 const placeholderThumbnail = 'https://placehold.co/300x150.png';
 
+interface LinkMetadata {
+  thumbnailUrl: string;
+  pageTitle: string | null;
+}
+
 async function getHtml(url: string): Promise<string | null> {
   try {
     const response = await fetch(url, {
@@ -32,8 +37,13 @@ function extractOgImage(html: string, baseUrl: string): string | null {
     let imageUrl = match[1];
     // Resolve relative URLs
     if (imageUrl.startsWith('/')) {
-      const urlObj = new URL(baseUrl);
-      imageUrl = `${urlObj.origin}${imageUrl}`;
+      try {
+        const urlObj = new URL(baseUrl);
+        imageUrl = `${urlObj.origin}${imageUrl}`;
+      } catch (e) {
+         console.warn(`Invalid base URL for relative og:image: ${baseUrl}`);
+         return null;
+      }
     }
     try {
       // Validate if it's a proper URL
@@ -47,19 +57,49 @@ function extractOgImage(html: string, baseUrl: string): string | null {
   return null;
 }
 
-export async function getLinkThumbnailUrl(url: string): Promise<string> {
-  if (!url) return placeholderThumbnail;
+function extractPageTitle(html: string): string | null {
+  const titleRegex = /<title[^>]*>(.*?)<\/title>/i;
+  const match = html.match(titleRegex);
+  if (match && match[1]) {
+    // Decode HTML entities and trim whitespace
+    const tempElement = new DOMParser().parseFromString(match[1], "text/html");
+    return tempElement.documentElement.textContent?.trim() || null;
+  }
+  return null;
+}
+
+export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
+  const defaultMetadata: LinkMetadata = {
+    thumbnailUrl: placeholderThumbnail,
+    pageTitle: null,
+  };
+
+  if (!url) return defaultMetadata;
 
   let normalizedUrl = url;
   if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
     normalizedUrl = `https://${normalizedUrl}`;
   }
+  
+  try {
+      // Validate URL structure before fetching
+      new URL(normalizedUrl);
+  } catch (e) {
+      console.warn(`Invalid URL provided to getLinkMetadata: ${url}`);
+      return defaultMetadata;
+  }
+
 
   const html = await getHtml(normalizedUrl);
   if (!html) {
-    return placeholderThumbnail;
+    return defaultMetadata;
   }
 
   const thumbnailUrl = extractOgImage(html, normalizedUrl);
-  return thumbnailUrl || placeholderThumbnail;
+  const pageTitle = extractPageTitle(html);
+
+  return {
+    thumbnailUrl: thumbnailUrl || placeholderThumbnail,
+    pageTitle: pageTitle,
+  };
 }

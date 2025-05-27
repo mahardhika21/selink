@@ -10,7 +10,7 @@ import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link2 } from 'lucide-react';
-import { getLinkThumbnailUrl } from './actions';
+import { getLinkMetadata } from './actions'; // Updated import
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,19 +25,7 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Potential future use: Load blocks from localStorage
-    // const savedBlocks = localStorage.getItem('bentoBlocks');
-    // if (savedBlocks) {
-    //   setBlocks(JSON.parse(savedBlocks));
-    // }
   }, []);
-
-  // Potential future use: Save blocks to localStorage
-  // useEffect(() => {
-  //   if (isMounted) { // Ensure this runs only on client and after initial mount
-  //     localStorage.setItem('bentoBlocks', JSON.stringify(blocks));
-  //   }
-  // }, [blocks, isMounted]);
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) {
@@ -56,30 +44,36 @@ export default function BentoLinkPage() {
     }
 
     try {
-      // Validate URL structure
-      new URL(normalizedUrl); // This will throw an error if the URL is invalid
+      // Validate URL structure using client-side URL constructor
+      new URL(normalizedUrl); 
 
-      let title = "New Link";
-      let hostname = newLinkUrl; // Fallback hostname
-      try {
-        const urlObj = new URL(normalizedUrl); // Use the already validated normalizedUrl
-        hostname = urlObj.hostname.replace(/^www\./, '');
-        title = hostname.length > 40 ? hostname.substring(0, 37) + "..." : hostname;
-      } catch (e) {
-        // This catch is for URL parsing for title/hostname, not for overall validation
-        title = newLinkUrl.length > 40 ? newLinkUrl.substring(0, 37) + "..." : newLinkUrl;
-        console.warn("Could not parse URL for title, using input string:", newLinkUrl);
-      }
-      if (!title) title = "Untitled Link";
-
-      const fetchedThumbnailUrl = await getLinkThumbnailUrl(normalizedUrl);
+      const { thumbnailUrl: fetchedThumbnailUrl, pageTitle: fetchedPageTitle } = await getLinkMetadata(normalizedUrl);
       const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
+
+      let displayTitle = "New Link";
+      if (fetchedPageTitle && fetchedPageTitle.trim()) {
+        displayTitle = fetchedPageTitle.trim();
+      } else {
+        try {
+          const urlObj = new URL(normalizedUrl);
+          let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
+          // Truncate long hostnames
+          displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
+          if (!displayTitle) { // Fallback if hostname is empty for some reason
+             displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
+          }
+        } catch (e) {
+          // Fallback if URL parsing for hostname fails (though it should have been caught by the earlier new URL() validation)
+          displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
+        }
+      }
+       if (!displayTitle) displayTitle = "Untitled Link"; // Final fallback
 
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
-        title: title,
-        content: normalizedUrl,
+        title: displayTitle,
+        content: normalizedUrl, // URL itself as content
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
