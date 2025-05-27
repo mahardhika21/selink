@@ -3,26 +3,16 @@
 
 import { useState } from 'react'; // <-- Added
 import type { FormEvent } from 'react'; // <-- Added (though not strictly used if not using a form element)
-import Header from '@/components/BentoLink/Header';
+// import Header from '@/components/BentoLink/Header'; <-- Removed
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import type { BlockItem, SocialLink } from '@/types';
+import type { BlockItem } from '@/types'; // <-- Removed SocialLink import
 import { Input } from '@/components/ui/input'; // <-- Added
 import { Button } from '@/components/ui/button'; // <-- Added
 import { Link2 } from 'lucide-react'; // <-- Added for button icon
 
-const profileData = {
-  name: 'Alex Johnson',
-  bio: 'Digital Creator & Tech Enthusiast. Turning ideas into reality, one line of code at a time. Explore my world below!',
-  imageUrl: 'https://placehold.co/96x96.png',
-  socialLinks: [
-    { platform: 'twitter', url: 'https://twitter.com', iconName: 'Twitter' },
-    { platform: 'instagram', url: 'https://instagram.com', iconName: 'Instagram' },
-    { platform: 'github', url: 'https://github.com', iconName: 'Github' },
-    { platform: 'linkedin', url: 'https://linkedin.com', iconName: 'Linkedin' },
-  ] as SocialLink[],
-};
+// Removed profileData object
 
 // Renamed to initialBlocksData
 const initialBlocksData: BlockItem[] = []; // <-- Changed to empty array
@@ -67,7 +57,7 @@ export default function BentoLinkPage() {
         <ThemeToggle />
       </div>
       <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
-        <Header {...profileData} />
+        {/* <Header {...profileData} /> <-- Removed Header component */}
 
         {/* --- New Paste Link Section --- */}
         <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
