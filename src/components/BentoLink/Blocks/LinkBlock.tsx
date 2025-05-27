@@ -97,7 +97,7 @@ export default function LinkBlock({
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground">{title}</CardTitle>}
-        {content && <p className="text-xs text-card-foreground/80 line-clamp-2 break-all">{content}</p>}
+        {content && <p className="text-xs text-card-foreground/80 line-clamp-1 break-all">{content}</p>}
       </CardContent>
     </BaseBlock>
   );
