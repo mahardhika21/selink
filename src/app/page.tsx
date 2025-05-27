@@ -10,42 +10,54 @@ import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input'; 
 import { Button } from '@/components/ui/button'; 
 import { Link2 } from 'lucide-react'; 
+import { getLinkThumbnailUrl } from './actions'; // Import the server action
 
 const initialBlocksData: BlockItem[] = []; 
 
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData); 
   const [newLinkUrl, setNewLinkUrl] = useState(''); 
+  const [isAddingLink, setIsAddingLink] = useState(false);
 
-  const handleAddLink = () => {
+  const handleAddLink = async () => {
     if (!newLinkUrl.trim()) return;
+    setIsAddingLink(true);
 
+    let normalizedUrl = newLinkUrl;
+    if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+    
     let title = "New Link";
-    let hostname = newLinkUrl;
+    let hostname = newLinkUrl; // Fallback hostname
     try {
-      const url = new URL(newLinkUrl.startsWith('http') ? newLinkUrl : `https://${newLinkUrl}`);
-      hostname = url.hostname.replace(/^www\./, '');
+      const urlObj = new URL(normalizedUrl);
+      hostname = urlObj.hostname.replace(/^www\./, '');
       title = hostname.length > 40 ? hostname.substring(0, 37) + "..." : hostname;
     } catch (e) {
       // Fallback for invalid URLs or simple strings
       title = newLinkUrl.length > 40 ? newLinkUrl.substring(0, 37) + "..." : newLinkUrl;
+      console.warn("Could not parse URL for title, using input string:", newLinkUrl);
     }
     if (!title) title = "Untitled Link";
 
+    const fetchedThumbnailUrl = await getLinkThumbnailUrl(normalizedUrl);
+    const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
 
     const newBlock: BlockItem = {
       id: crypto.randomUUID(),
       type: 'link',
       title: title,
       content: `Visit ${hostname}`,
-      linkUrl: newLinkUrl.startsWith('http') ? newLinkUrl : `https://${newLinkUrl}`,
+      linkUrl: normalizedUrl,
       colSpan: 1,
-      thumbnailUrl: 'https://placehold.co/300x150.png', // Placeholder thumbnail
-      thumbnailDataAiHint: 'website thumbnail', // AI hint for the placeholder thumbnail
+      thumbnailUrl: fetchedThumbnailUrl,
+      thumbnailDataAiHint: isPlaceholder ? 'website thumbnail' : 'retrieved thumbnail',
     };
 
     setBlocks(prevBlocks => [...prevBlocks, newBlock]);
     setNewLinkUrl('');
+    setIsAddingLink(false);
   };
   
   // Effect to prevent hydration errors with crypto.randomUUID
@@ -71,13 +83,14 @@ export default function BentoLinkPage() {
             placeholder="https://your-link.com"
             value={newLinkUrl}
             onChange={(e) => setNewLinkUrl(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAddLink(); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
             className="flex-grow text-sm"
             aria-label="Paste link URL to add"
+            disabled={isAddingLink}
           />
-          <Button onClick={handleAddLink} className="sm:w-auto w-full">
+          <Button onClick={handleAddLink} className="sm:w-auto w-full" disabled={isAddingLink}>
             <Link2 className="mr-2 h-4 w-4" />
-            Add Link
+            {isAddingLink ? 'Adding...' : 'Add Link'}
           </Button>
         </div>
         
