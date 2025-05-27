@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { ClipboardCopy, Trash2 } from 'lucide-react'; // Changed ArrowUpRight to Trash2
+import { Trash2 } from 'lucide-react'; // Removed ClipboardCopy
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,20 +12,20 @@ import { useToast } from "@/hooks/use-toast";
 import type React from 'react';
 
 interface LinkBlockProps extends BlockItem {
-  onDelete?: (id: string) => void; // Added onDelete prop
+  onDelete?: (id: string) => void;
 }
 
 export default function LinkBlock({
-  id, // Ensured id is destructured
+  id,
   title,
-  content, // This will now be the URL string
+  content,
   linkUrl,
   iconName,
   pastelColor,
   className,
   thumbnailUrl,
   thumbnailDataAiHint,
-  onDelete, // Destructure onDelete
+  onDelete,
 }: LinkBlockProps) {
   const { toast } = useToast();
 
@@ -37,26 +37,7 @@ export default function LinkBlock({
     }
   };
 
-  const handleCopyLink = (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent card click when copy icon is clicked
-    if (linkUrl) {
-      navigator.clipboard.writeText(linkUrl)
-        .then(() => {
-          toast({
-            title: "Link Copied!",
-            description: "The URL has been copied to your clipboard.",
-          });
-        })
-        .catch(err => {
-          console.error("Failed to copy link: ", err);
-          toast({
-            title: "Copy Failed",
-            description: "Could not copy link to clipboard.",
-            variant: "destructive",
-          });
-        });
-    }
-  };
+  // Removed handleCopyLink function
 
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent card click when delete icon is clicked
@@ -94,14 +75,7 @@ export default function LinkBlock({
         </div>
 
         <div className="flex items-center space-x-1 ml-auto"> {/* Icons on the right */}
-          <button
-            onClick={handleCopyLink}
-            aria-label="Copy link"
-            title="Copy link"
-            className="p-1 rounded-md hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-          >
-            <ClipboardCopy className="h-4 w-4 text-muted-foreground" />
-          </button>
+          {/* Removed ClipboardCopy button */}
           {onDelete && id && (
             <button
               onClick={handleDeleteClick}
