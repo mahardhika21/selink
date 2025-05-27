@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'akcdn.detik.net.id', // Added for Detik thumbnails
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
