@@ -8,9 +8,10 @@ import { cn } from '@/lib/utils';
 
 interface ContentGridProps {
   blocks: BlockItem[];
+  onDeleteBlock?: (id: string) => void; // Added onDeleteBlock prop
 }
 
-export default function ContentGrid({ blocks }: ContentGridProps) {
+export default function ContentGrid({ blocks, onDeleteBlock }: ContentGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
       {blocks.map((block, index) => {
@@ -37,8 +38,9 @@ export default function ContentGrid({ blocks }: ContentGridProps) {
 
         switch (block.type) {
           case 'link':
-            return <LinkBlock key={key} {...block} className={blockClassName} />;
+            return <LinkBlock key={key} {...block} className={blockClassName} onDelete={onDeleteBlock} />;
           case 'image':
+            // Assuming ImageBlock might also need onDelete in the future. For now, it doesn't.
             return <ImageBlock key={key} {...block} className={blockClassName} />;
           case 'video':
             return <VideoBlock key={key} {...block} className={blockClassName} />;

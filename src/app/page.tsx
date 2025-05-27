@@ -53,11 +53,16 @@ export default function BentoLinkPage() {
       colSpan: 1,
       thumbnailUrl: fetchedThumbnailUrl,
       thumbnailDataAiHint: isPlaceholder ? 'website thumbnail' : 'retrieved thumbnail',
+      // iconName: 'Link', // Removed default Link icon
     };
 
     setBlocks(prevBlocks => [...prevBlocks, newBlock]);
     setNewLinkUrl('');
     setIsAddingLink(false);
+  };
+
+  const handleDeleteBlock = (idToDelete: string) => {
+    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== idToDelete));
   };
 
   // Effect to prevent hydration errors with crypto.randomUUID
@@ -94,7 +99,7 @@ export default function BentoLinkPage() {
           </Button>
         </div>
 
-        <ContentGrid blocks={blocks} />
+        <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
       </main>
       <Footer />
     </div>

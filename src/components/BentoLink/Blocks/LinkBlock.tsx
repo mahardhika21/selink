@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { ArrowUpRight, ClipboardCopy } from 'lucide-react';
+import { ClipboardCopy, Trash2 } from 'lucide-react'; // Changed ArrowUpRight to Trash2
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,9 +11,12 @@ import IconRenderer from '@/components/IconRenderer';
 import { useToast } from "@/hooks/use-toast";
 import type React from 'react';
 
-interface LinkBlockProps extends BlockItem {}
+interface LinkBlockProps extends BlockItem {
+  onDelete?: (id: string) => void; // Added onDelete prop
+}
 
 export default function LinkBlock({
+  id, // Ensured id is destructured
   title,
   content, // This will now be the URL string
   linkUrl,
@@ -22,6 +25,7 @@ export default function LinkBlock({
   className,
   thumbnailUrl,
   thumbnailDataAiHint,
+  onDelete, // Destructure onDelete
 }: LinkBlockProps) {
   const { toast } = useToast();
 
@@ -51,6 +55,17 @@ export default function LinkBlock({
             variant: "destructive",
           });
         });
+    }
+  };
+
+  const handleDeleteClick = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent card click when delete icon is clicked
+    if (onDelete && id) {
+      onDelete(id);
+      toast({
+        title: "Link Removed",
+        description: `"${title || 'Link'}" has been removed.`,
+      });
     }
   };
 
@@ -87,7 +102,16 @@ export default function LinkBlock({
           >
             <ClipboardCopy className="h-4 w-4 text-muted-foreground" />
           </button>
-          <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
+          {onDelete && id && (
+            <button
+              onClick={handleDeleteClick}
+              aria-label="Delete link"
+              title="Delete link"
+              className="p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+            </button>
+          )}
         </div>
       </CardHeader>
       <CardContent
