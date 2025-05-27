@@ -10,13 +10,27 @@ interface BaseBlockProps {
   className?: string;
   pastelColor?: PastelColor;
   onClick?: () => void;
+  innerRef?: React.Ref<HTMLDivElement>;
+  draggableProps?: Record<string, any>;
+  dragHandleProps?: Record<string, any>;
 }
 
-export default function BaseBlock({ children, className, pastelColor, onClick }: BaseBlockProps) {
+export default function BaseBlock({ 
+  children, 
+  className, 
+  pastelColor, 
+  onClick,
+  innerRef,
+  draggableProps,
+  dragHandleProps
+}: BaseBlockProps) {
   const pastelClassName = pastelColor ? `pastel-${pastelColor}` : '';
   
   return (
     <Card
+      ref={innerRef}
+      {...draggableProps}
+      {...dragHandleProps}
       className={cn(
         'rounded-2xl shadow-lg transition-all duration-300 ease-in-out overflow-hidden',
         'hover:shadow-xl hover:-translate-y-1',

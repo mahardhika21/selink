@@ -10,7 +10,8 @@ import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link2 } from 'lucide-react';
-import { getLinkThumbnailUrl } from './actions'; // Import the server action
+import { getLinkThumbnailUrl } from './actions';
+import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 
 const initialBlocksData: BlockItem[] = [];
 
@@ -18,6 +19,11 @@ export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
   const [newLinkUrl, setNewLinkUrl] = useState('');
   const [isAddingLink, setIsAddingLink] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) return;
@@ -29,13 +35,12 @@ export default function BentoLinkPage() {
     }
 
     let title = "New Link";
-    let hostname = newLinkUrl; // Fallback hostname
+    let hostname = newLinkUrl; 
     try {
       const urlObj = new URL(normalizedUrl);
       hostname = urlObj.hostname.replace(/^www\./, '');
       title = hostname.length > 40 ? hostname.substring(0, 37) + "..." : hostname;
     } catch (e) {
-      // Fallback for invalid URLs or simple strings
       title = newLinkUrl.length > 40 ? newLinkUrl.substring(0, 37) + "..." : newLinkUrl;
       console.warn("Could not parse URL for title, using input string:", newLinkUrl);
     }
@@ -48,7 +53,7 @@ export default function BentoLinkPage() {
       id: crypto.randomUUID(),
       type: 'link',
       title: title,
-      content: normalizedUrl, // Set content to the full URL
+      content: normalizedUrl,
       linkUrl: normalizedUrl,
       colSpan: 1,
       thumbnailUrl: fetchedThumbnailUrl,
@@ -64,43 +69,76 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== idToDelete));
   };
 
-  // Effect to prevent hydration errors with crypto.randomUUID
-  const [isMounted, setIsMounted] = useState(false);
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const handleOnDragEnd = (result: DropResult) => {
+    if (!result.destination) return;
+
+    const items = Array.from(blocks);
+    const [reorderedItem] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, reorderedItem);
+
+    setBlocks(items);
+  };
 
   if (!isMounted) {
-    return null; // Or a loading spinner
+    // Render a simplified version or a loader until the client is mounted
+    // to prevent hydration issues with react-beautiful-dnd
+    return (
+      <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle />
+        </div>
+        <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
+          <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
+            <Input
+              type="url"
+              placeholder="Enter Link"
+              value={newLinkUrl}
+              onChange={(e) => setNewLinkUrl(e.target.value)}
+              className="flex-grow text-sm"
+              aria-label="Paste link URL to add"
+              disabled={true} 
+            />
+            <Button className="sm:w-auto w-full" disabled={true}>
+              <Link2 className="mr-2 h-4 w-4" />
+              Add Link
+            </Button>
+          </div>
+          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   return (
-    <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
-      <div className="fixed top-4 right-4 z-50">
-        <ThemeToggle />
-      </div>
-      <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
-
-        <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
-          <Input
-            type="url"
-            placeholder="Enter Link"
-            value={newLinkUrl}
-            onChange={(e) => setNewLinkUrl(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-            className="flex-grow text-sm"
-            aria-label="Paste link URL to add"
-            disabled={isAddingLink}
-          />
-          <Button onClick={handleAddLink} className="sm:w-auto w-full" disabled={isAddingLink}>
-            <Link2 className="mr-2 h-4 w-4" />
-            {isAddingLink ? 'Adding...' : 'Add Link'}
-          </Button>
+    <DragDropContext onDragEnd={handleOnDragEnd}>
+      <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
+        <div className="fixed top-4 right-4 z-50">
+          <ThemeToggle />
         </div>
+        <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
 
-        <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
-      </main>
-      <Footer />
-    </div>
+          <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
+            <Input
+              type="url"
+              placeholder="Enter Link"
+              value={newLinkUrl}
+              onChange={(e) => setNewLinkUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
+              className="flex-grow text-sm"
+              aria-label="Paste link URL to add"
+              disabled={isAddingLink}
+            />
+            <Button onClick={handleAddLink} className="sm:w-auto w-full" disabled={isAddingLink}>
+              <Link2 className="mr-2 h-4 w-4" />
+              {isAddingLink ? 'Adding...' : 'Add Link'}
+            </Button>
+          </div>
+
+          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} />
+        </main>
+        <Footer />
+      </div>
+    </DragDropContext>
   );
 }

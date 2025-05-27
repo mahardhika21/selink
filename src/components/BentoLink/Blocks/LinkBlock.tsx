@@ -1,4 +1,3 @@
-
 "use client";
 
 import Image from 'next/image';
@@ -13,6 +12,9 @@ import type React from 'react';
 
 interface LinkBlockProps extends BlockItem {
   onDelete?: (id: string) => void;
+  innerRef?: React.Ref<HTMLDivElement>;
+  draggableProps?: Record<string, any>;
+  dragHandleProps?: Record<string, any>;
 }
 
 export default function LinkBlock({
@@ -26,6 +28,9 @@ export default function LinkBlock({
   thumbnailUrl,
   thumbnailDataAiHint,
   onDelete,
+  innerRef,
+  draggableProps,
+  dragHandleProps,
 }: LinkBlockProps) {
   const { toast } = useToast();
 
@@ -49,7 +54,14 @@ export default function LinkBlock({
   };
 
   return (
-    <BaseBlock pastelColor={pastelColor} className={cn("flex flex-col", className)} onClick={handleCardClick}>
+    <BaseBlock 
+      pastelColor={pastelColor} 
+      className={cn("flex flex-col", className)} 
+      onClick={handleCardClick}
+      innerRef={innerRef}
+      draggableProps={draggableProps}
+      dragHandleProps={dragHandleProps}
+    >
       {thumbnailUrl && (
         <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10">
           <Image
@@ -71,7 +83,7 @@ export default function LinkBlock({
         <div className="flex-shrink-0"> {/* Icon on the left */}
           {iconName && <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />}
         </div>
-
+        
         <div className="flex items-center space-x-1 ml-auto"> {/* Icons on the right */}
           {onDelete && id && (
             <button

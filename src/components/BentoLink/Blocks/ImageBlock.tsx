@@ -1,13 +1,27 @@
-"use client";
+ "use client";
 
 import Image from 'next/image';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { cn } from '@/lib/utils';
 
-interface ImageBlockProps extends BlockItem {}
+interface ImageBlockProps extends BlockItem {
+  innerRef?: React.Ref<HTMLDivElement>;
+  draggableProps?: Record<string, any>;
+  dragHandleProps?: Record<string, any>;
+}
 
-export default function ImageBlock({ imageUrl, imageAlt, pastelColor, className, linkUrl, dataAiHint }: ImageBlockProps) {
+export default function ImageBlock({ 
+  imageUrl, 
+  imageAlt, 
+  pastelColor, 
+  className, 
+  linkUrl, 
+  dataAiHint,
+  innerRef,
+  draggableProps,
+  dragHandleProps 
+}: ImageBlockProps) {
   if (!imageUrl) return null;
 
   const handleClick = () => {
@@ -30,7 +44,14 @@ export default function ImageBlock({ imageUrl, imageAlt, pastelColor, className,
   );
   
   return (
-    <BaseBlock pastelColor={pastelColor} className={cn("p-0", className)} onClick={linkUrl ? handleClick : undefined}>
+    <BaseBlock 
+      pastelColor={pastelColor} 
+      className={cn("p-0", className)} 
+      onClick={linkUrl ? handleClick : undefined}
+      innerRef={innerRef}
+      draggableProps={draggableProps}
+      dragHandleProps={dragHandleProps}
+    >
       {imageContent}
     </BaseBlock>
   );

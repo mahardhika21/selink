@@ -1,14 +1,26 @@
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { cn } from '@/lib/utils';
+import type React from 'react';
 
-interface VideoBlockProps extends BlockItem {}
+interface VideoBlockProps extends BlockItem {
+  innerRef?: React.Ref<HTMLDivElement>;
+  draggableProps?: Record<string, any>;
+  dragHandleProps?: Record<string, any>;
+}
 
-export default function VideoBlock({ videoUrl, title, pastelColor, className }: VideoBlockProps) {
+export default function VideoBlock({ 
+  videoUrl, 
+  title, 
+  pastelColor, 
+  className,
+  innerRef,
+  draggableProps,
+  dragHandleProps 
+}: VideoBlockProps) {
   if (!videoUrl) return null;
 
   let embedUrl = videoUrl;
-  // Basic check for YouTube URL to convert to embed format
   if (videoUrl.includes("youtube.com/watch?v=")) {
     const videoId = videoUrl.split("v=")[1].split("&")[0];
     embedUrl = `https://www.youtube.com/embed/${videoId}`;
@@ -16,10 +28,15 @@ export default function VideoBlock({ videoUrl, title, pastelColor, className }: 
     const videoId = videoUrl.split("youtu.be/")[1].split("?")[0];
     embedUrl = `https://www.youtube.com/embed/${videoId}`;
   }
-  // Add TikTok embed logic if needed, for now assuming direct embeddable URL or YouTube
   
   return (
-    <BaseBlock pastelColor={pastelColor} className={cn("p-0 overflow-hidden", className)}>
+    <BaseBlock 
+      pastelColor={pastelColor} 
+      className={cn("p-0 overflow-hidden", className)}
+      innerRef={innerRef}
+      draggableProps={draggableProps}
+      dragHandleProps={dragHandleProps}
+    >
       <div className="aspect-video w-full h-full">
         <iframe
           src={embedUrl}
