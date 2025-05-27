@@ -1,22 +1,22 @@
 
-"use client"; 
+"use client";
 
-import { useState, useEffect } from 'react'; 
-import type { FormEvent } from 'react'; 
+import { useState, useEffect } from 'react';
+import type { FormEvent } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import type { BlockItem } from '@/types'; 
-import { Input } from '@/components/ui/input'; 
-import { Button } from '@/components/ui/button'; 
-import { Link2 } from 'lucide-react'; 
+import type { BlockItem } from '@/types';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Link2 } from 'lucide-react';
 import { getLinkThumbnailUrl } from './actions'; // Import the server action
 
-const initialBlocksData: BlockItem[] = []; 
+const initialBlocksData: BlockItem[] = [];
 
 export default function BentoLinkPage() {
-  const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData); 
-  const [newLinkUrl, setNewLinkUrl] = useState(''); 
+  const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
+  const [newLinkUrl, setNewLinkUrl] = useState('');
   const [isAddingLink, setIsAddingLink] = useState(false);
 
   const handleAddLink = async () => {
@@ -27,7 +27,7 @@ export default function BentoLinkPage() {
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
       normalizedUrl = `https://${normalizedUrl}`;
     }
-    
+
     let title = "New Link";
     let hostname = newLinkUrl; // Fallback hostname
     try {
@@ -48,7 +48,7 @@ export default function BentoLinkPage() {
       id: crypto.randomUUID(),
       type: 'link',
       title: title,
-      content: `Visit ${hostname}`,
+      content: normalizedUrl, // Set content to the full URL
       linkUrl: normalizedUrl,
       colSpan: 1,
       thumbnailUrl: fetchedThumbnailUrl,
@@ -59,7 +59,7 @@ export default function BentoLinkPage() {
     setNewLinkUrl('');
     setIsAddingLink(false);
   };
-  
+
   // Effect to prevent hydration errors with crypto.randomUUID
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function BentoLinkPage() {
         <ThemeToggle />
       </div>
       <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
-        
+
         <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
           <Input
             type="url"
@@ -93,8 +93,8 @@ export default function BentoLinkPage() {
             {isAddingLink ? 'Adding...' : 'Add Link'}
           </Button>
         </div>
-        
-        <ContentGrid blocks={blocks} /> 
+
+        <ContentGrid blocks={blocks} />
       </main>
       <Footer />
     </div>

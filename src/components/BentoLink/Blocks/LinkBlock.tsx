@@ -1,18 +1,21 @@
+
 "use client";
 
 import Image from 'next/image';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, ClipboardCopy } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
+import { useToast } from "@/hooks/use-toast";
+import type React from 'react';
 
 interface LinkBlockProps extends BlockItem {}
 
 export default function LinkBlock({
   title,
-  content,
+  content, // This will now be the URL string
   linkUrl,
   iconName,
   pastelColor,
@@ -20,16 +23,39 @@ export default function LinkBlock({
   thumbnailUrl,
   thumbnailDataAiHint,
 }: LinkBlockProps) {
+  const { toast } = useToast();
+
   if (!linkUrl) return null;
 
-  const handleClick = () => {
+  const handleCardClick = () => {
     if (linkUrl) {
       window.open(linkUrl, '_blank');
     }
   };
-  
+
+  const handleCopyLink = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent card click when copy icon is clicked
+    if (linkUrl) {
+      navigator.clipboard.writeText(linkUrl)
+        .then(() => {
+          toast({
+            title: "Link Copied!",
+            description: "The URL has been copied to your clipboard.",
+          });
+        })
+        .catch(err => {
+          console.error("Failed to copy link: ", err);
+          toast({
+            title: "Copy Failed",
+            description: "Could not copy link to clipboard.",
+            variant: "destructive",
+          });
+        });
+    }
+  };
+
   return (
-    <BaseBlock pastelColor={pastelColor} className={cn("flex flex-col", className)} onClick={handleClick}>
+    <BaseBlock pastelColor={pastelColor} className={cn("flex flex-col", className)} onClick={handleCardClick}>
       {thumbnailUrl && (
         <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10">
           <Image
@@ -42,23 +68,36 @@ export default function LinkBlock({
           />
         </div>
       )}
-      <CardHeader 
+      <CardHeader
         className={cn(
           "flex flex-row items-center justify-between space-y-0 pb-2 px-4",
           thumbnailUrl ? "pt-4" : "pt-6 px-6" // Adjust padding based on thumbnail presence
         )}
       >
-        {iconName && <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />}
-        <ArrowUpRight className="h-5 w-5 text-muted-foreground ml-auto" />
+        <div className="flex-shrink-0"> {/* Icon on the left */}
+          {iconName && <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />}
+        </div>
+
+        <div className="flex items-center space-x-1 ml-auto"> {/* Icons on the right */}
+          <button
+            onClick={handleCopyLink}
+            aria-label="Copy link"
+            title="Copy link"
+            className="p-1 rounded-md hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          >
+            <ClipboardCopy className="h-4 w-4 text-muted-foreground" />
+          </button>
+          <ArrowUpRight className="h-5 w-5 text-muted-foreground" />
+        </div>
       </CardHeader>
-      <CardContent 
+      <CardContent
         className={cn(
           "flex-grow flex flex-col justify-end px-4",
           thumbnailUrl ? "pb-4" : "pb-6 px-6" // Adjust padding
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground">{title}</CardTitle>}
-        {content && <p className="text-xs text-card-foreground/80 line-clamp-2">{content}</p>}
+        {content && <p className="text-xs text-card-foreground/80 line-clamp-2 break-all">{content}</p>}
       </CardContent>
     </BaseBlock>
   );
