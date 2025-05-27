@@ -13,7 +13,7 @@ import type React from 'react';
 interface ContentGridProps {
   blocks: BlockItem[];
   onDeleteBlock?: (id: string) => void;
-  isDndEnabled: boolean; // New prop
+  isDndEnabled: boolean;
 }
 
 // Internal helper component to render individual blocks
@@ -32,7 +32,7 @@ const BlockRenderer = ({
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
 }) => {
-  // Guards from previous implementation
+  // Guards
   if (block == null) { 
     console.warn(`Skipping rendering of null or undefined block at index ${index}.`);
     return null;
@@ -68,7 +68,6 @@ const BlockRenderer = ({
     default:
       const typeDisplay = block && typeof block.type === 'string' ? block.type : 'unknown';
       console.warn(`Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
-      // Render a basic div if DND props are passed, otherwise nothing special needed for static render
       if (innerRef) {
         return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={blockClassName}>Unsupported block type</div>;
       }
@@ -78,12 +77,12 @@ const BlockRenderer = ({
 
 export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: ContentGridProps) {
   if (!isDndEnabled) {
-    // Render a static grid if DND is not enabled (e.g., during SSR or before client mount)
+    // Render a static grid if DND is not enabled
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
         {blocks.map((block, index) => (
           <BlockRenderer
-            key={block.id || `static-block-${index}`} // Key for static list
+            key={block.id || `static-block-${index}`}
             block={block}
             index={index}
             onDeleteBlock={onDeleteBlock}
@@ -95,7 +94,7 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
 
   // Render DND-enabled grid
   return (
-    <Droppable droppableId="contentGridBlocks">
+    <Droppable droppableId="contentGridBlocks" isDropDisabled={false}>
       {(provided) => (
         <div
           {...provided.droppableProps}
@@ -103,7 +102,6 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
           {blocks.map((block, index) => {
-            // Ensure block and block.id are valid for Draggable
             if (block == null || typeof block.id !== 'string') {
                 console.warn(`Skipping draggable block due to null or invalid id at index ${index}:`, block);
                 return null;
