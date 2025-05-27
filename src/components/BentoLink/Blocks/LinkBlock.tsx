@@ -103,7 +103,7 @@ export default function LinkBlock({
           thumbnailUrl ? "pb-4" : "pb-6 px-6" // Adjust padding
         )}
       >
-        {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground">{title}</CardTitle>}
+        {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}
         {content && <p className="text-xs text-card-foreground/80 line-clamp-1 break-all">{content}</p>}
       </CardContent>
     </BaseBlock>
