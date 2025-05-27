@@ -28,6 +28,7 @@ export default function LinkBlock({
   className,
   thumbnailUrl,
   thumbnailDataAiHint,
+  faviconUrl, // Added prop
   onDelete,
   innerRef,
   draggableProps,
@@ -44,7 +45,7 @@ export default function LinkBlock({
   };
 
   const handleDeleteClick = (event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent card click when delete icon is clicked
+    event.stopPropagation(); 
     if (onDelete && id) {
       onDelete(id);
       toast({
@@ -77,15 +78,27 @@ export default function LinkBlock({
       )}
       <CardHeader
         className={cn(
-          "flex flex-row items-center justify-between space-y-0 pb-2", // Base layout classes
-          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" // Conditional padding for X and Top
+          "flex flex-row items-center justify-between space-y-0 pb-2",
+          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6"
         )}
       >
         <div className="flex-shrink-0"> {/* Icon on the left */}
           {iconName && <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />}
         </div>
         
-        <div className="flex items-center space-x-1 ml-auto"> {/* Icons on the right */}
+        <div className="flex items-center space-x-2 ml-auto"> {/* Group for favicon and delete icon */}
+          {faviconUrl && (
+            <img
+              src={faviconUrl}
+              alt="" // Decorative, alt text provided by link title
+              width={16}
+              height={16}
+              className="rounded"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          )}
           {onDelete && id && (
             <button
               onClick={handleDeleteClick}
@@ -101,7 +114,7 @@ export default function LinkBlock({
       <CardContent
         className={cn(
           "flex-grow flex flex-col justify-end",
-          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6" // Adjust padding
+          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6"
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}

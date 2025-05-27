@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 
 export type SocialPlatform = 'twitter' | 'instagram' | 'github' | 'linkedin' | 'youtube' | 'tiktok';
@@ -29,4 +30,5 @@ export interface BlockItem {
   dataAiHint?: string; // For ImageBlock's main image
   thumbnailUrl?: string; // For LinkBlock's thumbnail
   thumbnailDataAiHint?: string; // For LinkBlock's thumbnail AI hint
+  faviconUrl?: string; // For LinkBlock's favicon
 }

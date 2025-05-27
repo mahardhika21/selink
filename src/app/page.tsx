@@ -10,7 +10,7 @@ import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link2 } from 'lucide-react';
-import { getLinkMetadata } from './actions'; // Updated import
+import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,10 +44,9 @@ export default function BentoLinkPage() {
     }
 
     try {
-      // Validate URL structure using client-side URL constructor
       new URL(normalizedUrl); 
 
-      const { thumbnailUrl: fetchedThumbnailUrl, pageTitle: fetchedPageTitle } = await getLinkMetadata(normalizedUrl);
+      const { thumbnailUrl: fetchedThumbnailUrl, pageTitle: fetchedPageTitle, faviconUrl: fetchedFaviconUrl } = await getLinkMetadata(normalizedUrl);
       const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
 
       let displayTitle = "New Link";
@@ -57,27 +56,26 @@ export default function BentoLinkPage() {
         try {
           const urlObj = new URL(normalizedUrl);
           let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
-          // Truncate long hostnames
           displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
-          if (!displayTitle) { // Fallback if hostname is empty for some reason
+          if (!displayTitle) {
              displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
           }
         } catch (e) {
-          // Fallback if URL parsing for hostname fails (though it should have been caught by the earlier new URL() validation)
           displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
         }
       }
-       if (!displayTitle) displayTitle = "Untitled Link"; // Final fallback
+       if (!displayTitle) displayTitle = "Untitled Link";
 
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
         title: displayTitle,
-        content: normalizedUrl, // URL itself as content
+        content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: isPlaceholder ? 'website thumbnail' : 'retrieved thumbnail',
+        faviconUrl: fetchedFaviconUrl,
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -191,4 +189,3 @@ export default function BentoLinkPage() {
     </DragDropContext>
   );
 }
-
