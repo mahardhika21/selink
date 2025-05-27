@@ -29,6 +29,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.cnn.com', // Added for CNN thumbnails
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
