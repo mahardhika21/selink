@@ -1,3 +1,5 @@
+"use client";
+
 import Image from 'next/image';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
@@ -5,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 interface ImageBlockProps extends BlockItem {}
 
-export default function ImageBlock({ imageUrl, imageAlt, pastelColor, className, linkUrl }: ImageBlockProps) {
+export default function ImageBlock({ imageUrl, imageAlt, pastelColor, className, linkUrl, dataAiHint }: ImageBlockProps) {
   if (!imageUrl) return null;
 
   const handleClick = () => {
@@ -22,7 +24,7 @@ export default function ImageBlock({ imageUrl, imageAlt, pastelColor, className,
           fill
           className="object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          data-ai-hint="abstract background"
+          data-ai-hint={dataAiHint || "abstract background"}
         />
       </div>
   );

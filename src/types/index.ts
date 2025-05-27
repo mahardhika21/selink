@@ -5,7 +5,7 @@ export type SocialPlatform = 'twitter' | 'instagram' | 'github' | 'linkedin' | '
 export interface SocialLink {
   platform: SocialPlatform;
   url: string;
-  icon: LucideIcon;
+  iconName?: string; // Changed from icon: LucideIcon
 }
 
 export type BlockType = 'link' | 'image' | 'video' | 'text';
@@ -21,9 +21,10 @@ export interface BlockItem {
   imageAlt?: string;
   videoUrl?: string; // YouTube or TikTok embed URL
   linkUrl?: string;
-  icon?: LucideIcon; // For LinkBlock
+  iconName?: string; // Changed from icon?: LucideIcon // For LinkBlock
   colSpan?: number; // Grid column span (e.g., 1, 2, 3)
   rowSpan?: number; // Grid row span
   pastelColor?: PastelColor;
   className?: string; // Additional classes for custom styling / grid spanning
+  dataAiHint?: string; // For image blocks
 }

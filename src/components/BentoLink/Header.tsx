@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { SocialLink } from '@/types';
 import { Button } from '@/components/ui/button';
+import IconRenderer from '@/components/IconRenderer';
 
 interface HeaderProps {
   name: string;
@@ -28,7 +29,7 @@ export default function Header({ name, bio, imageUrl, socialLinks }: HeaderProps
         {socialLinks.map((social) => (
           <Button key={social.platform} variant="ghost" size="icon" asChild>
             <Link href={social.url} target="_blank" rel="noopener noreferrer" aria-label={social.platform}>
-              <social.icon className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+              <IconRenderer iconName={social.iconName} className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
             </Link>
           </Button>
         ))}

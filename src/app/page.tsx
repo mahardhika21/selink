@@ -1,4 +1,3 @@
-import { Github, Instagram, Linkedin, Link as LinkIcon, MessageSquare, MonitorPlay, Twitter, Youtube, Image as ImageIcon, FileText } from 'lucide-react';
 import Header from '@/components/BentoLink/Header';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
@@ -10,10 +9,10 @@ const profileData = {
   bio: 'Digital Creator & Tech Enthusiast. Turning ideas into reality, one line of code at a time. Explore my world below!',
   imageUrl: 'https://placehold.co/96x96.png',
   socialLinks: [
-    { platform: 'twitter', url: 'https://twitter.com', icon: Twitter },
-    { platform: 'instagram', url: 'https://instagram.com', icon: Instagram },
-    { platform: 'github', url: 'https://github.com', icon: Github },
-    { platform: 'linkedin', url: 'https://linkedin.com', icon: Linkedin },
+    { platform: 'twitter', url: 'https://twitter.com', iconName: 'Twitter' },
+    { platform: 'instagram', url: 'https://instagram.com', iconName: 'Instagram' },
+    { platform: 'github', url: 'https://github.com', iconName: 'Github' },
+    { platform: 'linkedin', url: 'https://linkedin.com', iconName: 'Linkedin' },
   ] as SocialLink[],
 };
 
@@ -24,7 +23,7 @@ const blocksData: BlockItem[] = [
     title: 'My Portfolio',
     content: 'Check out my latest projects and case studies.',
     linkUrl: '#',
-    icon: LinkIcon,
+    iconName: 'Link',
     colSpan: 1,
     pastelColor: 'blue',
   },
@@ -53,7 +52,7 @@ const blocksData: BlockItem[] = [
     title: 'Follow me on Twitter',
     content: 'Stay updated with my thoughts and activities.',
     linkUrl: 'https://twitter.com',
-    icon: Twitter,
+    iconName: 'Twitter',
     colSpan: 1,
   },
   {
@@ -81,7 +80,7 @@ const blocksData: BlockItem[] = [
     title: 'Latest Blog Post',
     content: 'Read my insights on modern web development trends.',
     linkUrl: '#',
-    icon: MessageSquare,
+    iconName: 'MessageSquare',
     colSpan: 1,
   },
   {
@@ -90,7 +89,7 @@ const blocksData: BlockItem[] = [
     title: 'GitHub Profile',
     content: 'Explore my open-source contributions.',
     linkUrl: 'https://github.com',
-    icon: Github,
+    iconName: 'Github',
     colSpan: 1,
     pastelColor: 'lavender',
   },
@@ -98,7 +97,7 @@ const blocksData: BlockItem[] = [
     id: '9',
     type: 'link',
     title: 'Watch my Talk',
-    icon: MonitorPlay,
+    iconName: 'MonitorPlay',
     linkUrl: 'https://youtube.com',
     colSpan: 1,
   }
