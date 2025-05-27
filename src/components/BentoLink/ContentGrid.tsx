@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 
 interface ContentGridProps {
   blocks: BlockItem[];
-  onDeleteBlock?: (id: string) => void; // Added onDeleteBlock prop
+  onDeleteBlock?: (id: string) => void;
 }
 
 export default function ContentGrid({ blocks, onDeleteBlock }: ContentGridProps) {
@@ -40,14 +40,15 @@ export default function ContentGrid({ blocks, onDeleteBlock }: ContentGridProps)
           case 'link':
             return <LinkBlock key={key} {...block} className={blockClassName} onDelete={onDeleteBlock} />;
           case 'image':
-            // Assuming ImageBlock might also need onDelete in the future. For now, it doesn't.
             return <ImageBlock key={key} {...block} className={blockClassName} />;
           case 'video':
             return <VideoBlock key={key} {...block} className={blockClassName} />;
           case 'text':
             return <TextBlock key={key} {...block} className={blockClassName} />;
           default:
-            console.warn(`Encountered unknown block type: '${block.type}' for block at index ${index}. Block data:`, block);
+            // Defensive check for block.type in case block structure is unexpected
+            const typeDisplay = block && typeof block.type === 'string' ? block.type : 'unknown';
+            console.warn(`Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
             return null;
         }
       })}
