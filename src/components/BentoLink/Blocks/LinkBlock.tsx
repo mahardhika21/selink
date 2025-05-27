@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from 'next/image';
@@ -76,8 +77,8 @@ export default function LinkBlock({
       )}
       <CardHeader
         className={cn(
-          "flex flex-row items-center justify-between space-y-0 pb-2 px-4",
-          thumbnailUrl ? "pt-4" : "pt-6 px-6" // Adjust padding based on thumbnail presence
+          "flex flex-row items-center justify-between space-y-0 pb-2", // Base layout classes
+          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" // Conditional padding for X and Top
         )}
       >
         <div className="flex-shrink-0"> {/* Icon on the left */}
@@ -99,8 +100,8 @@ export default function LinkBlock({
       </CardHeader>
       <CardContent
         className={cn(
-          "flex-grow flex flex-col justify-end px-4",
-          thumbnailUrl ? "pb-4" : "pb-6 px-6" // Adjust padding
+          "flex-grow flex flex-col justify-end",
+          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6" // Adjust padding
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}
