@@ -25,7 +25,19 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    // Potential future use: Load blocks from localStorage
+    // const savedBlocks = localStorage.getItem('bentoBlocks');
+    // if (savedBlocks) {
+    //   setBlocks(JSON.parse(savedBlocks));
+    // }
   }, []);
+
+  // Potential future use: Save blocks to localStorage
+  // useEffect(() => {
+  //   if (isMounted) { // Ensure this runs only on client and after initial mount
+  //     localStorage.setItem('bentoBlocks', JSON.stringify(blocks));
+  //   }
+  // }, [blocks, isMounted]);
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) return;
@@ -53,10 +65,10 @@ export default function BentoLinkPage() {
       const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
 
       const newBlock: BlockItem = {
-        id: crypto.randomUUID(),
+        id: crypto.randomUUID(), // crypto.randomUUID is fine here as it's client-side only logic
         type: 'link',
         title: title,
-        content: normalizedUrl, // Use the URL as content
+        content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
@@ -78,16 +90,33 @@ export default function BentoLinkPage() {
   };
 
   const handleDeleteBlock = (idToDelete: string) => {
-    setBlocks(prevBlocks => prevBlocks.filter(block => block.id !== idToDelete));
+    setBlocks(prevBlocks => prevBlocks.filter(block => block && block.id !== idToDelete));
   };
 
   const handleOnDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 
+    const { source, destination } = result;
+
     setBlocks(currentBlocks => {
       const items = Array.from(currentBlocks);
-      const [reorderedItem] = items.splice(result.source.index, 1);
-      items.splice(result.destination.index, 0, reorderedItem);
+      const [reorderedItem] = items.splice(source.index, 1);
+
+      // Guard against reorderedItem being undefined, though ideally this shouldn't happen
+      // if react-beautiful-dnd provides valid source.index
+      if (reorderedItem === undefined) {
+        console.error(
+            "Drag and drop error: reorderedItem is undefined. " +
+            `Source index: ${source.index}, Destination index: ${destination.index}. ` +
+            "This could indicate an issue with react-beautiful-dnd or inconsistent block data. " +
+            "Reverting to previous block order."
+        );
+        // Returning currentBlocks (original state before this attempt) is safer
+        // than potentially introducing 'undefined' into the blocks array.
+        return currentBlocks;
+      }
+      
+      items.splice(destination.index, 0, reorderedItem);
       return items;
     });
   };
@@ -155,3 +184,4 @@ export default function BentoLinkPage() {
     </DragDropContext>
   );
 }
+
