@@ -80,14 +80,23 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
     // Render a static grid if DND is not enabled
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
-        {blocks.map((block, index) => (
-          <BlockRenderer
-            key={block.id || `static-block-${index}`}
-            block={block}
-            index={index}
-            onDeleteBlock={onDeleteBlock}
-          />
-        ))}
+        {blocks.map((block, index) => {
+          // Robust check for static grid items
+          if (!block) {
+            console.warn(`ContentGrid (static): Skipping rendering of null/undefined block at index ${index}.`);
+            return null;
+          }
+          const key = (typeof block.id === 'string' && block.id.trim()) ? block.id : `static-block-${index}`;
+          
+          return (
+            <BlockRenderer
+              key={key}
+              block={block} // block is confirmed non-null here
+              index={index}
+              onDeleteBlock={onDeleteBlock}
+            />
+          );
+        })}
       </div>
     );
   }
@@ -102,8 +111,8 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
           {blocks.map((block, index) => {
-            if (block == null || typeof block.id !== 'string') {
-                console.warn(`Skipping draggable block due to null or invalid id at index ${index}:`, block);
+            if (block == null || typeof block.id !== 'string' || !block.id.trim()) {
+                console.warn(`ContentGrid (DND): Skipping draggable block due to null or invalid id at index ${index}:`, block);
                 return null;
             }
             return (
