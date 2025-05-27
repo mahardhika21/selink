@@ -43,7 +43,7 @@ export default function BentoLinkPage() {
       title: title,
       content: `Visit ${hostname}`,
       linkUrl: newLinkUrl.startsWith('http') ? newLinkUrl : `https://${newLinkUrl}`,
-      iconName: 'Link',
+      // iconName: 'Link', // <-- Removed default Link icon
       colSpan: 1,
     };
 
