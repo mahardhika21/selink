@@ -68,7 +68,7 @@ export default function BentoLinkPage() {
         id: crypto.randomUUID(), // crypto.randomUUID is fine here as it's client-side only logic
         type: 'link',
         title: title,
-        content: normalizedUrl,
+        content: normalizedUrl, // Display the full URL as content
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
@@ -102,8 +102,7 @@ export default function BentoLinkPage() {
       const items = Array.from(currentBlocks);
       const [reorderedItem] = items.splice(source.index, 1);
 
-      // Guard against reorderedItem being undefined, though ideally this shouldn't happen
-      // if react-beautiful-dnd provides valid source.index
+      // Guard against reorderedItem being undefined
       if (reorderedItem === undefined) {
         console.error(
             "Drag and drop error: reorderedItem is undefined. " +
@@ -111,8 +110,6 @@ export default function BentoLinkPage() {
             "This could indicate an issue with react-beautiful-dnd or inconsistent block data. " +
             "Reverting to previous block order."
         );
-        // Returning currentBlocks (original state before this attempt) is safer
-        // than potentially introducing 'undefined' into the blocks array.
         return currentBlocks;
       }
       
@@ -140,8 +137,8 @@ export default function BentoLinkPage() {
               aria-label="Paste link URL to add"
               disabled={true}
             />
-            <Button className="sm:w-auto w-full" disabled={true}>
-              <Link2 className="mr-2 h-4 w-4" />
+            <Button className="sm:w-auto w-full gap-1" disabled={true}>
+              <Link2 className="h-4 w-4" />
               Add Link
             </Button>
           </div>
@@ -171,8 +168,8 @@ export default function BentoLinkPage() {
               aria-label="Paste link URL to add"
               disabled={isAddingLink}
             />
-            <Button onClick={handleAddLink} className="sm:w-auto w-full" disabled={isAddingLink}>
-              <Link2 className="mr-2 h-4 w-4" />
+            <Button onClick={handleAddLink} className="sm:w-auto w-full gap-1" disabled={isAddingLink}>
+              <Link2 className="h-4 w-4" />
               {isAddingLink ? 'Adding...' : 'Add Link'}
             </Button>
           </div>
