@@ -64,6 +64,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.prod.website-files.com', // Added for website-files.com
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'animateai.pro', // Added for animateai.pro
+        port: '',
+        pathname: '/**',
       }
     ],
   },
