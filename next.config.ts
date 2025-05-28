@@ -112,6 +112,12 @@ const nextConfig: NextConfig = {
         hostname: 'preview-kly.akamaized.net', // Added for preview-kly.akamaized.net images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn1-production-images-kly.akamaized.net', // Added for cdn1-production-images-kly.akamaized.net images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
