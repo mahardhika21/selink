@@ -82,6 +82,12 @@ const nextConfig: NextConfig = {
         hostname: 'pebblely.com', // Added for pebblely.com
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'yastatic.net', // Added for yastatic.net
+        port: '',
+        pathname: '/**',
       }
     ],
   },
