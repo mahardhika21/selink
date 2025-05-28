@@ -94,6 +94,12 @@ const nextConfig: NextConfig = {
         hostname: 'v0chat.vercel.sh', // Added for v0chat.vercel.sh
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's.pinimg.com', // Added for Pinterest images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
