@@ -100,6 +100,12 @@ const nextConfig: NextConfig = {
         hostname: 's.pinimg.com', // Added for Pinterest images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's2.coinmarketcap.com', // Added for CoinMarketCap images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
