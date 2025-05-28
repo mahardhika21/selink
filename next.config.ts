@@ -47,6 +47,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn0-production-images-kly.akamaized.net', // Added for KLY Akamai images
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
