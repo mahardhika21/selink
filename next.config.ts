@@ -41,6 +41,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'awsimages.detik.net.id', // Added for Detik AWS images
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
