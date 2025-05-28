@@ -118,6 +118,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn1-production-images-kly.akamaized.net', // Added for cdn1-production-images-kly.akamaized.net images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sc.cnbcfm.com', // Added for cnbcfm.com images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
