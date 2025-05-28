@@ -106,6 +106,12 @@ const nextConfig: NextConfig = {
         hostname: 's2.coinmarketcap.com', // Added for CoinMarketCap images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'preview-kly.akamaized.net', // Added for preview-kly.akamaized.net images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
