@@ -88,6 +88,12 @@ const nextConfig: NextConfig = {
         hostname: 'yastatic.net', // Added for yastatic.net
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'v0chat.vercel.sh', // Added for v0chat.vercel.sh
+        port: '',
+        pathname: '/**',
       }
     ],
   },
