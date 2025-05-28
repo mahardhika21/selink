@@ -59,6 +59,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.prod.website-files.com', // Added for website-files.com
+        port: '',
+        pathname: '/**',
+      }
     ],
   },
 };
