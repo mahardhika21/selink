@@ -13,6 +13,7 @@ import { Link2 } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
+import RegisteredHostnamesDialog from '@/components/RegisteredHostnamesDialog';
 
 const initialBlocksData: BlockItem[] = [];
 
@@ -36,17 +37,32 @@ export default function BentoLinkPage() {
       });
       return;
     }
-    setIsAddingLink(true);
-
+    
     let normalizedUrl = newLinkUrl.trim();
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
       normalizedUrl = `https://${normalizedUrl}`;
     }
 
     try {
-      new URL(normalizedUrl); 
+      new URL(normalizedUrl); // Validate URL format
+    } catch (_) {
+      toast({
+        title: "Invalid Link",
+        description: "Please enter a valid URL (e.g., https://example.com).",
+        variant: "destructive",
+      });
+      return;
+    }
 
-      const { thumbnailUrl: fetchedThumbnailUrl, pageTitle: fetchedPageTitle, faviconUrl: fetchedFaviconUrl } = await getLinkMetadata(normalizedUrl);
+    setIsAddingLink(true);
+
+    try {
+      const { 
+        thumbnailUrl: fetchedThumbnailUrl, 
+        pageTitle: fetchedPageTitle, 
+        faviconUrl: fetchedFaviconUrl 
+      } = await getLinkMetadata(normalizedUrl);
+      
       const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
 
       let displayTitle = "New Link";
@@ -81,20 +97,12 @@ export default function BentoLinkPage() {
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
       setNewLinkUrl('');
     } catch (error: any) {
-      if (error instanceof TypeError && error.message.includes('Invalid URL')) {
-        toast({
-          title: "Invalid Link",
-          description: "Please enter a valid URL (e.g., https://example.com).",
-          variant: "destructive",
-        });
-      } else {
-        console.error("Failed to add link:", error);
+        console.error("Failed to add link or fetch metadata:", error);
         toast({
           title: "Error Adding Link",
-          description: "Could not add the link. Please try again.",
+          description: "Could not fetch link metadata. Please try again.",
           variant: "destructive",
         });
-      }
     } finally {
       setIsAddingLink(false);
     }
@@ -131,6 +139,7 @@ export default function BentoLinkPage() {
   if (!isMounted) {
     return (
       <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
+        <RegisteredHostnamesDialog />
         <div className="fixed top-4 right-4 z-50">
           <ThemeToggle />
         </div>
@@ -160,6 +169,7 @@ export default function BentoLinkPage() {
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
       <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
+        <RegisteredHostnamesDialog />
         <div className="fixed top-4 right-4 z-50">
           <ThemeToggle />
         </div>

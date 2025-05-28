@@ -193,3 +193,34 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   };
 }
 
+export async function getRegisteredHostnames(): Promise<string[]> {
+  // NOTE: This list is based on the next.config.ts content known at the time
+  // this feature was implemented. If next.config.ts is manually changed,
+  // this list will not update automatically.
+  const hostnames = [
+    'placehold.co',
+    'i.ytimg.com',
+    'cdn.dribbble.com',
+    'media.cnn.com',
+    'akcdn.detik.net.id',
+    'awsimages.detik.net.id',
+    'cdn0-production-images-kly.akamaized.net',
+    'ichef.bbci.co.uk',
+    'cdn.prod.website-files.com',
+    'animateai.pro',
+    'siteforge.io',
+    'pebblely.com',
+    'yastatic.net',
+    'v0chat.vercel.sh',
+    's.pinimg.com',
+    's2.coinmarketcap.com',
+    'preview-kly.akamaized.net',
+    'cdn1-production-images-kly.akamaized.net',
+    'sc.cnbcfm.com',
+    'cdn.cnnindonesia.com',
+    'www.youtube.com',
+  ];
+  // Simulate async operation if needed, though for a static list it's not strictly necessary
+  await new Promise(resolve => setTimeout(resolve, 100)); 
+  return hostnames.sort();
+}
