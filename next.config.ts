@@ -70,6 +70,12 @@ const nextConfig: NextConfig = {
         hostname: 'animateai.pro', // Added for animateai.pro
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'siteforge.io', // Added for siteforge.io
+        port: '',
+        pathname: '/**',
       }
     ],
   },
