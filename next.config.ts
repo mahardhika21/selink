@@ -124,6 +124,12 @@ const nextConfig: NextConfig = {
         hostname: 'sc.cnbcfm.com', // Added for cnbcfm.com images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.cnnindonesia.com', // Added for cnnindonesia.com images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
