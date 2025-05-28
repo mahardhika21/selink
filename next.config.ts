@@ -130,9 +130,17 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.cnnindonesia.com', // Added for cnnindonesia.com images
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.youtube.com', // Added for www.youtube.com images
+        port: '',
+        pathname: '/**',
       }
     ],
   },
 };
 
 export default nextConfig;
+
+    
