@@ -76,6 +76,12 @@ const nextConfig: NextConfig = {
         hostname: 'siteforge.io', // Added for siteforge.io
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pebblely.com', // Added for pebblely.com
+        port: '',
+        pathname: '/**',
       }
     ],
   },
