@@ -142,7 +142,13 @@ const nextConfig: NextConfig = {
         hostname: 'huggingface.co',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'github.githubassets.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };

@@ -228,6 +228,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'cdn.cnnindonesia.com',
     'www.youtube.com',
     'huggingface.co',
+    'github.githubassets.com',
   ];
   return hostnames.sort();
 }
