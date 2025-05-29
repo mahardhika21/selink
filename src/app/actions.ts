@@ -130,7 +130,10 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
   if (sortedFavicons.length > 0) {
     for (const fav of sortedFavicons) {
       try {
-        return new URL(fav.href, baseUrl).href;
+        // Ensure the href is a full URL before returning
+        const absoluteUrl = new URL(fav.href, baseUrl).href;
+        new URL(absoluteUrl); // Validate if it's a proper URL
+        return absoluteUrl;
       } catch (e) {
         // Try next potential favicon if current one is invalid
       }
@@ -174,7 +177,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     try {
       const thumbHostname = new URL(thumbnailUrl).hostname;
       if (!registeredHostnames.includes(thumbHostname)) {
-        console.warn(`Thumbnail hostname ${thumbHostname} not registered. Falling back to placeholder.`);
+        console.warn(`Thumbnail hostname ${thumbHostname} not registered in actions.ts. Falling back to placeholder.`);
         thumbnailUrl = placeholderThumbnail;
       }
     } catch (e) {
@@ -192,7 +195,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     try {
       const faviconHostname = new URL(faviconUrl).hostname;
       if (!registeredHostnames.includes(faviconHostname)) {
-        console.warn(`Favicon hostname ${faviconHostname} not registered. Clearing favicon.`);
+        console.warn(`Favicon hostname ${faviconHostname} not registered in actions.ts. Clearing favicon.`);
         faviconUrl = null;
       }
     } catch (e) {
@@ -231,8 +234,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'sc.cnbcfm.com',
     'cdn.cnnindonesia.com',
     'www.youtube.com',
-    'huggingface.co',
+    'huggingface.co', // Ensure this is present
   ];
   return hostnames.sort();
 }
-
