@@ -229,6 +229,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'cdn.oaistatic.com',
     'flathub.org',
     'spaceberry.studio',
+    'upload.wikimedia.org',
   ];
   return hostnames.sort();
 }
