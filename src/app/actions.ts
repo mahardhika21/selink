@@ -143,7 +143,7 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
 
 export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   const defaultMetadata: LinkMetadata = {
-    thumbnailUrl: null, // Changed from placeholderThumbnail
+    thumbnailUrl: null,
     pageTitle: null,
     faviconUrl: null,
   };
@@ -172,16 +172,14 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
   if (thumbnailUrl) {
     try {
-      const thumbHostname = new URL(thumbnailUrl).hostname;
-      if (!registeredHostnames.includes(thumbHostname)) {
-        console.warn(`Thumbnail hostname ${thumbHostname} not registered. Setting thumbnail to null.`);
-        thumbnailUrl = null; // Changed from placeholderThumbnail
-      }
+      // Validate if the thumbnail URL is a valid URL, but don't check against registeredHostnames here.
+      // Let Next/Image handle unconfigured hostnames.
+      new URL(thumbnailUrl);
     } catch (e) {
-      console.warn(`Invalid thumbnail URL ${thumbnailUrl}. Setting thumbnail to null.`);
-      thumbnailUrl = null; // Changed from placeholderThumbnail
+      console.warn(`Invalid thumbnail URL extracted: ${thumbnailUrl}. Setting thumbnail to null.`);
+      thumbnailUrl = null;
     }
-  } // If extractPreviewImageUrl returns null, thumbnailUrl is already null.
+  }
 
   const pageTitle = extractPageTitle(html);
 
@@ -208,7 +206,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
 export async function getRegisteredHostnames(): Promise<string[]> {
   const hostnames = [
-    'placehold.co', // Keep for now, as it's in next.config, though we aim not to use it.
+    'placehold.co', 
     'i.ytimg.com',
     'cdn.dribbble.com',
     'media.cnn.com',
