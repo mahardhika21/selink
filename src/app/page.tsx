@@ -44,7 +44,7 @@ export default function BentoLinkPage() {
     }
 
     try {
-      new URL(normalizedUrl); // Validate URL format
+      new URL(normalizedUrl); 
     } catch (_) {
       toast({
         title: "Invalid Link",
@@ -63,8 +63,6 @@ export default function BentoLinkPage() {
         faviconUrl: fetchedFaviconUrl 
       } = await getLinkMetadata(normalizedUrl);
       
-      const isPlaceholder = fetchedThumbnailUrl.includes('placehold.co');
-
       let displayTitle = "New Link";
       if (fetchedPageTitle && fetchedPageTitle.trim()) {
         displayTitle = fetchedPageTitle.trim();
@@ -90,7 +88,7 @@ export default function BentoLinkPage() {
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
-        thumbnailDataAiHint: isPlaceholder ? 'website thumbnail' : 'retrieved thumbnail',
+        thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
       };
 
@@ -199,3 +197,4 @@ export default function BentoLinkPage() {
     </DragDropContext>
   );
 }
+

@@ -1,10 +1,8 @@
 
 'use server';
 
-const placeholderThumbnail = 'https://placehold.co/300x150.png';
-
 interface LinkMetadata {
-  thumbnailUrl: string;
+  thumbnailUrl: string | null;
   pageTitle: string | null;
   faviconUrl: string | null;
 }
@@ -130,9 +128,8 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
   if (sortedFavicons.length > 0) {
     for (const fav of sortedFavicons) {
       try {
-        // Ensure the href is a full URL before returning
         const absoluteUrl = new URL(fav.href, baseUrl).href;
-        new URL(absoluteUrl); // Validate if it's a proper URL
+        new URL(absoluteUrl); 
         return absoluteUrl;
       } catch (e) {
         // Try next potential favicon if current one is invalid
@@ -146,7 +143,7 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
 
 export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   const defaultMetadata: LinkMetadata = {
-    thumbnailUrl: placeholderThumbnail,
+    thumbnailUrl: null, // Changed from placeholderThumbnail
     pageTitle: null,
     faviconUrl: null,
   };
@@ -172,30 +169,28 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
   const registeredHostnames = await getRegisteredHostnames();
 
-  let thumbnailUrl = extractPreviewImageUrl(html, normalizedUrl);
+  let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
   if (thumbnailUrl) {
     try {
       const thumbHostname = new URL(thumbnailUrl).hostname;
       if (!registeredHostnames.includes(thumbHostname)) {
-        console.warn(`Thumbnail hostname ${thumbHostname} not registered in actions.ts. Falling back to placeholder.`);
-        thumbnailUrl = placeholderThumbnail;
+        console.warn(`Thumbnail hostname ${thumbHostname} not registered. Setting thumbnail to null.`);
+        thumbnailUrl = null; // Changed from placeholderThumbnail
       }
     } catch (e) {
-      console.warn(`Invalid thumbnail URL ${thumbnailUrl}. Falling back to placeholder.`);
-      thumbnailUrl = placeholderThumbnail;
+      console.warn(`Invalid thumbnail URL ${thumbnailUrl}. Setting thumbnail to null.`);
+      thumbnailUrl = null; // Changed from placeholderThumbnail
     }
-  } else {
-    thumbnailUrl = placeholderThumbnail;
-  }
+  } // If extractPreviewImageUrl returns null, thumbnailUrl is already null.
 
   const pageTitle = extractPageTitle(html);
 
-  let faviconUrl = extractFaviconUrl(html, normalizedUrl);
+  let faviconUrl: string | null = extractFaviconUrl(html, normalizedUrl);
   if (faviconUrl) {
     try {
       const faviconHostname = new URL(faviconUrl).hostname;
       if (!registeredHostnames.includes(faviconHostname)) {
-        console.warn(`Favicon hostname ${faviconHostname} not registered in actions.ts. Clearing favicon.`);
+        console.warn(`Favicon hostname ${faviconHostname} not registered. Clearing favicon.`);
         faviconUrl = null;
       }
     } catch (e) {
@@ -213,7 +208,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
 export async function getRegisteredHostnames(): Promise<string[]> {
   const hostnames = [
-    'placehold.co',
+    'placehold.co', // Keep for now, as it's in next.config, though we aim not to use it.
     'i.ytimg.com',
     'cdn.dribbble.com',
     'media.cnn.com',
@@ -234,7 +229,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'sc.cnbcfm.com',
     'cdn.cnnindonesia.com',
     'www.youtube.com',
-    'huggingface.co', // Ensure this is present
+    'huggingface.co',
   ];
   return hostnames.sort();
 }
