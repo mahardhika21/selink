@@ -235,3 +235,4 @@ export async function getRegisteredHostnames(): Promise<string[]> {
   ];
   return hostnames.sort();
 }
+
