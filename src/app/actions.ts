@@ -16,7 +16,6 @@ async function getHtml(url: string): Promise<string | null> {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'text/html',
       },
-      // Consider adding a timeout if not present, e.g., AbortSignal.timeout(8000)
     });
     if (!response.ok) {
       console.error(`Failed to fetch URL: ${url}, status: ${response.status}`);
@@ -60,9 +59,8 @@ function extractPreviewImageUrl(html: string, baseUrl: string): string | null {
 
   if (imageUrl) {
     try {
-      // Handles both absolute URLs and relative URLs starting with /
       const absoluteUrl = new URL(imageUrl, baseUrl).href;
-      new URL(absoluteUrl); // Validate if it's a proper URL after resolution
+      new URL(absoluteUrl); 
       return absoluteUrl;
     } catch (e) {
       console.warn(`Invalid or unresolvable preview image URL found: ${imageUrl} with base ${baseUrl}`);
@@ -116,14 +114,13 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
     }
   }
   
-  // Prioritize favicons: svg > png > specific sizes > other icon > shortcut icon > apple-touch-icon
   const sortedFavicons = potentialFavicons.sort((a, b) => {
     const priority = (pf: { rel: string; type?: string; sizes?: string }) => {
       if (pf.rel === 'icon' && pf.type === 'image/svg+xml') return 1;
       if (pf.rel === 'icon' && pf.type === 'image/png' && pf.sizes && (pf.sizes.includes('32x32') || pf.sizes.includes('64x64'))) return 2;
       if (pf.rel === 'icon' && pf.type === 'image/png') return 3;
-      if (pf.rel === 'icon') return 4; // other icon types
-      if (pf.rel === 'shortcut icon') return 5; // Often .ico
+      if (pf.rel === 'icon') return 4; 
+      if (pf.rel === 'shortcut icon') return 5; 
       if (pf.rel === 'apple-touch-icon') return 6;
       return 7;
     };
@@ -131,18 +128,14 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
   });
 
   if (sortedFavicons.length > 0) {
-    try {
-      return new URL(sortedFavicons[0].href, baseUrl).href;
-    } catch (e) {
-      for (let i = 1; i < sortedFavicons.length; i++) {
-        try {
-          return new URL(sortedFavicons[i].href, baseUrl).href;
-        } catch (e2) {
-          // continue
-        }
+    for (const fav of sortedFavicons) {
+      try {
+        return new URL(fav.href, baseUrl).href;
+      } catch (e) {
+        // Try next potential favicon if current one is invalid
       }
-      console.warn(`All potential favicon hrefs were invalid or unresolvable for base ${baseUrl}`);
     }
+    console.warn(`All potential favicon hrefs were invalid or unresolvable for base ${baseUrl}`);
   }
   return null;
 }
@@ -163,7 +156,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   }
   
   try {
-      new URL(normalizedUrl); // Validate normalized URL
+      new URL(normalizedUrl); 
   } catch (e) {
       console.warn(`Invalid URL provided to getLinkMetadata after normalization: ${url}`);
       return defaultMetadata;
@@ -208,7 +201,6 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     }
   }
 
-
   return {
     thumbnailUrl: thumbnailUrl,
     pageTitle: pageTitle,
@@ -239,10 +231,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'sc.cnbcfm.com',
     'cdn.cnnindonesia.com',
     'www.youtube.com',
-    'huggingface.co', // Ensure this is present
+    'huggingface.co',
   ];
-  // Simulate async operation if needed, though for a static list it's not strictly necessary
-  // await new Promise(resolve => setTimeout(resolve, 10)); 
   return hostnames.sort();
 }
-
