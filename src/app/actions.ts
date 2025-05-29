@@ -227,6 +227,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'huggingface.co',
     'github.githubassets.com',
     'cdn.oaistatic.com',
+    'flathub.org',
   ];
   return hostnames.sort();
 }
