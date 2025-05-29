@@ -16,7 +16,7 @@ async function getHtml(url: string): Promise<string | null> {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
         'Accept': 'text/html',
       },
-      // signal: AbortSignal.timeout(8000), // Timeout after 8 seconds
+      // Consider adding a timeout if not present, e.g., AbortSignal.timeout(8000)
     });
     if (!response.ok) {
       console.error(`Failed to fetch URL: ${url}, status: ${response.status}`);
@@ -59,20 +59,13 @@ function extractPreviewImageUrl(html: string, baseUrl: string): string | null {
   let imageUrl = ogImage || twitterImage; // Prioritize og:image
 
   if (imageUrl) {
-    if (imageUrl.startsWith('/')) {
-      try {
-        const urlObj = new URL(baseUrl);
-        imageUrl = `${urlObj.origin}${imageUrl}`;
-      } catch (e) {
-         console.warn(`Invalid base URL for relative preview image: ${baseUrl}`);
-         return null;
-      }
-    }
     try {
-      new URL(imageUrl); // Validate if it's a proper URL
-      return imageUrl;
+      // Handles both absolute URLs and relative URLs starting with /
+      const absoluteUrl = new URL(imageUrl, baseUrl).href;
+      new URL(absoluteUrl); // Validate if it's a proper URL after resolution
+      return absoluteUrl;
     } catch (e) {
-      console.warn(`Invalid preview image URL found: ${imageUrl}`);
+      console.warn(`Invalid or unresolvable preview image URL found: ${imageUrl} with base ${baseUrl}`);
       return null;
     }
   }
@@ -141,7 +134,6 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
     try {
       return new URL(sortedFavicons[0].href, baseUrl).href;
     } catch (e) {
-      // Try the next one if the first is invalid
       for (let i = 1; i < sortedFavicons.length; i++) {
         try {
           return new URL(sortedFavicons[i].href, baseUrl).href;
@@ -149,7 +141,7 @@ function extractFaviconUrl(html: string, baseUrl: string): string | null {
           // continue
         }
       }
-      console.warn(`All potential favicon hrefs were invalid for base ${baseUrl}`);
+      console.warn(`All potential favicon hrefs were invalid or unresolvable for base ${baseUrl}`);
     }
   }
   return null;
@@ -171,9 +163,9 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   }
   
   try {
-      new URL(normalizedUrl);
+      new URL(normalizedUrl); // Validate normalized URL
   } catch (e) {
-      console.warn(`Invalid URL provided to getLinkMetadata: ${url}`);
+      console.warn(`Invalid URL provided to getLinkMetadata after normalization: ${url}`);
       return defaultMetadata;
   }
 
@@ -182,21 +174,49 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     return defaultMetadata;
   }
 
-  const thumbnailUrl = extractPreviewImageUrl(html, normalizedUrl);
+  const registeredHostnames = await getRegisteredHostnames();
+
+  let thumbnailUrl = extractPreviewImageUrl(html, normalizedUrl);
+  if (thumbnailUrl) {
+    try {
+      const thumbHostname = new URL(thumbnailUrl).hostname;
+      if (!registeredHostnames.includes(thumbHostname)) {
+        console.warn(`Thumbnail hostname ${thumbHostname} not registered. Falling back to placeholder.`);
+        thumbnailUrl = placeholderThumbnail;
+      }
+    } catch (e) {
+      console.warn(`Invalid thumbnail URL ${thumbnailUrl}. Falling back to placeholder.`);
+      thumbnailUrl = placeholderThumbnail;
+    }
+  } else {
+    thumbnailUrl = placeholderThumbnail;
+  }
+
   const pageTitle = extractPageTitle(html);
-  const faviconUrl = extractFaviconUrl(html, normalizedUrl);
+
+  let faviconUrl = extractFaviconUrl(html, normalizedUrl);
+  if (faviconUrl) {
+    try {
+      const faviconHostname = new URL(faviconUrl).hostname;
+      if (!registeredHostnames.includes(faviconHostname)) {
+        console.warn(`Favicon hostname ${faviconHostname} not registered. Clearing favicon.`);
+        faviconUrl = null;
+      }
+    } catch (e) {
+      console.warn(`Invalid favicon URL ${faviconUrl}. Clearing favicon.`);
+      faviconUrl = null;
+    }
+  }
+
 
   return {
-    thumbnailUrl: thumbnailUrl || placeholderThumbnail,
+    thumbnailUrl: thumbnailUrl,
     pageTitle: pageTitle,
     faviconUrl: faviconUrl,
   };
 }
 
 export async function getRegisteredHostnames(): Promise<string[]> {
-  // NOTE: This list is based on the next.config.ts content known at the time
-  // this feature was implemented. If next.config.ts is manually changed,
-  // this list will not update automatically.
   const hostnames = [
     'placehold.co',
     'i.ytimg.com',
@@ -219,8 +239,10 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'sc.cnbcfm.com',
     'cdn.cnnindonesia.com',
     'www.youtube.com',
+    'huggingface.co', // Ensure this is present
   ];
   // Simulate async operation if needed, though for a static list it's not strictly necessary
-  await new Promise(resolve => setTimeout(resolve, 100)); 
+  // await new Promise(resolve => setTimeout(resolve, 10)); 
   return hostnames.sort();
 }
+

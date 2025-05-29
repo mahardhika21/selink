@@ -19,121 +19,127 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'i.ytimg.com', // Added for YouTube thumbnails
+        hostname: 'i.ytimg.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.dribbble.com', // Added for Dribbble thumbnails
+        hostname: 'cdn.dribbble.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'media.cnn.com', // Added for CNN thumbnails
+        hostname: 'media.cnn.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'akcdn.detik.net.id', // Added for Detik thumbnails
+        hostname: 'akcdn.detik.net.id',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'awsimages.detik.net.id', // Added for Detik AWS images
+        hostname: 'awsimages.detik.net.id',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cdn0-production-images-kly.akamaized.net', // Added for KLY Akamai images
+        hostname: 'cdn0-production-images-kly.akamaized.net',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'ichef.bbci.co.uk', // Added for BBC images
+        hostname: 'ichef.bbci.co.uk',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.prod.website-files.com', // Added for website-files.com
+        hostname: 'cdn.prod.website-files.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'animateai.pro', // Added for animateai.pro
+        hostname: 'animateai.pro',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'siteforge.io', // Added for siteforge.io
+        hostname: 'siteforge.io',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'pebblely.com', // Added for pebblely.com
+        hostname: 'pebblely.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'yastatic.net', // Added for yastatic.net
+        hostname: 'yastatic.net',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'v0chat.vercel.sh', // Added for v0chat.vercel.sh
+        hostname: 'v0chat.vercel.sh',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 's.pinimg.com', // Added for Pinterest images
+        hostname: 's.pinimg.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 's2.coinmarketcap.com', // Added for CoinMarketCap images
+        hostname: 's2.coinmarketcap.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'preview-kly.akamaized.net', // Added for preview-kly.akamaized.net images
+        hostname: 'preview-kly.akamaized.net',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cdn1-production-images-kly.akamaized.net', // Added for cdn1-production-images-kly.akamaized.net images
+        hostname: 'cdn1-production-images-kly.akamaized.net',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'sc.cnbcfm.com', // Added for cnbcfm.com images
+        hostname: 'sc.cnbcfm.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'cdn.cnnindonesia.com', // Added for cnnindonesia.com images
+        hostname: 'cdn.cnnindonesia.com',
         port: '',
         pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'www.youtube.com', // Added for www.youtube.com images
+        hostname: 'www.youtube.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'huggingface.co',
         port: '',
         pathname: '/**',
       }
