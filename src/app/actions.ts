@@ -170,7 +170,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
   if (thumbnailUrl) {
     try {
-      new URL(thumbnailUrl); // Validate if the thumbnail URL is valid. Next/image will handle unconfigured hostnames.
+      new URL(thumbnailUrl); 
     } catch (e) {
       console.warn(`Invalid thumbnail URL extracted: ${thumbnailUrl}. Setting thumbnail to null.`);
       thumbnailUrl = null; 
@@ -185,7 +185,7 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     try {
       const faviconHostname = new URL(faviconUrl).hostname;
       if (!registeredHostnames.includes(faviconHostname)) {
-        console.warn(`Favicon hostname ${faviconHostname} not registered. Clearing favicon.`);
+        console.warn(`Favicon hostname ${faviconHostname} not registered for favicon. Clearing favicon.`);
         faviconUrl = null;
       }
     } catch (e) {
@@ -228,7 +228,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'github.githubassets.com',
     'cdn.oaistatic.com',
     'flathub.org',
+    'spaceberry.studio',
   ];
   return hostnames.sort();
 }
-
