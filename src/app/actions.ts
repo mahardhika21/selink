@@ -172,8 +172,8 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
   let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
   if (thumbnailUrl) {
     try {
-      // Validate if the thumbnail URL is a valid URL, but don't check against registeredHostnames here.
-      // Let Next/Image handle unconfigured hostnames.
+      // Validate if the thumbnail URL is a valid URL.
+      // next/image will handle unconfigured hostnames, so no need to check against registeredHostnames here.
       new URL(thumbnailUrl);
     } catch (e) {
       console.warn(`Invalid thumbnail URL extracted: ${thumbnailUrl}. Setting thumbnail to null.`);
@@ -229,6 +229,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'www.youtube.com',
     'huggingface.co',
     'github.githubassets.com',
+    'cdn.oaistatic.com',
   ];
   return hostnames.sort();
 }
