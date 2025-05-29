@@ -12,7 +12,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { AlertTriangle, ImageOff, Copy } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   children: ReactNode;
@@ -58,7 +58,6 @@ class ImageErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ImageErrorBoundary caught an error:", error, errorInfo);
-    // State update is now primarily handled by getDerivedStateFromError for unconfigured hostnames
   }
 
   openModal = () => this.setState({ isModalOpen: true });
@@ -83,9 +82,6 @@ class ImageErrorBoundary extends Component<Props, State> {
           <p className="text-xs text-muted-foreground text-center">
             Image could not be loaded.
           </p>
-          {/* Optionally, display a generic error message:
-          {this.state.errorMessage && <p className="text-xs text-destructive/80 mt-1">{this.state.errorMessage}</p>} 
-          */}
         </div>
       );
     }
@@ -131,19 +127,19 @@ const UnconfiguredHostnameUI = ({
         Image from '{hostname}' not configured.
       </p>
       <Button variant="destructive" size="sm" onClick={openModal} className="text-xs h-7 px-2">
-        Details
+        Fix Error
       </Button>
       <Dialog open={isModalOpen} onOpenChange={(isOpen) => !isOpen && closeModal()}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center">
               <AlertTriangle className="w-5 h-5 mr-2 text-destructive" />
-              Unconfigured Image Source
+              Resolve Image Loading Error
             </DialogTitle>
             <DialogDescription className="pt-2">
-              The image from hostname <strong className="text-foreground">{hostname}</strong> could not be displayed because it is not yet registered in the application's image configuration.
+              The image from hostname <strong className="text-foreground">{hostname}</strong> could not be displayed because it's not yet registered in the app's image configuration.
               <br /><br />
-              To resolve this, please copy the hostname and provide it to the AI developer (me) to add to the configuration.
+              To fix this, please copy the hostname below and provide it to your AI assistant (me) to add to the configuration.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
