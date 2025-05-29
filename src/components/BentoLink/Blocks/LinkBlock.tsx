@@ -45,7 +45,7 @@ export default function LinkBlock({
   };
 
   const handleDeleteClick = (event: React.MouseEvent) => {
-    event.stopPropagation(); 
+    event.stopPropagation();
     if (onDelete && id) {
       onDelete(id);
       toast({
@@ -56,9 +56,9 @@ export default function LinkBlock({
   };
 
   return (
-    <BaseBlock 
-      pastelColor={pastelColor} 
-      className={cn("flex flex-col", className)} 
+    <BaseBlock
+      pastelColor={pastelColor}
+      className={cn("flex flex-col", className)}
       onClick={handleCardClick}
       innerRef={innerRef}
       draggableProps={draggableProps}
@@ -99,10 +99,10 @@ export default function LinkBlock({
             <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
           ) : (
             // Optional: Placeholder for consistent spacing if needed, especially if delete icon is present
-            <div className="w-4 h-4" /> 
+            <div className="w-4 h-4" />
           )}
         </div>
-        
+
         {/* Right Icon: Delete Icon */}
         <div className="flex-shrink-0">
           {onDelete && id && (
@@ -129,4 +129,3 @@ export default function LinkBlock({
     </BaseBlock>
   );
 }
-
