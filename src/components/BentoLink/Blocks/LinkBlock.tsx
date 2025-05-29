@@ -98,8 +98,8 @@ export default function LinkBlock({
           ) : iconName ? (
             <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
           ) : (
-            // Optional: Placeholder for consistent spacing if needed, otherwise an empty div is fine for flexbox
-            <div className="w-4 h-4" /> // Ensures space is reserved if delete icon is present
+            // Optional: Placeholder for consistent spacing if needed, especially if delete icon is present
+            <div className="w-4 h-4" /> 
           )}
         </div>
         
