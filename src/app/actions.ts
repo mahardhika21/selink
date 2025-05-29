@@ -167,22 +167,19 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     return defaultMetadata;
   }
 
-  const registeredHostnames = await getRegisteredHostnames();
-
   let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
   if (thumbnailUrl) {
     try {
-      // Validate if the thumbnail URL is a valid URL.
-      // next/image will handle unconfigured hostnames, so no need to check against registeredHostnames here.
-      new URL(thumbnailUrl);
+      new URL(thumbnailUrl); // Validate if the thumbnail URL is valid. Next/image will handle unconfigured hostnames.
     } catch (e) {
       console.warn(`Invalid thumbnail URL extracted: ${thumbnailUrl}. Setting thumbnail to null.`);
-      thumbnailUrl = null;
+      thumbnailUrl = null; 
     }
   }
 
   const pageTitle = extractPageTitle(html);
-
+  
+  const registeredHostnames = await getRegisteredHostnames();
   let faviconUrl: string | null = extractFaviconUrl(html, normalizedUrl);
   if (faviconUrl) {
     try {
@@ -233,3 +230,4 @@ export async function getRegisteredHostnames(): Promise<string[]> {
   ];
   return hostnames.sort();
 }
+

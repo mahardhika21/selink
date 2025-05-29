@@ -2,7 +2,7 @@
 "use client";
 
 import Image from 'next/image';
-import { Trash2 } from 'lucide-react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
 import { useToast } from "@/hooks/use-toast";
 import type React from 'react';
+import ImageErrorBoundary from '@/components/ImageErrorBoundary';
+
 
 interface LinkBlockProps extends BlockItem {
   onDelete?: (id: string) => void;
@@ -65,16 +67,18 @@ export default function LinkBlock({
       dragHandleProps={dragHandleProps}
     >
       {thumbnailUrl && (
-        <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10">
-          <Image
-            src={thumbnailUrl}
-            alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            data-ai-hint={thumbnailDataAiHint || "website thumbnail"}
-          />
-        </div>
+        <ImageErrorBoundary>
+          <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10">
+            <Image
+              src={thumbnailUrl}
+              alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              data-ai-hint={thumbnailDataAiHint || "website thumbnail"}
+            />
+          </div>
+        </ImageErrorBoundary>
       )}
       <CardHeader
         className={cn(
@@ -82,12 +86,11 @@ export default function LinkBlock({
           thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6"
         )}
       >
-        {/* Left Icon: Favicon or fallback iconName */}
         <div className="flex-shrink-0">
           {faviconUrl ? (
             <img
               src={faviconUrl}
-              alt="" // Decorative, alt text provided by link title
+              alt="" 
               width={16}
               height={16}
               className="rounded"
@@ -98,12 +101,10 @@ export default function LinkBlock({
           ) : iconName ? (
             <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
           ) : (
-            // Optional: Placeholder for consistent spacing if needed, especially if delete icon is present
-            <div className="w-4 h-4" />
+            <div className="w-4 h-4" /> 
           )}
         </div>
 
-        {/* Right Icon: Delete Icon */}
         <div className="flex-shrink-0">
           {onDelete && id && (
             <button
