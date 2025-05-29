@@ -231,6 +231,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'spaceberry.studio',
     'upload.wikimedia.org',
     'img.alicdn.com',
+    'cdn.usegalileo.ai',
   ];
   return hostnames.sort();
 }

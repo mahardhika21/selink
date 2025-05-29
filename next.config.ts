@@ -178,6 +178,12 @@ const nextConfig: NextConfig = {
         hostname: 'img.alicdn.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.usegalileo.ai',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
