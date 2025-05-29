@@ -230,6 +230,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'flathub.org',
     'spaceberry.studio',
     'upload.wikimedia.org',
+    'img.alicdn.com',
   ];
   return hostnames.sort();
 }
