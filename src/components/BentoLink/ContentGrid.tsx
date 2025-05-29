@@ -33,13 +33,13 @@ const BlockRenderer = ({
   dragHandleProps?: Record<string, any>;
 }) => {
   // Guards
-  if (block == null) { 
+  if (block == null) { // Checks for both null and undefined
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of null or undefined block at index ${index}.`);
     // Provide a valid DOM element for react-beautiful-dnd if innerRef is expected
     if (innerRef) {
-      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null)</div>;
+      return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null/undefined)</div>;
     }
-    return null; // For static grid or if no innerRef needed for a null block
+    return null;
   }
   if (typeof block.type !== 'string' || !block.type.trim()) {
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of block with invalid or missing type at index ${index}:`, block);
@@ -47,7 +47,8 @@ const BlockRenderer = ({
       // Provide a valid DOM element for react-beautiful-dnd even if the block is invalid
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (type)</div>;
     }
-    return <div className="hidden">Invalid block data (type)</div>;
+    // For static grid or if no innerRef needed for an invalid block
+    return <div className={cn(block.className, "hidden")}>Invalid block data (type)</div>;
   }
 
   const blockClassName = cn(
@@ -76,33 +77,37 @@ const BlockRenderer = ({
     default:
       // This const should be safe due to the guards above.
       // If block were null, first guard would hit. If block.type invalid, second guard would hit.
-      const typeDisplay = block.type; 
+      const typeDisplay = block.type;
       console.warn(`ContentGrid (BlockRenderer): Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
       if (innerRef) {
-        return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={blockClassName}>Unsupported block type</div>;
+        return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={blockClassName}>Unsupported block type: {typeDisplay}</div>;
       }
-      return <div className={blockClassName}>Unsupported block type</div>;
+      return <div className={blockClassName}>Unsupported block type: {typeDisplay}</div>;
   }
 };
 
 export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: ContentGridProps) {
+  if (!Array.isArray(blocks)) {
+    console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", blocks);
+    return null;
+  }
+
   if (!isDndEnabled) {
     // Render a static grid if DND is not enabled
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
         {blocks.map((block, index) => {
-          // Robust check for static grid items
-          if (!block) { // Equivalent to block == null
+          if (block == null) { // Check for null or undefined
             console.warn(`ContentGrid (static): Skipping rendering of null/undefined block at index ${index}.`);
-            return null;
+            return null; // Important to return null to avoid issues with map
           }
           // Ensure key is unique and valid even if id is missing, though id should be present for valid blocks.
-          const key = (typeof block.id === 'string' && block.id.trim()) ? block.id : `static-block-${index}`;
-          
+          const key = (block && typeof block.id === 'string' && block.id.trim()) ? block.id : `static-block-${index}`;
+
           return (
             <BlockRenderer
               key={key}
-              block={block} 
+              block={block}
               index={index}
               onDeleteBlock={onDeleteBlock}
             />
@@ -114,9 +119,9 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
 
   // Render DND-enabled grid
   return (
-    <Droppable 
-      droppableId="contentGridBlocks" 
-      isDropDisabled={false} 
+    <Droppable
+      droppableId="contentGridBlocks"
+      isDropDisabled={false}
       isCombineEnabled={false}
       ignoreContainerClipping={false}
     >
@@ -133,7 +138,7 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
                 // It's crucial to return something that doesn't break the map,
                 // or to filter out such items before mapping if DND library is sensitive.
                 // Returning null here is standard for React conditional rendering.
-                return null; 
+                return null;
             }
             return (
               <Draggable key={block.id} draggableId={block.id} index={index}>
@@ -156,3 +161,5 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
     </Droppable>
   );
 }
+
+    
