@@ -36,21 +36,29 @@ class ImageErrorBoundary extends Component<Props, State> {
     };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    // Check if the error is due to an unconfigured hostname
+    const hostnameMatch = error.message.match(/hostname "([^"]+)" is not configured/);
+    if (hostnameMatch && hostnameMatch[1]) {
+      return {
+        hasError: true,
+        errorMessage: error.message,
+        unconfiguredHostname: hostnameMatch[1],
+        isModalOpen: false, // Ensure modal is closed initially
+      };
+    }
+    // For other types of errors
     return {
       hasError: true,
       errorMessage: error.message,
-      unconfiguredHostname: null, // Will be set in componentDidCatch
+      unconfiguredHostname: null,
       isModalOpen: false,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ImageErrorBoundary caught an error:", error, errorInfo);
-    const hostnameMatch = error.message.match(/hostname "([^"]+)" is not configured/);
-    if (hostnameMatch && hostnameMatch[1]) {
-      this.setState({ unconfiguredHostname: hostnameMatch[1] });
-    }
+    // State update is now primarily handled by getDerivedStateFromError for unconfigured hostnames
   }
 
   openModal = () => this.setState({ isModalOpen: true });
@@ -75,6 +83,9 @@ class ImageErrorBoundary extends Component<Props, State> {
           <p className="text-xs text-muted-foreground text-center">
             Image could not be loaded.
           </p>
+          {/* Optionally, display a generic error message:
+          {this.state.errorMessage && <p className="text-xs text-destructive/80 mt-1">{this.state.errorMessage}</p>} 
+          */}
         </div>
       );
     }
@@ -132,7 +143,7 @@ const UnconfiguredHostnameUI = ({
             <DialogDescription className="pt-2">
               The image from hostname <strong className="text-foreground">{hostname}</strong> could not be displayed because it is not yet registered in the application's image configuration.
               <br /><br />
-              To resolve this, please copy the hostname and provide it to the AI developer to add to the configuration.
+              To resolve this, please copy the hostname and provide it to the AI developer (me) to add to the configuration.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
