@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import type { FormEvent } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, MoreVertical } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -24,14 +24,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
@@ -42,9 +34,11 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 
 const initialBlocksData: BlockItem[] = [];
+const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
@@ -55,6 +49,7 @@ export default function BentoLinkPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null); // null for "All Links"
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDeleteId, setCategoryToDeleteId] = useState<string | null>(null);
@@ -62,7 +57,6 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // No default categories
   }, []);
 
   const handleAddCategory = () => {
@@ -95,12 +89,14 @@ export default function BentoLinkPage() {
   const handleConfirmDeleteCategory = () => {
     if (categoryToDeleteId) {
       setCategories(prevCategories => prevCategories.filter(cat => cat.id !== categoryToDeleteId));
-      // Also update blocks to remove categoryId if a block was in this category
-      setBlocks(prevBlocks => 
-        prevBlocks.map(block => 
+      setBlocks(prevBlocks =>
+        prevBlocks.map(block =>
           block.categoryId === categoryToDeleteId ? { ...block, categoryId: null } : block
         )
       );
+      if (selectedCategoryId === categoryToDeleteId) {
+        setSelectedCategoryId(null); // Reset to "All Links" if the active category is deleted
+      }
       toast({
         title: "Category Deleted",
         description: `Category "${categoryToDeleteName}" has been deleted. Links within it are now uncategorized.`,
@@ -121,14 +117,14 @@ export default function BentoLinkPage() {
       });
       return;
     }
-    
+
     let normalizedUrl = newLinkUrl.trim();
     if (!normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
       normalizedUrl = `https://${normalizedUrl}`;
     }
 
     try {
-      new URL(normalizedUrl); 
+      new URL(normalizedUrl);
     } catch (_) {
       toast({
         title: "Invalid Link",
@@ -141,12 +137,12 @@ export default function BentoLinkPage() {
     setIsAddingLink(true);
 
     try {
-      const { 
-        thumbnailUrl: fetchedThumbnailUrl, 
-        pageTitle: fetchedPageTitle, 
-        faviconUrl: fetchedFaviconUrl 
+      const {
+        thumbnailUrl: fetchedThumbnailUrl,
+        pageTitle: fetchedPageTitle,
+        faviconUrl: fetchedFaviconUrl
       } = await getLinkMetadata(normalizedUrl);
-      
+
       let displayTitle = "New Link";
       if (fetchedPageTitle && fetchedPageTitle.trim()) {
         displayTitle = fetchedPageTitle.trim();
@@ -174,7 +170,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null, 
+        categoryId: null,
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -213,12 +209,12 @@ export default function BentoLinkPage() {
         );
         return currentBlocks;
       }
-      
+
       items.splice(destination.index, 0, reorderedItem);
       return items;
     });
   };
-  
+
   const handleAssignCategoryToBlock = (blockId: string, categoryId: string | null) => {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
@@ -235,6 +231,17 @@ export default function BentoLinkPage() {
     }
   };
 
+  const filteredBlocks = useMemo(() => {
+    if (selectedCategoryId === null) { // "All Links"
+      return blocks;
+    }
+    if (selectedCategoryId === UNCATEGORIZED_ID) {
+      return blocks.filter(block => !block.categoryId);
+    }
+    return blocks.filter(block => block.categoryId === selectedCategoryId);
+  }, [blocks, selectedCategoryId]);
+
+
   return (
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -245,7 +252,7 @@ export default function BentoLinkPage() {
             </SidebarHeader>
             <SidebarContent className="p-2 space-y-2">
                <div className="space-y-2 p-2">
-                <Input 
+                <Input
                   placeholder="New Category"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
@@ -258,17 +265,41 @@ export default function BentoLinkPage() {
                 </Button>
               </div>
               <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => setSelectedCategoryId(null)}
+                    isActive={selectedCategoryId === null}
+                    className="w-full justify-start"
+                    tooltip="Show all links"
+                  >
+                    <Columns className="h-4 w-4" /> All Links
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => setSelectedCategoryId(UNCATEGORIZED_ID)}
+                    isActive={selectedCategoryId === UNCATEGORIZED_ID}
+                    className="w-full justify-start"
+                    tooltip="Show uncategorized links"
+                  >
+                    <ListFilter className="h-4 w-4" /> Uncategorized
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {categories.length > 0 && <SidebarSeparator className="my-2" />}
+
                 {categories.length === 0 && (
-                  <SidebarMenuItem className="text-muted-foreground text-xs px-3 py-2">
+                  <SidebarMenuItem className="text-muted-foreground text-xs px-3 py-2 text-center">
                     No categories yet.
                   </SidebarMenuItem>
                 )}
                 {categories.map((category) => (
                   <SidebarMenuItem key={category.id} className="flex items-center justify-between pr-1 hover:bg-accent/50 rounded-md">
-                    <SidebarMenuButton 
-                      tooltip={category.name} 
-                      className="flex-grow justify-start h-9 text-sm hover:bg-transparent focus-visible:bg-transparent data-[active=true]:bg-transparent"
-                      // onClick={() => console.log("Selected category:", category.name)} // Placeholder action
+                    <SidebarMenuButton
+                      tooltip={category.name}
+                      onClick={() => setSelectedCategoryId(category.id)}
+                      isActive={selectedCategoryId === category.id}
+                      className="flex-grow justify-start"
                     >
                       <span className="truncate">{category.name}</span>
                     </SidebarMenuButton>
@@ -276,7 +307,7 @@ export default function BentoLinkPage() {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => openDeleteDialog(category)}
+                      onClick={(e) => { e.stopPropagation(); openDeleteDialog(category);}}
                       aria-label={`Delete category ${category.name}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -297,7 +328,6 @@ export default function BentoLinkPage() {
                 <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  {/* Removed top-level "More Options" DropdownMenu as per thought process */}
                 </div>
               </header>
 
@@ -319,9 +349,9 @@ export default function BentoLinkPage() {
                   </Button>
                 </div>
 
-                <ContentGrid 
-                  blocks={blocks} 
-                  onDeleteBlock={handleDeleteBlock} 
+                <ContentGrid
+                  blocks={filteredBlocks}
+                  onDeleteBlock={handleDeleteBlock}
                   isDndEnabled={isMounted}
                   categories={categories}
                   onAssignCategoryToBlock={handleAssignCategoryToBlock}
@@ -350,3 +380,5 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
+    
