@@ -62,7 +62,7 @@ export default function RegisteredHostnamesDialog() {
         <DialogHeader>
           <DialogTitle>Registered Image Hostnames</DialogTitle>
           <DialogDescription>
-            These are the hostnames currently configured for use with the next/image component.
+            There are {hostnames.length} hostname(s) currently configured for use with the next/image component.
           </DialogDescription>
         </DialogHeader>
 
@@ -99,3 +99,4 @@ export default function RegisteredHostnamesDialog() {
     </Dialog>
   );
 }
+
