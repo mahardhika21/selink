@@ -25,6 +25,11 @@ interface State {
   isModalOpen: boolean;
 }
 
+// This component might still be useful for other next/image instances in your app,
+// but for LinkBlock thumbnails, we are now bypassing next/image.
+// If it's ONLY used for LinkBlock thumbnails, it can be removed.
+// For now, I'm keeping it in case you use next/image elsewhere.
+
 class ImageErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -37,17 +42,15 @@ class ImageErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
-    // Check if the error is due to an unconfigured hostname
     const hostnameMatch = error.message.match(/hostname "([^"]+)" is not configured/);
     if (hostnameMatch && hostnameMatch[1]) {
       return {
         hasError: true,
         errorMessage: error.message,
         unconfiguredHostname: hostnameMatch[1],
-        isModalOpen: false, // Ensure modal is closed initially
+        isModalOpen: false,
       };
     }
-    // For other types of errors
     return {
       hasError: true,
       errorMessage: error.message,
@@ -61,7 +64,7 @@ class ImageErrorBoundary extends Component<Props, State> {
   }
 
   openModal = () => this.setState({ isModalOpen: true });
-  closeModal = () => this.setState({ isModalOpen: false, hasError: false, unconfiguredHostname: null, errorMessage: null }); // Reset error state on close
+  closeModal = () => this.setState({ isModalOpen: false, hasError: false, unconfiguredHostname: null, errorMessage: null });
 
   render() {
     if (this.state.unconfiguredHostname) {
@@ -82,6 +85,7 @@ class ImageErrorBoundary extends Component<Props, State> {
           <p className="text-xs text-muted-foreground text-center">
             Image could not be loaded.
           </p>
+          {/* <p className="text-xs text-muted-foreground/70 text-center mt-1">{this.state.errorMessage}</p> */}
         </div>
       );
     }
@@ -90,7 +94,6 @@ class ImageErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Functional component to use hooks for toast
 const UnconfiguredHostnameUI = ({
   hostname,
   isModalOpen,
@@ -124,7 +127,7 @@ const UnconfiguredHostnameUI = ({
     <div className="flex flex-col items-center justify-center w-full h-full bg-destructive/10 p-2 rounded-lg aspect-[2/1] border border-destructive/30">
       <AlertTriangle className="w-8 h-8 text-destructive mb-1" />
       <p className="text-xs text-destructive/80 text-center mb-2">
-        Image from '{hostname}' not configured.
+        Image from '{hostname}' needs config.
       </p>
       <Button variant="destructive" size="sm" onClick={openModal} className="text-xs h-7 px-2">
         Fix Error
@@ -137,9 +140,9 @@ const UnconfiguredHostnameUI = ({
               Resolve Image Loading Error
             </DialogTitle>
             <DialogDescription className="pt-2">
-              The image from hostname <strong className="text-foreground">{hostname}</strong> could not be displayed because it's not yet registered in the app's image configuration.
+              The image from hostname <strong className="text-foreground">{hostname}</strong> could not be displayed by <code>next/image</code> because it's not registered in <code>next.config.js</code>.
               <br /><br />
-              To fix this, please copy the hostname below and provide it to your AI assistant (me) to add to the configuration.
+              To fix this, please copy the hostname below and provide it to your AI assistant to add to the configuration.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">

@@ -1,7 +1,6 @@
 
 "use client";
 
-import Image from 'next/image';
 import { Trash2, AlertTriangle } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem } from '@/types';
@@ -10,8 +9,6 @@ import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
 import { useToast } from "@/hooks/use-toast";
 import type React from 'react';
-import ImageErrorBoundary from '@/components/ImageErrorBoundary';
-
 
 interface LinkBlockProps extends BlockItem {
   onDelete?: (id: string) => void;
@@ -29,7 +26,7 @@ export default function LinkBlock({
   pastelColor,
   className,
   thumbnailUrl,
-  thumbnailDataAiHint,
+  // thumbnailDataAiHint is not used if we switch to <img> tag directly with proxy
   faviconUrl,
   onDelete,
   innerRef,
@@ -57,6 +54,8 @@ export default function LinkBlock({
     }
   };
 
+  const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
+
   return (
     <BaseBlock
       pastelColor={pastelColor}
@@ -66,31 +65,31 @@ export default function LinkBlock({
       draggableProps={draggableProps}
       dragHandleProps={dragHandleProps}
     >
-      {thumbnailUrl && (
-        <ImageErrorBoundary>
-          <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10">
-            <Image
-              src={thumbnailUrl}
-              alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
-              fill
-              className="object-cover"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              data-ai-hint={thumbnailDataAiHint || "website thumbnail"}
-            />
-          </div>
-        </ImageErrorBoundary>
+      {proxiedThumbnailUrl && (
+        <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10 overflow-hidden">
+          <img
+            src={proxiedThumbnailUrl}
+            alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Optionally hide the image or show a placeholder if the proxy fails
+              (e.target as HTMLImageElement).style.display = 'none';
+              // You could also set src to a local placeholder image
+            }}
+          />
+        </div>
       )}
       <CardHeader
         className={cn(
           "flex flex-row items-center justify-between space-y-0 pb-2",
-          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6"
+          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" // Keep original padding logic based on original thumbnailUrl
         )}
       >
         <div className="flex-shrink-0">
           {faviconUrl ? (
             <img
               src={faviconUrl}
-              alt="" 
+              alt=""
               width={16}
               height={16}
               className="rounded"
@@ -101,7 +100,7 @@ export default function LinkBlock({
           ) : iconName ? (
             <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
           ) : (
-            <div className="w-4 h-4" /> 
+            <div className="w-4 h-4" />
           )}
         </div>
 
@@ -121,7 +120,7 @@ export default function LinkBlock({
       <CardContent
         className={cn(
           "flex-grow flex flex-col justify-end",
-          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6"
+          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6" // Keep original padding logic
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}
