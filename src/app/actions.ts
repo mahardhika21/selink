@@ -27,7 +27,8 @@ async function getHtml(url: string): Promise<string | null> {
 }
 
 function getAttributeValue(attributesString: string, attributeName: string): string | null {
-  const regex = new RegExp(`${attributeName}=["']([^"']+)["']`, 'i');
+  // Allows for optional spaces around the equals sign for more robust parsing
+  const regex = new RegExp(`${attributeName}\\s*=\\s*["']([^"']+)["']`, 'i');
   const match = attributesString.match(regex);
   return match ? match[1] : null;
 }
@@ -58,7 +59,7 @@ function extractPreviewImageUrl(html: string, baseUrl: string): string | null {
   if (imageUrl) {
     try {
       const absoluteUrl = new URL(imageUrl, baseUrl).href;
-      new URL(absoluteUrl); 
+      new URL(absoluteUrl); // Validate the absolute URL
       return absoluteUrl;
     } catch (e) {
       console.warn(`Invalid or unresolvable preview image URL found: ${imageUrl} with base ${baseUrl}`);
@@ -240,3 +241,4 @@ export async function getRegisteredHostnames(): Promise<string[]> {
   ];
   return hostnames.sort();
 }
+
