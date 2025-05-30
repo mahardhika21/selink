@@ -57,6 +57,10 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    // crypto.randomUUID is only available in secure contexts (HTTPS) or client-side.
+    // If this component could render server-side initially without isMounted check,
+    // this could be an issue. isMounted ensures it's client-side.
+    // For category IDs, ensure they are generated when categories are actually created.
   }, []);
 
   const handleAddCategory = () => {
@@ -124,7 +128,7 @@ export default function BentoLinkPage() {
     }
 
     try {
-      new URL(normalizedUrl);
+      new URL(normalizedUrl); // Validate URL format
     } catch (_) {
       toast({
         title: "Invalid Link",
@@ -135,7 +139,6 @@ export default function BentoLinkPage() {
     }
 
     setIsAddingLink(true);
-
     try {
       const {
         thumbnailUrl: fetchedThumbnailUrl,
@@ -150,27 +153,30 @@ export default function BentoLinkPage() {
         try {
           const urlObj = new URL(normalizedUrl);
           let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
+          // Ensure hostnameForTitle is not empty after potential www. removal (e.g. for just "www.")
+          if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname;
           displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
-          if (!displayTitle) {
+          if (!displayTitle) { // Fallback if hostname parsing somehow fails
              displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
           }
-        } catch (e) {
+        } catch (e) { // Fallback for invalid URL object creation (should be caught earlier, but defensive)
           displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
         }
       }
        if (!displayTitle) displayTitle = "Untitled Link";
 
+
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
         title: displayTitle,
-        content: normalizedUrl,
+        content: normalizedUrl, // Store the normalized URL in content for display
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null,
+        categoryId: null, // Initialize with no category
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -247,7 +253,7 @@ export default function BentoLinkPage() {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
-            <SidebarHeader className="p-4 border-b">
+            <SidebarHeader className="flex h-14 items-center border-b px-4">
               <h2 className="text-lg font-semibold text-foreground">Categories</h2>
             </SidebarHeader>
             <SidebarContent className="p-2 space-y-2">
