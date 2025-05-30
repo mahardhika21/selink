@@ -220,6 +220,12 @@ const nextConfig: NextConfig = {
         hostname: 'animejs.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'peoplesgdarchive.org',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

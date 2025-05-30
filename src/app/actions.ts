@@ -239,7 +239,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'osmo.b-cdn.net',
     'framerusercontent.com',
     'animejs.com',
+    'peoplesgdarchive.org',
   ];
   return hostnames.sort();
 }
-
