@@ -245,6 +245,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'naruto-official.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
