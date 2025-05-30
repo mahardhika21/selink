@@ -222,7 +222,7 @@ export default function BentoLinkPage() {
             <SidebarContent className="p-2 space-y-2">
                <div className="space-y-2 p-2">
                 <Input 
-                  placeholder="New Category Name"
+                  placeholder="new category"
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
