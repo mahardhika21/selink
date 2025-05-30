@@ -56,12 +56,11 @@ const SelinkLogo = () => (
     className="text-foreground" // Ensures text color is picked up by 'currentColor' if used for text
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* Simplified S-icon part */}
     <g fill="hsl(var(--primary))">
-      {/* Path for the first part of 'S' icon */}
-      <path d="M16.5 7.5C16.5 5.01472 14.4853 3 12 3H7.5C5.01472 3 3 5.01472 3 7.5V10.5C3 11.8807 4.11929 13 5.5 13H10" strokeWidth="0" />
-      {/* Path for the second part of 'S' icon, slightly offset and mirrored */}
-      <path d="M8.5 18.5C8.5 20.9853 10.5147 23 13 23H17.5C19.9853 23 22 20.9853 22 18.5V15.5C22 14.1193 20.8807 13 19.5 13H15" strokeWidth="0" />
+      {/* Path for the first part of 'S' icon - Adjusted to connect */}
+      <path d="M16.5 7.5C16.5 5.01472 14.4853 3 12 3H7.5C5.01472 3 3 5.01472 3 7.5V10.5C3 11.8807 4.11929 13 5.5 13H12.5" strokeWidth="0" />
+      {/* Path for the second part of 'S' icon - Adjusted to connect */}
+      <path d="M10 18.5C10 20.9853 12.0147 23 14.5 23H19C21.4853 23 23.5 20.9853 23.5 18.5V15.5C23.5 14.1193 22.3807 13 21 13H12.5" strokeWidth="0" />
     </g>
     {/* "Selink" text part */}
     <text x="29" y="20" fontFamily="Arial, Helvetica, sans-serif" fontSize="18" fontWeight="bold" fill="hsl(var(--foreground))">
