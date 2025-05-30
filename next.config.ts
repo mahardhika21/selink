@@ -208,6 +208,12 @@ const nextConfig: NextConfig = {
         hostname: 'osmo.b-cdn.net',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'framerusercontent.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

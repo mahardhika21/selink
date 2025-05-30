@@ -53,7 +53,7 @@ function extractPreviewImageUrl(html: string, baseUrl: string): string | null {
     }
   }
 
-  let imageUrl = ogImage || twitterImage; // Prioritize og:image
+  let imageUrl = ogImage || twitterImage;
 
   if (imageUrl) {
     try {
@@ -236,6 +236,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'i.pinimg.com',
     'd2.alternativeto.net',
     'osmo.b-cdn.net',
+    'framerusercontent.com',
   ];
   return hostnames.sort();
 }
