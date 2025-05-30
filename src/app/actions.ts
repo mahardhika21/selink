@@ -247,6 +247,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'www.apple.com',
     'avatars.githubusercontent.com',
     'assets.bibit.id',
+    'images.bareksa.com',
   ];
   return hostnames.sort();
 }
