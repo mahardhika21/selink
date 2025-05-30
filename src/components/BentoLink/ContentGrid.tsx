@@ -161,5 +161,3 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
     </Droppable>
   );
 }
-
-    
