@@ -232,6 +232,10 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'upload.wikimedia.org',
     'img.alicdn.com',
     'cdn.usegalileo.ai',
+    'www.deepl.com',
+    'i.pinimg.com',
+    'd2.alternativeto.net',
+    'osmo.b-cdn.net',
   ];
   return hostnames.sort();
 }

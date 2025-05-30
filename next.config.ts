@@ -184,6 +184,30 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.usegalileo.ai',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.deepl.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.pinimg.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'd2.alternativeto.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'osmo.b-cdn.net',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
