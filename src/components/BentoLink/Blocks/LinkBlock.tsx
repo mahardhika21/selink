@@ -1,10 +1,23 @@
 
 "use client";
 
-import { Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, MoreVertical } from 'lucide-react';
 import BaseBlock from './BaseBlock';
-import type { BlockItem } from '@/types';
+import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal
+} from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
 import { useToast } from "@/hooks/use-toast";
@@ -15,6 +28,8 @@ interface LinkBlockProps extends BlockItem {
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
+  categories: Category[];
+  onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
 }
 
 export default function LinkBlock({
@@ -26,9 +41,10 @@ export default function LinkBlock({
   pastelColor,
   className,
   thumbnailUrl,
-  // thumbnailDataAiHint is not used if we switch to <img> tag directly with proxy
   faviconUrl,
   onDelete,
+  categories,
+  onAssignCategoryToBlock,
   innerRef,
   draggableProps,
   dragHandleProps,
@@ -54,6 +70,12 @@ export default function LinkBlock({
     }
   };
 
+  const handleCategorySelect = (categoryId: string | null) => {
+    if (id) {
+      onAssignCategoryToBlock(id, categoryId);
+    }
+  };
+
   const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
 
   return (
@@ -72,9 +94,7 @@ export default function LinkBlock({
             alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
             className="w-full h-full object-cover"
             onError={(e) => {
-              // Optionally hide the image or show a placeholder if the proxy fails
               (e.target as HTMLImageElement).style.display = 'none';
-              // You could also set src to a local placeholder image
             }}
           />
         </div>
@@ -82,7 +102,7 @@ export default function LinkBlock({
       <CardHeader
         className={cn(
           "flex flex-row items-center justify-between space-y-0 pb-2",
-          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" // Keep original padding logic based on original thumbnailUrl
+          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" 
         )}
       >
         <div className="flex-shrink-0">
@@ -100,27 +120,51 @@ export default function LinkBlock({
           ) : iconName ? (
             <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
           ) : (
-            <div className="w-4 h-4" />
+            <div className="w-4 h-4" /> // Placeholder for alignment if no icon
           )}
         </div>
 
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 flex items-center gap-0.5">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={(e) => e.stopPropagation()}>
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">More options</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {categories.map((category) => (
+                <DropdownMenuItem key={category.id} onSelect={() => handleCategorySelect(category.id)}>
+                  {category.name}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
+                Remove from Category
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {onDelete && id && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleDeleteClick}
               aria-label="Delete link"
               title="Delete link"
-              className="p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="h-7 w-7 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
               <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive" />
-            </button>
+            </Button>
           )}
         </div>
       </CardHeader>
       <CardContent
         className={cn(
           "flex-grow flex flex-col justify-end",
-          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6" // Keep original padding logic
+          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6"
         )}
       >
         {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}

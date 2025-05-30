@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { BlockItem } from '@/types';
+import type { BlockItem, Category } from '@/types';
 import LinkBlock from './Blocks/LinkBlock';
 import ImageBlock from './Blocks/ImageBlock';
 import VideoBlock from './Blocks/VideoBlock';
@@ -14,6 +14,8 @@ interface ContentGridProps {
   blocks: BlockItem[];
   onDeleteBlock?: (id: string) => void;
   isDndEnabled: boolean;
+  categories: Category[];
+  onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
 }
 
 // Internal helper component to render individual blocks
@@ -21,36 +23,35 @@ const BlockRenderer = ({
   block,
   index,
   onDeleteBlock,
+  categories,
+  onAssignCategoryToBlock,
   innerRef,
   draggableProps,
   dragHandleProps,
 }: {
-  block: BlockItem; // Assumed to be non-null and have a valid id by the time it reaches here due to filtering in ContentGrid
+  block: BlockItem; 
   index: number;
   onDeleteBlock?: (id: string) => void;
+  categories: Category[];
+  onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
 }) => {
-  // This first guard for block == null is now more of a safeguard,
-  // as ContentGrid filters out nulls/undefined and items without valid ID.
   if (block == null) { 
     console.warn(`ContentGrid (BlockRenderer): Encountered null/undefined block at index ${index} despite filtering. This should not happen.`);
     if (innerRef) {
-      // For Draggable, we must provide an element for the ref.
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null/undefined)</div>;
     }
-    return null; // Should ideally not be reached if ContentGrid's filter works
+    return null; 
   }
 
-  // Guard for block.type
   if (typeof block.type !== 'string' || !block.type.trim()) {
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of block with invalid or missing type at index ${index}:`, block);
     const typeDisplay = typeof block.type === 'string' ? `'${block.type}'` : String(block.type);
     if (innerRef) {
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className={cn(block.className, "p-4 border border-dashed border-destructive/50 text-destructive text-xs")}>Invalid block type: {typeDisplay}</div>;
     }
-    // For static grid
     return <div className={cn(block.className, "p-4 border border-dashed border-destructive/50 text-destructive text-xs")}>Invalid block type: {typeDisplay}</div>;
   }
 
@@ -70,7 +71,12 @@ const BlockRenderer = ({
 
   switch (block.type) {
     case 'link':
-      return <LinkBlock {...commonProps} onDelete={onDeleteBlock} />;
+      return <LinkBlock 
+                {...commonProps} 
+                onDelete={onDeleteBlock} 
+                categories={categories}
+                onAssignCategoryToBlock={onAssignCategoryToBlock}
+              />;
     case 'image':
       return <ImageBlock {...commonProps} />;
     case 'video':
@@ -87,13 +93,18 @@ const BlockRenderer = ({
   }
 };
 
-export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDndEnabled }: ContentGridProps) {
+export default function ContentGrid({ 
+  blocks: initialBlocks, 
+  onDeleteBlock, 
+  isDndEnabled,
+  categories,
+  onAssignCategoryToBlock 
+}: ContentGridProps) {
   if (!Array.isArray(initialBlocks)) {
     console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", initialBlocks);
     return null;
   }
 
-  // Filter out null, undefined blocks, or blocks with missing/invalid id right at the beginning
   const validBlocks = initialBlocks.filter(block => {
     if (block == null) {
       console.warn("ContentGrid: Filtering out a null or undefined block item from the blocks prop.");
@@ -103,11 +114,6 @@ export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDn
       console.warn("ContentGrid: Filtering out a block item with missing or invalid 'id'. Block data:", block);
       return false;
     }
-    // Optionally, also check for type here if strictness is desired before passing to Draggable
-    // if (typeof block.type !== 'string' || !block.type.trim()) {
-    //   console.warn("ContentGrid: Filtering out a block item with missing or invalid 'type'. Block data:", block);
-    //   return false;
-    // }
     return true;
   });
 
@@ -117,7 +123,6 @@ export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDn
 
 
   if (!isDndEnabled) {
-    // Render a static grid if DND is not enabled
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
         {validBlocks.map((block, index) => ( 
@@ -126,13 +131,14 @@ export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDn
             block={block} 
             index={index} 
             onDeleteBlock={onDeleteBlock}
+            categories={categories}
+            onAssignCategoryToBlock={onAssignCategoryToBlock}
           />
         ))}
       </div>
     );
   }
 
-  // Render DND-enabled grid
   return (
     <Droppable
       droppableId="contentGridBlocks"
@@ -153,6 +159,8 @@ export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDn
                   block={block} 
                   index={index}
                   onDeleteBlock={onDeleteBlock}
+                  categories={categories}
+                  onAssignCategoryToBlock={onAssignCategoryToBlock}
                   innerRef={providedDraggable.innerRef}
                   draggableProps={providedDraggable.draggableProps}
                   dragHandleProps={providedDraggable.dragHandleProps}
@@ -166,4 +174,3 @@ export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDn
     </Droppable>
   );
 }
-

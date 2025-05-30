@@ -6,7 +6,7 @@ import type { FormEvent } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import type { BlockItem } from '@/types';
+import type { BlockItem, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Link2, PlusCircle, Trash2, MoreVertical } from 'lucide-react';
@@ -46,11 +46,6 @@ import {
 
 const initialBlocksData: BlockItem[] = [];
 
-interface Category {
-  id: string;
-  name: string;
-}
-
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
   const [newLinkUrl, setNewLinkUrl] = useState('');
@@ -67,6 +62,7 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    // No default categories
   }, []);
 
   const handleAddCategory = () => {
@@ -99,9 +95,15 @@ export default function BentoLinkPage() {
   const handleConfirmDeleteCategory = () => {
     if (categoryToDeleteId) {
       setCategories(prevCategories => prevCategories.filter(cat => cat.id !== categoryToDeleteId));
+      // Also update blocks to remove categoryId if a block was in this category
+      setBlocks(prevBlocks => 
+        prevBlocks.map(block => 
+          block.categoryId === categoryToDeleteId ? { ...block, categoryId: null } : block
+        )
+      );
       toast({
         title: "Category Deleted",
-        description: `Category "${categoryToDeleteName}" has been deleted.`,
+        description: `Category "${categoryToDeleteName}" has been deleted. Links within it are now uncategorized.`,
       });
     }
     setIsDeleteDialogOpen(false);
@@ -172,7 +174,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null, // Initialize with no category
+        categoryId: null, 
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -216,14 +218,22 @@ export default function BentoLinkPage() {
       return items;
     });
   };
-
-  const handleOrganizeLinks = () => {
-    toast({
-      title: "Organize Links",
-      description: "This feature is coming soon!",
-    });
-  };
   
+  const handleAssignCategoryToBlock = (blockId: string, categoryId: string | null) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block =>
+        block.id === blockId ? { ...block, categoryId: categoryId } : block
+      )
+    );
+    const block = blocks.find(b => b.id === blockId);
+    const category = categories.find(c => c.id === categoryId);
+    if (block) {
+      toast({
+        title: "Link Category Updated",
+        description: `Link "${block.title}" moved to ${category ? `"${category.name}"` : 'Uncategorized'}.`,
+      });
+    }
+  };
 
   return (
     <>
@@ -287,21 +297,7 @@ export default function BentoLinkPage() {
                 <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreVertical className="h-5 w-5" />
-                        <span className="sr-only">More options</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Link Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onSelect={handleOrganizeLinks}>
-                        Organize Links...
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {/* Removed top-level "More Options" DropdownMenu as per thought process */}
                 </div>
               </header>
 
@@ -323,7 +319,13 @@ export default function BentoLinkPage() {
                   </Button>
                 </div>
 
-                <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={isMounted} />
+                <ContentGrid 
+                  blocks={blocks} 
+                  onDeleteBlock={handleDeleteBlock} 
+                  isDndEnabled={isMounted}
+                  categories={categories}
+                  onAssignCategoryToBlock={handleAssignCategoryToBlock}
+                />
               </main>
               <Footer />
             </div>
@@ -336,7 +338,7 @@ export default function BentoLinkPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure you want to delete this category?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. Deleting the category "{categoryToDeleteName}" will permanently remove it.
+              This action cannot be undone. Deleting the category "{categoryToDeleteName}" will permanently remove it. Links previously in this category will become uncategorized.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -348,4 +350,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
