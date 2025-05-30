@@ -31,4 +31,6 @@ export interface BlockItem {
   thumbnailUrl?: string; // For LinkBlock's thumbnail
   thumbnailDataAiHint?: string; // For LinkBlock's thumbnail AI hint
   faviconUrl?: string; // For LinkBlock's favicon
+  categoryId?: string | null; // To associate block with a category
 }
+

@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2 } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, MoreVertical } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -22,8 +22,15 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarProvider,
   Sidebar,
@@ -60,7 +67,6 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Categories will start empty now
   }, []);
 
   const handleAddCategory = () => {
@@ -166,6 +172,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
+        categoryId: null, // Initialize with no category
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -207,6 +214,13 @@ export default function BentoLinkPage() {
       
       items.splice(destination.index, 0, reorderedItem);
       return items;
+    });
+  };
+
+  const handleOrganizeLinks = () => {
+    toast({
+      title: "Organize Links",
+      description: "This feature is coming soon!",
     });
   };
   
@@ -271,8 +285,23 @@ export default function BentoLinkPage() {
               <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
                 <SidebarTrigger className="h-8 w-8" />
                 <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
-                <div className="ml-auto">
+                <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="h-5 w-5" />
+                        <span className="sr-only">More options</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Link Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onSelect={handleOrganizeLinks}>
+                        Organize Links...
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </header>
 
@@ -319,3 +348,4 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
