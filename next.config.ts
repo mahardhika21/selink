@@ -239,6 +239,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'lawsofux.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
