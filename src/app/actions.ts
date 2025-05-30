@@ -238,6 +238,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'd2.alternativeto.net',
     'osmo.b-cdn.net',
     'framerusercontent.com',
+    'animejs.com',
   ];
   return hostnames.sort();
 }

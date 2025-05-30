@@ -214,6 +214,12 @@ const nextConfig: NextConfig = {
         hostname: 'framerusercontent.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'animejs.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
