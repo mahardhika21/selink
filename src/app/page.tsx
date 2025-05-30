@@ -9,10 +9,21 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PanelLeft, PlusCircle } from 'lucide-react';
+import { Link2, PlusCircle, Trash2 } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   SidebarProvider,
   Sidebar,
@@ -43,6 +54,10 @@ export default function BentoLinkPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
 
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [categoryToDeleteId, setCategoryToDeleteId] = useState<string | null>(null);
+  const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
+
   useEffect(() => {
     setIsMounted(true);
     // Categories will start empty now
@@ -68,6 +83,26 @@ export default function BentoLinkPage() {
       description: `Category "${newCategory.name}" has been added.`,
     });
   };
+
+  const openDeleteDialog = (category: Category) => {
+    setCategoryToDeleteId(category.id);
+    setCategoryToDeleteName(category.name);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDeleteCategory = () => {
+    if (categoryToDeleteId) {
+      setCategories(prevCategories => prevCategories.filter(cat => cat.id !== categoryToDeleteId));
+      toast({
+        title: "Category Deleted",
+        description: `Category "${categoryToDeleteName}" has been deleted.`,
+      });
+    }
+    setIsDeleteDialogOpen(false);
+    setCategoryToDeleteId(null);
+    setCategoryToDeleteName(null);
+  };
+
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) {
@@ -177,84 +212,110 @@ export default function BentoLinkPage() {
   
 
   return (
-    <DragDropContext onDragEnd={handleOnDragEnd}>
-      <SidebarProvider defaultOpen={false}>
-        <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
-          <SidebarHeader className="p-4 border-b">
-            <h2 className="text-lg font-semibold text-foreground">Categories</h2>
-          </SidebarHeader>
-          <SidebarContent className="p-2 space-y-2">
-             <div className="space-y-2 p-2">
-              <Input 
-                placeholder="New Category Name"
-                value={newCategoryName}
-                onChange={(e) => setNewCategoryName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
-                className="h-9 text-sm"
-              />
-              <Button onClick={handleAddCategory} size="sm" className="w-full gap-1">
-                <PlusCircle className="h-4 w-4" />
-                Add Category
-              </Button>
-            </div>
-            <SidebarMenu>
-              {categories.length === 0 && (
-                <SidebarMenuItem className="text-muted-foreground text-xs px-3 py-2">
-                  No categories yet.
-                </SidebarMenuItem>
-              )}
-              {categories.map((category) => (
-                <SidebarMenuItem key={category.id}>
-                  <SidebarMenuButton 
-                    tooltip={category.name} 
-                    className="w-full justify-start h-9 text-sm"
-                    // onClick={() => console.log("Selected category:", category.name)} // Placeholder action
-                  >
-                    <span className="truncate">{category.name}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            {/* Add potential sidebar footer content here if needed */}
-          </SidebarFooter>
-        </Sidebar>
-
-        <SidebarInset>
-          <div className="flex flex-col min-h-screen bg-background text-foreground">
-            <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
-              <SidebarTrigger className="h-8 w-8" />
-              <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
-              <div className="ml-auto">
-                <ThemeToggle />
-              </div>
-            </header>
-
-            <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow">
-              <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
-                <Input
-                  type="url"
-                  placeholder="Enter Link"
-                  value={newLinkUrl}
-                  onChange={(e) => setNewLinkUrl(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-                  className="flex-grow text-sm"
-                  aria-label="Paste link URL to add"
-                  disabled={isAddingLink}
+    <>
+      <DragDropContext onDragEnd={handleOnDragEnd}>
+        <SidebarProvider defaultOpen={false}>
+          <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
+            <SidebarHeader className="p-4 border-b">
+              <h2 className="text-lg font-semibold text-foreground">Categories</h2>
+            </SidebarHeader>
+            <SidebarContent className="p-2 space-y-2">
+               <div className="space-y-2 p-2">
+                <Input 
+                  placeholder="New Category Name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
+                  className="h-9 text-sm"
                 />
-                <Button onClick={handleAddLink} className="sm:w-auto w-full gap-1" disabled={isAddingLink}>
-                  <Link2 className="h-4 w-4" />
-                  {isAddingLink ? 'Adding...' : 'Add Link'}
+                <Button onClick={handleAddCategory} size="sm" className="w-full gap-1">
+                  <PlusCircle className="h-4 w-4" />
+                  Add Category
                 </Button>
               </div>
+              <SidebarMenu>
+                {categories.length === 0 && (
+                  <SidebarMenuItem className="text-muted-foreground text-xs px-3 py-2">
+                    No categories yet.
+                  </SidebarMenuItem>
+                )}
+                {categories.map((category) => (
+                  <SidebarMenuItem key={category.id} className="flex items-center justify-between pr-1 hover:bg-accent/50 rounded-md">
+                    <SidebarMenuButton 
+                      tooltip={category.name} 
+                      className="flex-grow justify-start h-9 text-sm hover:bg-transparent focus-visible:bg-transparent data-[active=true]:bg-transparent"
+                      // onClick={() => console.log("Selected category:", category.name)} // Placeholder action
+                    >
+                      <span className="truncate">{category.name}</span>
+                    </SidebarMenuButton>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => openDeleteDialog(category)}
+                      aria-label={`Delete category ${category.name}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+              {/* Add potential sidebar footer content here if needed */}
+            </SidebarFooter>
+          </Sidebar>
 
-              <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={isMounted} />
-            </main>
-            <Footer />
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
-    </DragDropContext>
+          <SidebarInset>
+            <div className="flex flex-col min-h-screen bg-background text-foreground">
+              <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
+                <SidebarTrigger className="h-8 w-8" />
+                <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
+                <div className="ml-auto">
+                  <ThemeToggle />
+                </div>
+              </header>
+
+              <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow">
+                <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
+                  <Input
+                    type="url"
+                    placeholder="Enter Link"
+                    value={newLinkUrl}
+                    onChange={(e) => setNewLinkUrl(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
+                    className="flex-grow text-sm"
+                    aria-label="Paste link URL to add"
+                    disabled={isAddingLink}
+                  />
+                  <Button onClick={handleAddLink} className="sm:w-auto w-full gap-1" disabled={isAddingLink}>
+                    <Link2 className="h-4 w-4" />
+                    {isAddingLink ? 'Adding...' : 'Add Link'}
+                  </Button>
+                </div>
+
+                <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={isMounted} />
+              </main>
+              <Footer />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      </DragDropContext>
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to delete this category?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. Deleting the category "{categoryToDeleteName}" will permanently remove it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDeleteCategory}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
