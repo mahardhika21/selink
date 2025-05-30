@@ -226,6 +226,12 @@ const nextConfig: NextConfig = {
         hostname: 'peoplesgdarchive.org',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.notion.so',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

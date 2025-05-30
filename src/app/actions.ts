@@ -240,6 +240,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'framerusercontent.com',
     'animejs.com',
     'peoplesgdarchive.org',
+    'www.notion.so',
   ];
   return hostnames.sort();
 }
