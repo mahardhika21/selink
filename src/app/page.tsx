@@ -9,13 +9,29 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2 } from 'lucide-react';
+import { Link2, PanelLeft, PlusCircle } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
-import RegisteredHostnamesDialog from '@/components/RegisteredHostnamesDialog';
+import {
+  SidebarProvider,
+  Sidebar,
+  SidebarTrigger,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
 
 const initialBlocksData: BlockItem[] = [];
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
@@ -24,9 +40,40 @@ export default function BentoLinkPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [newCategoryName, setNewCategoryName] = useState('');
+
   useEffect(() => {
     setIsMounted(true);
+    // Load categories from localStorage or API if needed
+    // For now, we'll start with an empty list or some defaults
+    setCategories([
+      { id: '1', name: 'Work Projects' },
+      { id: '2', name: 'Social Media' },
+      { id: '3', name: 'Inspiration' },
+    ]);
   }, []);
+
+  const handleAddCategory = () => {
+    if (!newCategoryName.trim()) {
+      toast({
+        title: "Empty Category Name",
+        description: "Please enter a name for the category.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const newCategory: Category = {
+      id: crypto.randomUUID(),
+      name: newCategoryName.trim(),
+    };
+    setCategories(prevCategories => [...prevCategories, newCategory]);
+    setNewCategoryName('');
+    toast({
+      title: "Category Added",
+      description: `Category "${newCategory.name}" has been added.`,
+    });
+  };
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) {
@@ -98,7 +145,7 @@ export default function BentoLinkPage() {
         console.error("Failed to add link or fetch metadata:", error);
         toast({
           title: "Error Adding Link",
-          description: "Could not fetch link metadata. Please try again.",
+          description: error.message || "Could not fetch link metadata. Please try again.",
           variant: "destructive",
         });
     } finally {
@@ -115,7 +162,7 @@ export default function BentoLinkPage() {
 
     const { source, destination } = result;
 
-    setBlocks(currentBlocks => {
+     setBlocks(currentBlocks => {
       const items = Array.from(currentBlocks);
       const [reorderedItem] = items.splice(source.index, 1);
 
@@ -133,68 +180,87 @@ export default function BentoLinkPage() {
       return items;
     });
   };
-
-  if (!isMounted) {
-    return (
-      <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
-        <RegisteredHostnamesDialog />
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
-        <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
-          <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
-            <Input
-              type="url"
-              placeholder="Enter Link"
-              value={newLinkUrl}
-              onChange={(e) => setNewLinkUrl(e.target.value)}
-              className="flex-grow text-sm"
-              aria-label="Paste link URL to add"
-              disabled={true}
-            />
-            <Button className="sm:w-auto w-full gap-1" disabled={true}>
-              <Link2 className="h-4 w-4" />
-              Add Link
-            </Button>
-          </div>
-          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={false} />
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+  
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
-      <div className="flex flex-col min-h-screen items-center bg-background text-foreground">
-        <RegisteredHostnamesDialog />
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle />
-        </div>
-        <main className="container mx-auto px-4 py-8 md:py-16 max-w-4xl w-full animate-fadeInUp">
+      <SidebarProvider>
+        <Sidebar side="left" variant="sidebar" collapsible="icon">
+          <SidebarHeader className="p-4 border-b">
+            <h2 className="text-lg font-semibold text-foreground">Categories</h2>
+          </SidebarHeader>
+          <SidebarContent className="p-2 space-y-2">
+             <div className="space-y-2 p-2">
+              <Input 
+                placeholder="New Category Name"
+                value={newCategoryName}
+                onChange={(e) => setNewCategoryName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
+                className="h-9 text-sm"
+              />
+              <Button onClick={handleAddCategory} size="sm" className="w-full gap-1">
+                <PlusCircle className="h-4 w-4" />
+                Add Category
+              </Button>
+            </div>
+            <SidebarMenu>
+              {categories.length === 0 && (
+                <SidebarMenuItem className="text-muted-foreground text-xs px-3 py-2">
+                  No categories yet.
+                </SidebarMenuItem>
+              )}
+              {categories.map((category) => (
+                <SidebarMenuItem key={category.id}>
+                  <SidebarMenuButton 
+                    tooltip={category.name} 
+                    className="w-full justify-start h-9 text-sm"
+                    // onClick={() => console.log("Selected category:", category.name)} // Placeholder action
+                  >
+                    <span className="truncate">{category.name}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+            {/* Add potential sidebar footer content here if needed */}
+          </SidebarFooter>
+        </Sidebar>
 
-          <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
-            <Input
-              type="url"
-              placeholder="Enter Link"
-              value={newLinkUrl}
-              onChange={(e) => setNewLinkUrl(e.target.value)}
-              onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-              className="flex-grow text-sm"
-              aria-label="Paste link URL to add"
-              disabled={isAddingLink}
-            />
-            <Button onClick={handleAddLink} className="sm:w-auto w-full gap-1" disabled={isAddingLink}>
-              <Link2 className="h-4 w-4" />
-              {isAddingLink ? 'Adding...' : 'Add Link'}
-            </Button>
+        <SidebarInset>
+          <div className="flex flex-col min-h-screen bg-background text-foreground">
+            <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
+              <SidebarTrigger className="h-8 w-8" />
+              <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
+              <div className="ml-auto">
+                <ThemeToggle />
+              </div>
+            </header>
+
+            <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow">
+              <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
+                <Input
+                  type="url"
+                  placeholder="Enter Link"
+                  value={newLinkUrl}
+                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
+                  className="flex-grow text-sm"
+                  aria-label="Paste link URL to add"
+                  disabled={isAddingLink}
+                />
+                <Button onClick={handleAddLink} className="sm:w-auto w-full gap-1" disabled={isAddingLink}>
+                  <Link2 className="h-4 w-4" />
+                  {isAddingLink ? 'Adding...' : 'Add Link'}
+                </Button>
+              </div>
+
+              <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={isMounted} />
+            </main>
+            <Footer />
           </div>
-
-          <ContentGrid blocks={blocks} onDeleteBlock={handleDeleteBlock} isDndEnabled={true} />
-        </main>
-        <Footer />
-      </div>
+        </SidebarInset>
+      </SidebarProvider>
     </DragDropContext>
   );
 }
-

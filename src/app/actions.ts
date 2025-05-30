@@ -159,12 +159,13 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
       new URL(normalizedUrl); 
   } catch (e) {
       console.warn(`Invalid URL provided to getLinkMetadata after normalization: ${url}`);
-      return defaultMetadata;
+      throw new Error("The provided URL is invalid. Please enter a valid URL (e.g., https://example.com).");
   }
 
   const html = await getHtml(normalizedUrl);
   if (!html) {
-    return defaultMetadata;
+    // If HTML can't be fetched, return default metadata, perhaps with a more specific title
+    return { ...defaultMetadata, pageTitle: normalizedUrl };
   }
 
   let thumbnailUrl: string | null = extractPreviewImageUrl(html, normalizedUrl);
@@ -179,12 +180,29 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
 
   const pageTitle = extractPageTitle(html);
   
-  const registeredHostnames = await getRegisteredHostnames();
+  // This list would ideally come from next.config.js or a shared utility if it needs to be strictly enforced
+  // For favicons with <img> tag, we might not need to be as strict as next/image.
+  // However, to be consistent with the old "RegisteredHostnamesDialog", we keep a list here.
+  const registeredHostnamesForFavicon = [ 
+    'placehold.co', 'i.ytimg.com', 'cdn.dribbble.com', 'media.cnn.com', 
+    'akcdn.detik.net.id', 'awsimages.detik.net.id', 'cdn0-production-images-kly.akamaized.net', 
+    'ichef.bbci.co.uk', 'cdn.prod.website-files.com', 'animateai.pro', 'siteforge.io', 
+    'pebblely.com', 'yastatic.net', 'v0chat.vercel.sh', 's.pinimg.com', 's2.coinmarketcap.com', 
+    'preview-kly.akamaized.net', 'cdn1-production-images-kly.akamaized.net', 
+    'sc.cnbcfm.com', 'cdn.cnnindonesia.com', 'www.youtube.com', 'huggingface.co', 
+    'github.githubassets.com', 'cdn.oaistatic.com', 'flathub.org', 'spaceberry.studio', 
+    'upload.wikimedia.org', 'img.alicdn.com', 'cdn.usegalileo.ai', 'www.deepl.com', 
+    'i.pinimg.com', 'd2.alternativeto.net', 'osmo.b-cdn.net', 'framerusercontent.com', 
+    'animejs.com', 'peoplesgdarchive.org', 'www.notion.so', 'arc.net', 'lawsofux.com', 
+    'naruto-official.com', 'www.apple.com', 'avatars.githubusercontent.com', 
+    'assets.bibit.id', 'images.bareksa.com', 'code.visualstudio.com'
+  ].sort();
+
   let faviconUrl: string | null = extractFaviconUrl(html, normalizedUrl);
   if (faviconUrl) {
     try {
       const faviconHostname = new URL(faviconUrl).hostname;
-      if (!registeredHostnames.includes(faviconHostname)) {
+      if (!registeredHostnamesForFavicon.includes(faviconHostname)) {
         console.warn(`Favicon hostname ${faviconHostname} not registered for favicon. Clearing favicon.`);
         faviconUrl = null;
       }
@@ -199,55 +217,4 @@ export async function getLinkMetadata(url: string): Promise<LinkMetadata> {
     pageTitle: pageTitle,
     faviconUrl: faviconUrl,
   };
-}
-
-export async function getRegisteredHostnames(): Promise<string[]> {
-  const hostnames = [
-    'placehold.co', 
-    'i.ytimg.com',
-    'cdn.dribbble.com',
-    'media.cnn.com',
-    'akcdn.detik.net.id',
-    'awsimages.detik.net.id',
-    'cdn0-production-images-kly.akamaized.net',
-    'ichef.bbci.co.uk',
-    'cdn.prod.website-files.com',
-    'animateai.pro',
-    'siteforge.io',
-    'pebblely.com',
-    'yastatic.net',
-    'v0chat.vercel.sh',
-    's.pinimg.com',
-    's2.coinmarketcap.com',
-    'preview-kly.akamaized.net',
-    'cdn1-production-images-kly.akamaized.net',
-    'sc.cnbcfm.com',
-    'cdn.cnnindonesia.com',
-    'www.youtube.com',
-    'huggingface.co',
-    'github.githubassets.com',
-    'cdn.oaistatic.com',
-    'flathub.org',
-    'spaceberry.studio',
-    'upload.wikimedia.org',
-    'img.alicdn.com',
-    'cdn.usegalileo.ai',
-    'www.deepl.com',
-    'i.pinimg.com',
-    'd2.alternativeto.net',
-    'osmo.b-cdn.net',
-    'framerusercontent.com',
-    'animejs.com',
-    'peoplesgdarchive.org',
-    'www.notion.so',
-    'arc.net',
-    'lawsofux.com',
-    'naruto-official.com',
-    'www.apple.com',
-    'avatars.githubusercontent.com',
-    'assets.bibit.id',
-    'images.bareksa.com',
-    'code.visualstudio.com',
-  ];
-  return hostnames.sort();
 }
