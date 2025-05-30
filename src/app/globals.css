@@ -20,7 +20,7 @@ body {
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 40%; /* #666666 - Bio/Secondary Text Light */
-    --accent: 0 0% 96.1%;
+    --accent: 0 0% 96.1%; /* Used for hover states on some components, should be subtle */
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
@@ -35,6 +35,14 @@ body {
     --radius: 0.5rem;
     --body-text-light: 0 0% 20%; /* #333333 */
     --body-text-dark: 0 0% 80%; /* #CCCCCC */
+
+    /* Sidebar Theme Variables - Light Mode */
+    --sidebar-background: 0 0% 96.1%; /* #f5f5f5 - Similar to muted/secondary */
+    --sidebar-foreground: 0 0% 7.1%; /* #121212 - Same as main foreground */
+    --sidebar-border: 0 0% 87.8%;     /* #e0e0e0 - Same as main border */
+    --sidebar-accent: 220 100% 92%;    /* #d9e8ff - Light primary for active/hover background */
+    --sidebar-accent-foreground: 225 80% 45%; /* #3366FF - Primary color for active/hover text */
+    --sidebar-ring: 225 100% 60%;     /* #3366FF - Same as main ring */
   }
   .dark {
     --background: 0 0% 7.1%; /* #121212 */
@@ -49,7 +57,7 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 60%; /* #999999 - Bio/Secondary Text Dark */
-    --accent: 0 0% 14.9%;
+    --accent: 0 0% 14.9%; /* Used for hover states on some components */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -61,6 +69,14 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Sidebar Theme Variables - Dark Mode */
+    --sidebar-background: 0 0% 11.8%;  /* #1e1e1e - Similar to card background */
+    --sidebar-foreground: 0 0% 98%;    /* #fafafa - Same as main foreground */
+    --sidebar-border: 0 0% 17.3%;      /* #2c2c2c - Same as main border */
+    --sidebar-accent: 225 20% 25%;     /* #333b4d - Darker primary for active/hover background */
+    --sidebar-accent-foreground: 225 90% 85%; /* #c0d0ff - Lighter primary for active/hover text */
+    --sidebar-ring: 225 100% 60%;      /* #3366FF - Same as main ring */
   }
 }
 
