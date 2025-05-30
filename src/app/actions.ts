@@ -241,6 +241,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'animejs.com',
     'peoplesgdarchive.org',
     'www.notion.so',
+    'arc.net',
   ];
   return hostnames.sort();
 }

@@ -232,7 +232,13 @@ const nextConfig: NextConfig = {
         hostname: 'www.notion.so',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'arc.net',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
