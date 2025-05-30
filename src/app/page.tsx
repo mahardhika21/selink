@@ -40,6 +40,31 @@ import {
 const initialBlocksData: BlockItem[] = [];
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
+// SVG Logo Component
+const SelinkLogo = () => (
+  <svg
+    aria-label="Selink Logo"
+    role="img"
+    viewBox="0 0 105 28" // Adjusted viewBox for better proportions
+    height="28" // Target height in header
+    className="text-foreground" // Ensures text color is picked up by 'currentColor' if used for text
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Simplified S-icon part */}
+    <g fill="hsl(var(--primary))">
+      {/* Path for the first part of 'S' icon */}
+      <path d="M16.5 7.5C16.5 5.01472 14.4853 3 12 3H7.5C5.01472 3 3 5.01472 3 7.5V10.5C3 11.8807 4.11929 13 5.5 13H10" strokeWidth="0" />
+      {/* Path for the second part of 'S' icon, slightly offset and mirrored */}
+      <path d="M8.5 18.5C8.5 20.9853 10.5147 23 13 23H17.5C19.9853 23 22 20.9853 22 18.5V15.5C22 14.1193 20.8807 13 19.5 13H15" strokeWidth="0" />
+    </g>
+    {/* "Selink" text part */}
+    <text x="29" y="20" fontFamily="Arial, Helvetica, sans-serif" fontSize="18" fontWeight="bold" fill="hsl(var(--foreground))">
+      Selink
+    </text>
+  </svg>
+);
+
+
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>(initialBlocksData);
   const [newLinkUrl, setNewLinkUrl] = useState('');
@@ -49,7 +74,7 @@ export default function BentoLinkPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null); // null for "All Links"
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null); 
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDeleteId, setCategoryToDeleteId] = useState<string | null>(null);
@@ -57,10 +82,6 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // crypto.randomUUID is only available in secure contexts (HTTPS) or client-side.
-    // If this component could render server-side initially without isMounted check,
-    // this could be an issue. isMounted ensures it's client-side.
-    // For category IDs, ensure they are generated when categories are actually created.
   }, []);
 
   const handleAddCategory = () => {
@@ -99,7 +120,7 @@ export default function BentoLinkPage() {
         )
       );
       if (selectedCategoryId === categoryToDeleteId) {
-        setSelectedCategoryId(null); // Reset to "All Links" if the active category is deleted
+        setSelectedCategoryId(null); 
       }
       toast({
         title: "Category Deleted",
@@ -128,7 +149,7 @@ export default function BentoLinkPage() {
     }
 
     try {
-      new URL(normalizedUrl); // Validate URL format
+      new URL(normalizedUrl); 
     } catch (_) {
       toast({
         title: "Invalid Link",
@@ -153,13 +174,12 @@ export default function BentoLinkPage() {
         try {
           const urlObj = new URL(normalizedUrl);
           let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
-          // Ensure hostnameForTitle is not empty after potential www. removal (e.g. for just "www.")
           if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname;
           displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
-          if (!displayTitle) { // Fallback if hostname parsing somehow fails
+          if (!displayTitle) { 
              displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
           }
-        } catch (e) { // Fallback for invalid URL object creation (should be caught earlier, but defensive)
+        } catch (e) { 
           displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
         }
       }
@@ -170,13 +190,13 @@ export default function BentoLinkPage() {
         id: crypto.randomUUID(),
         type: 'link',
         title: displayTitle,
-        content: normalizedUrl, // Store the normalized URL in content for display
+        content: normalizedUrl, 
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null, // Initialize with no category
+        categoryId: null, 
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -238,7 +258,7 @@ export default function BentoLinkPage() {
   };
 
   const filteredBlocks = useMemo(() => {
-    if (selectedCategoryId === null) { // "All Links"
+    if (selectedCategoryId === null) { 
       return blocks;
     }
     if (selectedCategoryId === UNCATEGORIZED_ID) {
@@ -331,7 +351,9 @@ export default function BentoLinkPage() {
             <div className="flex flex-col min-h-screen bg-background text-foreground">
               <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
                 <SidebarTrigger className="h-8 w-8" />
-                <h1 className="flex-1 text-xl font-semibold text-primary truncate">BentoLink Editor</h1>
+                <div className="flex-1 flex items-center">
+                  <SelinkLogo />
+                </div>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
                 </div>
@@ -386,5 +408,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-    
