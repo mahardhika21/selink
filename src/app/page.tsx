@@ -9,7 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, MoreVertical } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarProvider,
   Sidebar,
@@ -82,6 +88,13 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    // Initialize with some default categories if needed, or load from storage
+    // For now, we start with an empty category list as per previous requests.
+    // setCategories([
+    //   { id: crypto.randomUUID(), name: 'Work Projects' },
+    //   { id: crypto.randomUUID(), name: 'Social Media' },
+    //   { id: crypto.randomUUID(), name: 'Inspiration' },
+    // ]);
   }, []);
 
   const handleAddCategory = () => {
@@ -114,11 +127,13 @@ export default function BentoLinkPage() {
   const handleConfirmDeleteCategory = () => {
     if (categoryToDeleteId) {
       setCategories(prevCategories => prevCategories.filter(cat => cat.id !== categoryToDeleteId));
+      // Set blocks in this category to uncategorized
       setBlocks(prevBlocks =>
         prevBlocks.map(block =>
           block.categoryId === categoryToDeleteId ? { ...block, categoryId: null } : block
         )
       );
+      // If the deleted category was selected, reset filter to "All Links"
       if (selectedCategoryId === categoryToDeleteId) {
         setSelectedCategoryId(null); 
       }
@@ -174,12 +189,12 @@ export default function BentoLinkPage() {
         try {
           const urlObj = new URL(normalizedUrl);
           let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
-          if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname;
+          if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname; // Fallback if www. removal results in empty string
           displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
-          if (!displayTitle) { 
+          if (!displayTitle) { // Further fallback if hostname somehow yields empty
              displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
           }
-        } catch (e) { 
+        } catch (e) { // Fallback if URL object creation itself fails for some reason
           displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
         }
       }
@@ -196,7 +211,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null, 
+        categoryId: null, // Initialize with no category
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -227,13 +242,15 @@ export default function BentoLinkPage() {
       const [reorderedItem] = items.splice(source.index, 1);
 
       if (reorderedItem === undefined) {
+        // This case should ideally be prevented by the guards in ContentGrid or a stable ID issue.
+        // Log an error and return the current state to prevent crashes.
         console.error(
             "Drag and drop error: reorderedItem is undefined. " +
             `Source index: ${source.index}, Destination index: ${destination.index}. ` +
             "This could indicate an issue with react-beautiful-dnd or inconsistent block data. " +
             "Reverting to previous block order."
         );
-        return currentBlocks;
+        return currentBlocks; // Return original state to avoid undefined item in array
       }
 
       items.splice(destination.index, 0, reorderedItem);
@@ -257,13 +274,15 @@ export default function BentoLinkPage() {
     }
   };
 
+  // Memoized filtered blocks based on selectedCategoryId
   const filteredBlocks = useMemo(() => {
-    if (selectedCategoryId === null) { 
+    if (selectedCategoryId === null) { // "All Links"
       return blocks;
     }
-    if (selectedCategoryId === UNCATEGORIZED_ID) {
+    if (selectedCategoryId === UNCATEGORIZED_ID) { // "Uncategorized"
       return blocks.filter(block => !block.categoryId);
     }
+    // Filter by specific category ID
     return blocks.filter(block => block.categoryId === selectedCategoryId);
   }, [blocks, selectedCategoryId]);
 
@@ -378,7 +397,7 @@ export default function BentoLinkPage() {
                 </div>
 
                 <ContentGrid
-                  blocks={filteredBlocks}
+                  blocks={filteredBlocks} // Pass filtered blocks to the grid
                   onDeleteBlock={handleDeleteBlock}
                   isDndEnabled={isMounted}
                   categories={categories}
