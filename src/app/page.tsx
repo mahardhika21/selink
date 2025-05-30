@@ -46,7 +46,6 @@ export default function BentoLinkPage() {
   useEffect(() => {
     setIsMounted(true);
     // Categories will start empty now
-    // Load categories from localStorage or API if needed in the future
   }, []);
 
   const handleAddCategory = () => {
@@ -179,8 +178,8 @@ export default function BentoLinkPage() {
 
   return (
     <DragDropContext onDragEnd={handleOnDragEnd}>
-      <SidebarProvider>
-        <Sidebar side="left" variant="sidebar" collapsible="icon">
+      <SidebarProvider defaultOpen={false}>
+        <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
           <SidebarHeader className="p-4 border-b">
             <h2 className="text-lg font-semibold text-foreground">Categories</h2>
           </SidebarHeader>
