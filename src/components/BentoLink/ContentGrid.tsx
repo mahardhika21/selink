@@ -25,29 +25,29 @@ const BlockRenderer = ({
   draggableProps,
   dragHandleProps,
 }: {
-  block: BlockItem;
+  block: BlockItem; // Assumed to be non-null by the time it reaches here due to filtering in ContentGrid
   index: number;
   onDeleteBlock?: (id: string) => void;
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
 }) => {
-  // Guards
-  if (block == null) { // Checks for both null and undefined
-    console.warn(`ContentGrid (BlockRenderer): Skipping rendering of null or undefined block at index ${index}.`);
-    // Provide a valid DOM element for react-beautiful-dnd if innerRef is expected
+  // This first guard for block == null is now more of a safeguard,
+  // as ContentGrid filters out nulls.
+  if (block == null) { 
+    console.warn(`ContentGrid (BlockRenderer): Encountered null/undefined block at index ${index} despite filtering. This should not happen.`);
     if (innerRef) {
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null/undefined)</div>;
     }
     return null;
   }
+
+  // Guard for block.type
   if (typeof block.type !== 'string' || !block.type.trim()) {
     console.warn(`ContentGrid (BlockRenderer): Skipping rendering of block with invalid or missing type at index ${index}:`, block);
     if (innerRef) {
-      // Provide a valid DOM element for react-beautiful-dnd even if the block is invalid
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (type)</div>;
     }
-    // For static grid or if no innerRef needed for an invalid block
     return <div className={cn(block.className, "hidden")}>Invalid block data (type)</div>;
   }
 
@@ -75,8 +75,6 @@ const BlockRenderer = ({
     case 'text':
       return <TextBlock {...commonProps} />;
     default:
-      // This const should be safe due to the guards above.
-      // If block were null, first guard would hit. If block.type invalid, second guard would hit.
       const typeDisplay = block.type;
       console.warn(`ContentGrid (BlockRenderer): Encountered unknown block type: '${typeDisplay}' for block at index ${index}. Block data:`, block);
       if (innerRef) {
@@ -86,33 +84,43 @@ const BlockRenderer = ({
   }
 };
 
-export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: ContentGridProps) {
-  if (!Array.isArray(blocks)) {
-    console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", blocks);
+export default function ContentGrid({ blocks: initialBlocks, onDeleteBlock, isDndEnabled }: ContentGridProps) {
+  if (!Array.isArray(initialBlocks)) {
+    console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", initialBlocks);
     return null;
   }
+
+  // Filter out null or undefined blocks right at the beginning
+  const validBlocks = initialBlocks.filter(block => {
+    if (block == null) {
+      // This warning helps identify if null/undefined items are even being passed
+      console.warn("ContentGrid: Filtering out a null or undefined block item from the blocks prop.");
+      return false;
+    }
+    if (typeof block.id !== 'string' || !block.id.trim()) {
+      console.warn("ContentGrid: Filtering out a block item with missing or invalid 'id'. Block data:", block);
+      return false;
+    }
+    return true;
+  });
+
+  if (initialBlocks.length > 0 && validBlocks.length !== initialBlocks.length) {
+    console.warn(`ContentGrid: Some items were filtered from blocks prop. Original length: ${initialBlocks.length}, New length: ${validBlocks.length}`);
+  }
+
 
   if (!isDndEnabled) {
     // Render a static grid if DND is not enabled
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
-        {blocks.map((block, index) => {
-          if (block == null) { // Check for null or undefined
-            console.warn(`ContentGrid (static): Skipping rendering of null/undefined block at index ${index}.`);
-            return null; // Important to return null to avoid issues with map
-          }
-          // Ensure key is unique and valid even if id is missing, though id should be present for valid blocks.
-          const key = (block && typeof block.id === 'string' && block.id.trim()) ? block.id : `static-block-${index}`;
-
-          return (
-            <BlockRenderer
-              key={key}
-              block={block}
-              index={index}
-              onDeleteBlock={onDeleteBlock}
-            />
-          );
-        })}
+        {validBlocks.map((block, index) => ( // Use validBlocks
+          <BlockRenderer
+            key={block.id} // block.id is guaranteed by the filter
+            block={block}  // block is guaranteed to be non-null
+            index={index}  // index here is for the filtered array
+            onDeleteBlock={onDeleteBlock}
+          />
+        ))}
       </div>
     );
   }
@@ -131,30 +139,20 @@ export default function ContentGrid({ blocks, onDeleteBlock, isDndEnabled }: Con
           ref={provided.innerRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
-          {blocks.map((block, index) => {
-            // Ensure block and block.id are valid before rendering Draggable
-            if (block == null || typeof block.id !== 'string' || !block.id.trim()) {
-                console.warn(`ContentGrid (DND): Skipping draggable block due to null or invalid id at index ${index}:`, block);
-                // It's crucial to return something that doesn't break the map,
-                // or to filter out such items before mapping if DND library is sensitive.
-                // Returning null here is standard for React conditional rendering.
-                return null;
-            }
-            return (
-              <Draggable key={block.id} draggableId={block.id} index={index}>
-                {(providedDraggable) => (
-                  <BlockRenderer
-                    block={block} // block is guaranteed to be non-null here due to the check above
-                    index={index}
-                    onDeleteBlock={onDeleteBlock}
-                    innerRef={providedDraggable.innerRef}
-                    draggableProps={providedDraggable.draggableProps}
-                    dragHandleProps={providedDraggable.dragHandleProps}
-                  />
-                )}
-              </Draggable>
-            );
-          })}
+          {validBlocks.map((block, index) => ( // Use validBlocks
+            <Draggable key={block.id} draggableId={block.id} index={index}>
+              {(providedDraggable) => (
+                <BlockRenderer
+                  block={block} // block is guaranteed to be non-null and have a valid id
+                  index={index}
+                  onDeleteBlock={onDeleteBlock}
+                  innerRef={providedDraggable.innerRef}
+                  draggableProps={providedDraggable.draggableProps}
+                  dragHandleProps={providedDraggable.dragHandleProps}
+                />
+              )}
+            </Draggable>
+          ))}
           {provided.placeholder}
         </div>
       )}
