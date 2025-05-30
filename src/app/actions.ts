@@ -245,6 +245,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'lawsofux.com',
     'naruto-official.com',
     'www.apple.com',
+    'avatars.githubusercontent.com',
   ];
   return hostnames.sort();
 }
