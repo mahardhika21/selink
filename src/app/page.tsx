@@ -27,6 +27,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuPortal,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -276,7 +282,7 @@ export default function BentoLinkPage() {
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
-            <SidebarHeader className="flex h-14 items-center border-b px-4">
+            <SidebarHeader className="h-14 flex flex-col justify-center items-start border-b px-4">
               <h2 className="text-lg font-semibold text-foreground">Categories</h2>
             </SidebarHeader>
             <SidebarContent className="p-2 space-y-2">
