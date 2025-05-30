@@ -246,6 +246,7 @@ export async function getRegisteredHostnames(): Promise<string[]> {
     'naruto-official.com',
     'www.apple.com',
     'avatars.githubusercontent.com',
+    'assets.bibit.id',
   ];
   return hostnames.sort();
 }
