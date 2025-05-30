@@ -45,13 +45,8 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Load categories from localStorage or API if needed
-    // For now, we'll start with an empty list or some defaults
-    setCategories([
-      { id: '1', name: 'Work Projects' },
-      { id: '2', name: 'Social Media' },
-      { id: '3', name: 'Inspiration' },
-    ]);
+    // Categories will start empty now
+    // Load categories from localStorage or API if needed in the future
   }, []);
 
   const handleAddCategory = () => {
