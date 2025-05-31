@@ -292,7 +292,7 @@ export default function BentoLinkPage() {
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
-                  className="h-9 text-sm bg-background"
+                  className="h-9 text-sm"
                 />
                 <Button onClick={handleAddCategory} size="sm" className="w-full gap-1">
                   <PlusCircle className="h-4 w-4" />
