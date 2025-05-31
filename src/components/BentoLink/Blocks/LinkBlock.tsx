@@ -113,7 +113,7 @@ export default function LinkBlock({
       >
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleBlockSelection(id)} // Redundant due to wrapper click, but good for accessibility
+          // Removed onCheckedChange from here to prevent double toggle
           aria-label={`Select link ${title || 'Untitled'}`}
           className="h-5 w-5 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
         />
