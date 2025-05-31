@@ -46,12 +46,12 @@ const SelinkLogo = () => (
   <svg
     aria-label="Selink Logo"
     role="img"
-    viewBox="0 0 80 28"
+    viewBox="0 0 60 28"
     height="28"
     className="text-foreground"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <text x="5" y="20" fontFamily="Arial, Helvetica, sans-serif" fontSize="18" fontWeight="bold" fill="hsl(var(--foreground))">
+    <text x="0" y="20" fontFamily="Arial, Helvetica, sans-serif" fontSize="18" fontWeight="bold" fill="hsl(var(--foreground))">
       Selink
     </text>
   </svg>
@@ -309,7 +309,7 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
             <SidebarHeader className="h-14 flex flex-col justify-center items-start border-b px-4">
-              <h2 className="text-lg font-semibold text-foreground">Categories</h2>
+              <h2 className="text-base font-semibold text-foreground">Categories</h2>
             </SidebarHeader>
             <SidebarContent className="p-2 space-y-2">
                <div className="space-y-2 p-2">
