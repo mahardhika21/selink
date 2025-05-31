@@ -37,6 +37,7 @@ import {
   SidebarMenuButton,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 
 const initialBlocksData: BlockItem[] = [];
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
@@ -73,6 +74,22 @@ export default function BentoLinkPage() {
   const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
 
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
+
+  // Initialize useSearchParams. If this page needs to react to URL query parameters,
+  // this is the correct hook to use in a Client Component.
+  // The warning "params are being enumerated" often relates to improper access
+  // of searchParams (especially when passed from Server Components or used with Object.keys directly).
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Example: log current search params. This helps verify they are accessible.
+    // Avoid enumerating `searchParams` directly with `Object.keys(searchParams)`.
+    // Instead, use methods like `searchParams.get('key')` or iterate with `searchParams.forEach(...)` or `for (const key of searchParams.keys())`.
+    if (searchParams && searchParams.toString()) {
+      console.log('BentoLinkPage current search params (via useSearchParams):', searchParams.toString());
+    }
+  }, [searchParams]); // Re-run if searchParams change.
+
 
   useEffect(() => {
     setIsMounted(true);
