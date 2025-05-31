@@ -188,7 +188,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId, // Assign to current category or null
+        categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId, 
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -207,7 +207,7 @@ export default function BentoLinkPage() {
 
   const handleDeleteBlock = (idToDelete: string) => {
     setBlocks(currentBlocks => currentBlocks.filter(block => block && block.id !== idToDelete));
-    setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete)); // Also remove from selection
+    setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete)); 
   };
 
   const handleOnDragEnd = (result: DropResult) => {
@@ -284,6 +284,7 @@ export default function BentoLinkPage() {
     return blocks.filter(block => block.categoryId === selectedCategoryId);
   }, [blocks, selectedCategoryId]);
 
+  const isSelectionModeActive = selectedBlockIds.length > 0;
 
   return (
     <>
@@ -396,11 +397,12 @@ export default function BentoLinkPage() {
                 <ContentGrid
                   blocks={filteredBlocks} 
                   onDeleteBlock={handleDeleteBlock}
-                  isDndEnabled={isMounted && selectedBlockIds.length === 0} // Disable DND when items are selected
+                  isDndEnabled={isMounted && !isSelectionModeActive}
                   categories={categories}
                   onAssignCategoryToBlock={handleAssignCategoryToBlock}
                   selectedBlockIds={selectedBlockIds}
                   onToggleBlockSelection={handleToggleBlockSelection}
+                  isSelectionModeActive={isSelectionModeActive}
                 />
               </main>
               <Footer />
@@ -424,7 +426,7 @@ export default function BentoLinkPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {selectedBlockIds.length > 0 && (
+      {isSelectionModeActive && (
         <BulkActionsBar
           count={selectedBlockIds.length}
           categories={categories}

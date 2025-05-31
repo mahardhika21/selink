@@ -29,6 +29,7 @@ interface LinkBlockProps extends BlockItem {
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
   selectedBlockIds: string[];
   onToggleBlockSelection: (blockId: string) => void;
+  isSelectionModeActive: boolean;
 }
 
 export default function LinkBlock({
@@ -46,22 +47,21 @@ export default function LinkBlock({
   onAssignCategoryToBlock,
   selectedBlockIds,
   onToggleBlockSelection,
+  isSelectionModeActive,
   innerRef,
   draggableProps,
   dragHandleProps,
 }: LinkBlockProps) {
   const { toast } = useToast();
 
-  if (!linkUrl) return null;
+  if (!linkUrl && !isSelectionModeActive) return null; // Allow rendering if in selection mode even if linkUrl is somehow null
 
   const isSelected = selectedBlockIds.includes(id);
 
   const handleCardClick = () => {
-    // Prevent card click if interacting with checkbox or dropdown elements
-    // This is partially handled by stopPropagation on those elements,
-    // but as a fallback, if selected, maybe don't navigate immediately?
-    // For now, it will still navigate.
-    if (linkUrl) {
+    if (isSelectionModeActive) {
+      onToggleBlockSelection(id);
+    } else if (linkUrl) {
       window.open(linkUrl, '_blank');
     }
   };
@@ -84,7 +84,7 @@ export default function LinkBlock({
   };
   
   const handleCheckboxWrapperClick = (event: React.MouseEvent) => {
-    event.stopPropagation();
+    event.stopPropagation(); // Important: Prevents card click (navigation or selection toggle)
     onToggleBlockSelection(id);
   };
 
@@ -99,7 +99,7 @@ export default function LinkBlock({
         className,
         isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
       )}
-      onClick={handleCardClick}
+      onClick={handleCardClick} // Updated to handle selection mode
       innerRef={innerRef}
       draggableProps={draggableProps}
       dragHandleProps={dragHandleProps}
@@ -107,13 +107,13 @@ export default function LinkBlock({
       <div
         className={cn(
           "absolute top-2 right-2 z-20 p-1.5 rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
-          { "opacity-100": isSelected }
+          { "opacity-100": isSelected } // Show if selected
         )}
-        onClick={handleCheckboxWrapperClick}
+        onClick={handleCheckboxWrapperClick} // Handles click on checkbox area
       >
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleBlockSelection(id)} // Already handled by wrapper, but good for accessibility
+          onCheckedChange={() => onToggleBlockSelection(id)} // Redundant due to wrapper click, but good for accessibility
           aria-label={`Select link ${title || 'Untitled'}`}
           className="h-5 w-5 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
         />
@@ -133,11 +133,11 @@ export default function LinkBlock({
       )}
       <CardHeader
         className={cn(
-          "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", // Ensure header content is above checkbox if overlap
+          "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", 
           thumbnailUrl ? "px-4" : "px-6" 
         )}
       >
-        <div className="flex-shrink-0 mt-0.5"> {/* Adjusted margin for better alignment with icons */}
+        <div className="flex-shrink-0 mt-0.5">
           {faviconUrl ? (
             <img
               src={faviconUrl}
@@ -205,3 +205,4 @@ export default function LinkBlock({
     </BaseBlock>
   );
 }
+

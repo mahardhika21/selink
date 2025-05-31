@@ -18,6 +18,7 @@ interface ContentGridProps {
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
   selectedBlockIds: string[];
   onToggleBlockSelection: (blockId: string) => void;
+  isSelectionModeActive: boolean;
 }
 
 const BlockRenderer = ({
@@ -28,6 +29,7 @@ const BlockRenderer = ({
   onAssignCategoryToBlock,
   selectedBlockIds,
   onToggleBlockSelection,
+  isSelectionModeActive,
   innerRef,
   draggableProps,
   dragHandleProps,
@@ -39,6 +41,7 @@ const BlockRenderer = ({
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
   selectedBlockIds: string[];
   onToggleBlockSelection: (blockId: string) => void;
+  isSelectionModeActive: boolean;
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
@@ -72,8 +75,9 @@ const BlockRenderer = ({
     innerRef,
     draggableProps,
     dragHandleProps,
-    selectedBlockIds, // Pass down for LinkBlock
-    onToggleBlockSelection, // Pass down for LinkBlock
+    selectedBlockIds, 
+    onToggleBlockSelection, 
+    isSelectionModeActive, // Pass this down
   };
 
   switch (block.type) {
@@ -85,7 +89,6 @@ const BlockRenderer = ({
                 onAssignCategoryToBlock={onAssignCategoryToBlock}
               />;
     case 'image':
-      // For now, selection is only on LinkBlock. If needed for other types, pass props here too.
       return <ImageBlock {...commonProps} />;
     case 'video':
       return <VideoBlock {...commonProps} />;
@@ -109,6 +112,7 @@ export default function ContentGrid({
   onAssignCategoryToBlock,
   selectedBlockIds,
   onToggleBlockSelection,
+  isSelectionModeActive,
 }: ContentGridProps) {
   if (!Array.isArray(initialBlocks)) {
     console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", initialBlocks);
@@ -145,6 +149,7 @@ export default function ContentGrid({
             onAssignCategoryToBlock={onAssignCategoryToBlock}
             selectedBlockIds={selectedBlockIds}
             onToggleBlockSelection={onToggleBlockSelection}
+            isSelectionModeActive={isSelectionModeActive}
           />
         ))}
       </div>
@@ -154,7 +159,7 @@ export default function ContentGrid({
   return (
     <Droppable
       droppableId="contentGridBlocks"
-      isDropDisabled={!isDndEnabled} // Use the prop here
+      isDropDisabled={!isDndEnabled} 
       isCombineEnabled={false}
       ignoreContainerClipping={false}
     >
@@ -175,6 +180,7 @@ export default function ContentGrid({
                   onAssignCategoryToBlock={onAssignCategoryToBlock}
                   selectedBlockIds={selectedBlockIds}
                   onToggleBlockSelection={onToggleBlockSelection}
+                  isSelectionModeActive={isSelectionModeActive}
                   innerRef={providedDraggable.innerRef}
                   draggableProps={providedDraggable.draggableProps}
                   dragHandleProps={providedDraggable.dragHandleProps}
