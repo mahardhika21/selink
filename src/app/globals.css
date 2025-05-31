@@ -37,7 +37,7 @@ body {
     --body-text-dark: 0 0% 80%; /* #CCCCCC */
 
     /* Sidebar Theme Variables - Light Mode */
-    --sidebar-background: 0 0% 96.1%; /* #f5f5f5 - Similar to muted/secondary */
+    --sidebar-background: 0 0% 100%; /* #FFFFFF - White */
     --sidebar-foreground: 0 0% 7.1%; /* #121212 - Same as main foreground */
     --sidebar-border: 0 0% 87.8%;     /* #e0e0e0 - Same as main border */
     --sidebar-accent: 220 100% 92%;    /* #d9e8ff - Light primary for active/hover background */
