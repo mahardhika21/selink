@@ -5,11 +5,12 @@ import { useState, useEffect, useMemo } from 'react';
 import type { FormEvent } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
+import BulkActionsBar from '@/components/BentoLink/BulkActionsBar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, MoreVertical } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -23,18 +24,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   SidebarProvider,
   Sidebar,
@@ -52,17 +41,15 @@ import {
 const initialBlocksData: BlockItem[] = [];
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
-// SVG Logo Component
 const SelinkLogo = () => (
   <svg
     aria-label="Selink Logo"
     role="img"
-    viewBox="0 0 80 28" // Adjusted viewBox for text only
-    height="28" // Target height in header
+    viewBox="0 0 80 28"
+    height="28"
     className="text-foreground"
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* "Selink" text part */}
     <text x="5" y="20" fontFamily="Arial, Helvetica, sans-serif" fontSize="18" fontWeight="bold" fill="hsl(var(--foreground))">
       Selink
     </text>
@@ -85,10 +72,10 @@ export default function BentoLinkPage() {
   const [categoryToDeleteId, setCategoryToDeleteId] = useState<string | null>(null);
   const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
 
+  const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
+
   useEffect(() => {
     setIsMounted(true);
-    // Initialize with an empty category list.
-    // Categories are added via the UI.
   }, []);
 
   const handleAddCategory = () => {
@@ -121,13 +108,11 @@ export default function BentoLinkPage() {
   const handleConfirmDeleteCategory = () => {
     if (categoryToDeleteId) {
       setCategories(prevCategories => prevCategories.filter(cat => cat.id !== categoryToDeleteId));
-      // Set blocks in this category to uncategorized
       setBlocks(prevBlocks =>
         prevBlocks.map(block =>
           block.categoryId === categoryToDeleteId ? { ...block, categoryId: null } : block
         )
       );
-      // If the deleted category was selected, reset filter to "All Links"
       if (selectedCategoryId === categoryToDeleteId) {
         setSelectedCategoryId(null); 
       }
@@ -140,7 +125,6 @@ export default function BentoLinkPage() {
     setCategoryToDeleteId(null);
     setCategoryToDeleteName(null);
   };
-
 
   const handleAddLink = async () => {
     if (!newLinkUrl.trim()) {
@@ -194,7 +178,6 @@ export default function BentoLinkPage() {
       }
        if (!displayTitle) displayTitle = "Untitled Link";
 
-
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
@@ -205,7 +188,7 @@ export default function BentoLinkPage() {
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: null, // Initialize with no category
+        categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId, // Assign to current category or null
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -224,27 +207,18 @@ export default function BentoLinkPage() {
 
   const handleDeleteBlock = (idToDelete: string) => {
     setBlocks(currentBlocks => currentBlocks.filter(block => block && block.id !== idToDelete));
+    setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete)); // Also remove from selection
   };
 
   const handleOnDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-
     const { source, destination } = result;
-
-     setBlocks(currentBlocks => {
+    setBlocks(currentBlocks => {
       const items = Array.from(currentBlocks);
       const [reorderedItem] = items.splice(source.index, 1);
-
       if (reorderedItem === undefined) {
-        console.error(
-            "Drag and drop error: reorderedItem is undefined. " +
-            `Source index: ${source.index}, Destination index: ${destination.index}. ` +
-            "This could indicate an issue with react-beautiful-dnd or inconsistent block data. " +
-            "Reverting to previous block order."
-        );
         return currentBlocks; 
       }
-
       items.splice(destination.index, 0, reorderedItem);
       return items;
     });
@@ -265,6 +239,40 @@ export default function BentoLinkPage() {
       });
     }
   };
+
+  const handleToggleBlockSelection = (blockId: string) => {
+    setSelectedBlockIds(prevSelectedIds =>
+      prevSelectedIds.includes(blockId)
+        ? prevSelectedIds.filter(id => id !== blockId)
+        : [...prevSelectedIds, blockId]
+    );
+  };
+
+  const handleDeleteSelectedBlocks = () => {
+    setBlocks(prevBlocks => prevBlocks.filter(block => !selectedBlockIds.includes(block.id)));
+    const numDeleted = selectedBlockIds.length;
+    setSelectedBlockIds([]);
+    toast({
+      title: "Links Deleted",
+      description: `${numDeleted} link(s) have been deleted.`,
+    });
+  };
+
+  const handleMoveSelectedBlocksToCategory = (newCategoryId: string | null) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block =>
+        selectedBlockIds.includes(block.id) ? { ...block, categoryId: newCategoryId } : block
+      )
+    );
+    const categoryName = newCategoryId ? categories.find(c => c.id === newCategoryId)?.name : 'Uncategorized';
+    const numMoved = selectedBlockIds.length;
+    setSelectedBlockIds([]);
+    toast({
+      title: "Links Moved",
+      description: `${numMoved} link(s) moved to ${categoryName || 'Uncategorized'}.`,
+    });
+  };
+
 
   const filteredBlocks = useMemo(() => {
     if (selectedCategoryId === null) { 
@@ -292,7 +300,7 @@ export default function BentoLinkPage() {
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
-                  className="h-9 text-sm"
+                  className="h-9 text-sm bg-muted"
                 />
                 <Button onClick={handleAddCategory} size="sm" className="w-full gap-1">
                   <PlusCircle className="h-4 w-4" />
@@ -352,7 +360,6 @@ export default function BentoLinkPage() {
               </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
-              {/* Add potential sidebar footer content here if needed */}
             </SidebarFooter>
           </Sidebar>
 
@@ -389,9 +396,11 @@ export default function BentoLinkPage() {
                 <ContentGrid
                   blocks={filteredBlocks} 
                   onDeleteBlock={handleDeleteBlock}
-                  isDndEnabled={isMounted}
+                  isDndEnabled={isMounted && selectedBlockIds.length === 0} // Disable DND when items are selected
                   categories={categories}
                   onAssignCategoryToBlock={handleAssignCategoryToBlock}
+                  selectedBlockIds={selectedBlockIds}
+                  onToggleBlockSelection={handleToggleBlockSelection}
                 />
               </main>
               <Footer />
@@ -414,8 +423,16 @@ export default function BentoLinkPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {selectedBlockIds.length > 0 && (
+        <BulkActionsBar
+          count={selectedBlockIds.length}
+          categories={categories}
+          onDelete={handleDeleteSelectedBlocks}
+          onMove={handleMoveSelectedBlocksToCategory}
+        />
+      )}
     </>
   );
 }
-
     

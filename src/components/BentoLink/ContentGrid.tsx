@@ -16,15 +16,18 @@ interface ContentGridProps {
   isDndEnabled: boolean;
   categories: Category[];
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
+  selectedBlockIds: string[];
+  onToggleBlockSelection: (blockId: string) => void;
 }
 
-// Internal helper component to render individual blocks
 const BlockRenderer = ({
   block,
   index,
   onDeleteBlock,
   categories,
   onAssignCategoryToBlock,
+  selectedBlockIds,
+  onToggleBlockSelection,
   innerRef,
   draggableProps,
   dragHandleProps,
@@ -34,6 +37,8 @@ const BlockRenderer = ({
   onDeleteBlock?: (id: string) => void;
   categories: Category[];
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
+  selectedBlockIds: string[];
+  onToggleBlockSelection: (blockId: string) => void;
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
@@ -67,6 +72,8 @@ const BlockRenderer = ({
     innerRef,
     draggableProps,
     dragHandleProps,
+    selectedBlockIds, // Pass down for LinkBlock
+    onToggleBlockSelection, // Pass down for LinkBlock
   };
 
   switch (block.type) {
@@ -78,6 +85,7 @@ const BlockRenderer = ({
                 onAssignCategoryToBlock={onAssignCategoryToBlock}
               />;
     case 'image':
+      // For now, selection is only on LinkBlock. If needed for other types, pass props here too.
       return <ImageBlock {...commonProps} />;
     case 'video':
       return <VideoBlock {...commonProps} />;
@@ -98,7 +106,9 @@ export default function ContentGrid({
   onDeleteBlock, 
   isDndEnabled,
   categories,
-  onAssignCategoryToBlock 
+  onAssignCategoryToBlock,
+  selectedBlockIds,
+  onToggleBlockSelection,
 }: ContentGridProps) {
   if (!Array.isArray(initialBlocks)) {
     console.error("ContentGrid: `blocks` prop is not an array. Rendering nothing.", initialBlocks);
@@ -133,6 +143,8 @@ export default function ContentGrid({
             onDeleteBlock={onDeleteBlock}
             categories={categories}
             onAssignCategoryToBlock={onAssignCategoryToBlock}
+            selectedBlockIds={selectedBlockIds}
+            onToggleBlockSelection={onToggleBlockSelection}
           />
         ))}
       </div>
@@ -142,7 +154,7 @@ export default function ContentGrid({
   return (
     <Droppable
       droppableId="contentGridBlocks"
-      isDropDisabled={false}
+      isDropDisabled={!isDndEnabled} // Use the prop here
       isCombineEnabled={false}
       ignoreContainerClipping={false}
     >
@@ -153,7 +165,7 @@ export default function ContentGrid({
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
           {validBlocks.map((block, index) => ( 
-            <Draggable key={block.id} draggableId={block.id} index={index}>
+            <Draggable key={block.id} draggableId={block.id} index={index} isDragDisabled={!isDndEnabled || selectedBlockIds.includes(block.id)}>
               {(providedDraggable) => (
                 <BlockRenderer
                   block={block} 
@@ -161,6 +173,8 @@ export default function ContentGrid({
                   onDeleteBlock={onDeleteBlock}
                   categories={categories}
                   onAssignCategoryToBlock={onAssignCategoryToBlock}
+                  selectedBlockIds={selectedBlockIds}
+                  onToggleBlockSelection={onToggleBlockSelection}
                   innerRef={providedDraggable.innerRef}
                   draggableProps={providedDraggable.draggableProps}
                   dragHandleProps={providedDraggable.dragHandleProps}
@@ -174,3 +188,4 @@ export default function ContentGrid({
     </Droppable>
   );
 }
+

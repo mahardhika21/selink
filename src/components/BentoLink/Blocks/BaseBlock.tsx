@@ -33,7 +33,7 @@ export default function BaseBlock({
       {...draggableProps}
       {...dragHandleProps}
       className={cn(
-        'rounded-2xl transition-all duration-300 ease-in-out overflow-hidden', // Removed shadow-lg
+        'group relative rounded-2xl transition-all duration-300 ease-in-out overflow-hidden', 
         'hover:shadow-xl hover:-translate-y-1',
         onClick ? 'cursor-pointer' : '',
         pastelClassName,
@@ -45,3 +45,4 @@ export default function BaseBlock({
     </Card>
   );
 }
+

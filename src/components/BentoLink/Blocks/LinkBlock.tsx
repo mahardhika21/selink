@@ -6,6 +6,7 @@ import BaseBlock from './BaseBlock';
 import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,10 +14,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
@@ -30,6 +27,8 @@ interface LinkBlockProps extends BlockItem {
   dragHandleProps?: Record<string, any>;
   categories: Category[];
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
+  selectedBlockIds: string[];
+  onToggleBlockSelection: (blockId: string) => void;
 }
 
 export default function LinkBlock({
@@ -45,6 +44,8 @@ export default function LinkBlock({
   onDelete,
   categories,
   onAssignCategoryToBlock,
+  selectedBlockIds,
+  onToggleBlockSelection,
   innerRef,
   draggableProps,
   dragHandleProps,
@@ -53,7 +54,13 @@ export default function LinkBlock({
 
   if (!linkUrl) return null;
 
+  const isSelected = selectedBlockIds.includes(id);
+
   const handleCardClick = () => {
+    // Prevent card click if interacting with checkbox or dropdown elements
+    // This is partially handled by stopPropagation on those elements,
+    // but as a fallback, if selected, maybe don't navigate immediately?
+    // For now, it will still navigate.
     if (linkUrl) {
       window.open(linkUrl, '_blank');
     }
@@ -75,18 +82,43 @@ export default function LinkBlock({
       onAssignCategoryToBlock(id, categoryId);
     }
   };
+  
+  const handleCheckboxWrapperClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    onToggleBlockSelection(id);
+  };
+
 
   const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
 
   return (
     <BaseBlock
       pastelColor={pastelColor}
-      className={cn("flex flex-col", className)}
+      className={cn(
+        "flex flex-col",
+        className,
+        isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
+      )}
       onClick={handleCardClick}
       innerRef={innerRef}
       draggableProps={draggableProps}
       dragHandleProps={dragHandleProps}
     >
+      <div
+        className={cn(
+          "absolute top-2 right-2 z-20 p-1.5 rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
+          { "opacity-100": isSelected }
+        )}
+        onClick={handleCheckboxWrapperClick}
+      >
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggleBlockSelection(id)} // Already handled by wrapper, but good for accessibility
+          aria-label={`Select link ${title || 'Untitled'}`}
+          className="h-5 w-5 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+        />
+      </div>
+
       {proxiedThumbnailUrl && (
         <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10 overflow-hidden">
           <img
@@ -101,11 +133,11 @@ export default function LinkBlock({
       )}
       <CardHeader
         className={cn(
-          "flex flex-row items-center justify-between space-y-0 pb-2",
-          thumbnailUrl ? "px-4 pt-4" : "px-6 pt-6" 
+          "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", // Ensure header content is above checkbox if overlap
+          thumbnailUrl ? "px-4" : "px-6" 
         )}
       >
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 mt-0.5"> {/* Adjusted margin for better alignment with icons */}
           {faviconUrl ? (
             <img
               src={faviconUrl}
@@ -118,13 +150,13 @@ export default function LinkBlock({
               }}
             />
           ) : iconName ? (
-            <IconRenderer iconName={iconName} className="h-6 w-6 text-muted-foreground" />
+            <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
           ) : (
-            <div className="w-4 h-4" /> // Placeholder for alignment if no icon
+            <div className="w-4 h-4" /> 
           )}
         </div>
 
-        <div className="flex-shrink-0 flex items-center gap-0.5">
+        <div className="flex-shrink-0 flex items-center gap-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={(e) => e.stopPropagation()}>
