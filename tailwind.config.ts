@@ -17,8 +17,7 @@ export default {
     },
   	extend: {
       fontFamily: {
-        sans: ["var(--font-geist-sans)"],
-        mono: ["var(--font-geist-mono)"],
+        sans: ["var(--font-plus-jakarta-sans)"],
       },
   		colors: {
   			background: 'hsl(var(--background))',
