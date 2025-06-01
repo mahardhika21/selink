@@ -106,14 +106,13 @@ export default function LinkBlock({
     >
       <div
         className={cn(
-          "absolute top-2 right-2 z-20 p-1.5 rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
+          "absolute top-2 left-2 z-20 p-1.5 rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
           { "opacity-100": isSelected } // Show if selected
         )}
         onClick={handleCheckboxWrapperClick} // Handles click on checkbox area
       >
         <Checkbox
           checked={isSelected}
-          // Removed onCheckedChange from here to prevent double toggle
           aria-label={`Select link ${title || 'Untitled'}`}
           className="h-5 w-5 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
         />
