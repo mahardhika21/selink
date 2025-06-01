@@ -106,7 +106,7 @@ export default function LinkBlock({
     >
       <div
         className={cn(
-          "absolute top-2 left-2 z-20 h-8 w-8 flex items-center justify-center rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
+          "absolute top-2 left-2 z-20 h-7 w-7 flex items-center justify-center rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
           { "opacity-100": isSelected } // Show if selected
         )}
         onClick={handleCheckboxWrapperClick} // Handles click on checkbox area
@@ -114,7 +114,7 @@ export default function LinkBlock({
         <Checkbox
           checked={isSelected}
           aria-label={`Select link ${title || 'Untitled'}`}
-          className="h-5 w-5 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+          className="h-4 w-4 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
         />
       </div>
 
