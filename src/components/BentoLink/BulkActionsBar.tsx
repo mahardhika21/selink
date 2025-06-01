@@ -4,53 +4,125 @@
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Trash2, FolderOutput } from 'lucide-react';
+import { Trash2, FolderOutput, CheckCheck, ListX } from 'lucide-react';
 import type { Category } from '@/types';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 interface BulkActionsBarProps {
   count: number;
   categories: Category[];
   onDelete: () => void;
   onMove: (categoryId: string | null) => void;
+  onSelectAll: () => void;
+  onClearSelection: () => void;
+  canSelectAnyMore: boolean;
+  hasSelection: boolean; // To ensure "Clear Selection" is only active if there's a selection
 }
 
-export default function BulkActionsBar({ count, categories, onDelete, onMove }: BulkActionsBarProps) {
-  if (count === 0) return null;
+export default function BulkActionsBar({
+  count,
+  categories,
+  onDelete,
+  onMove,
+  onSelectAll,
+  onClearSelection,
+  canSelectAnyMore,
+  hasSelection,
+}: BulkActionsBarProps) {
+  if (count === 0 && !hasSelection) return null; // Keep bar if hasSelection is true even if count is 0 (e.g. after deselect all)
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl h-16 flex items-center justify-between">
-        <span className="text-sm font-medium text-foreground">
-          {count} item{count > 1 ? 's' : ''} selected
-        </span>
-        <div className="flex items-center gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <FolderOutput className="h-4 w-4" />
-                Move to
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Move selected to</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {categories.map((category) => (
-                <DropdownMenuItem key={category.id} onSelect={() => onMove(category.id)}>
-                  {category.name}
+    <TooltipProvider delayDuration={100}>
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl h-16 flex items-center justify-between">
+          <span className="text-sm font-medium text-foreground">
+            {count} item{count > 1 ? 's' : ''} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={onSelectAll}
+                  disabled={!canSelectAnyMore}
+                >
+                  <CheckCheck className="h-4 w-4" />
+                  Select All
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select all items in the current view</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={onClearSelection}
+                  disabled={!hasSelection}
+                >
+                  <ListX className="h-4 w-4" />
+                  Clear
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Clear current selection</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            <span className="h-6 w-px bg-border mx-1"></span>
+
+
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1.5" disabled={!hasSelection}>
+                        <FolderOutput className="h-4 w-4" />
+                        Move to
+                      </Button>
+                    </DropdownMenuTrigger>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Move selected items to a category</p>
+                </TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Move selected to</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {categories.map((category) => (
+                  <DropdownMenuItem key={category.id} onSelect={() => onMove(category.id)}>
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
+                {categories.length > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuItem onSelect={() => onMove(null)}>
+                  Uncategorized
                 </DropdownMenuItem>
-              ))}
-              {categories.length > 0 && <DropdownMenuSeparator />}
-              <DropdownMenuItem onSelect={() => onMove(null)}>
-                Uncategorized
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1.5">
-            <Trash2 className="h-4 w-4" />
-            Delete
-          </Button>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="destructive" size="sm" onClick={onDelete} className="gap-1.5" disabled={!hasSelection}>
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Delete selected items</p>
+              </TooltipContent>
+            </Tooltip>
+
+          </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }

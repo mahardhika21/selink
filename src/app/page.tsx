@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -87,7 +87,6 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Load blocks from localStorage
     try {
       const storedBlocks = localStorage.getItem('bentoLinkBlocks');
       if (storedBlocks) {
@@ -95,10 +94,9 @@ export default function BentoLinkPage() {
       }
     } catch (error) {
       console.error("Error loading blocks from localStorage:", error);
-      localStorage.removeItem('bentoLinkBlocks'); // Clear corrupted data
+      localStorage.removeItem('bentoLinkBlocks'); 
     }
 
-    // Load categories from localStorage
     try {
       const storedCategories = localStorage.getItem('bentoLinkCategories');
       if (storedCategories) {
@@ -106,18 +104,16 @@ export default function BentoLinkPage() {
       }
     } catch (error) {
       console.error("Error loading categories from localStorage:", error);
-      localStorage.removeItem('bentoLinkCategories'); // Clear corrupted data
+      localStorage.removeItem('bentoLinkCategories'); 
     }
   }, []);
 
-  // Save blocks to localStorage whenever they change
   useEffect(() => {
     if (isMounted) {
       localStorage.setItem('bentoLinkBlocks', JSON.stringify(blocks));
     }
   }, [blocks, isMounted]);
 
-  // Save categories to localStorage whenever they change
   useEffect(() => {
     if (isMounted) {
       localStorage.setItem('bentoLinkCategories', JSON.stringify(categories));
@@ -319,13 +315,12 @@ export default function BentoLinkPage() {
     );
     const categoryName = newCategoryId ? categories.find(c => c.id === newCategoryId)?.name : 'Uncategorized';
     const numMoved = selectedBlockIds.length;
-    setSelectedBlockIds([]);
+    setSelectedBlockIds([]); 
     toast({
       title: "Links Moved",
       description: `${numMoved} link(s) moved to ${categoryName || 'Uncategorized'}.`,
     });
   };
-
 
   const filteredBlocks = useMemo(() => {
     if (selectedCategoryId === null) { 
@@ -338,6 +333,34 @@ export default function BentoLinkPage() {
   }, [blocks, selectedCategoryId]);
 
   const isSelectionModeActive = selectedBlockIds.length > 0;
+
+  const allFilteredBlockIds = useMemo(() => filteredBlocks.map(b => b.id), [filteredBlocks]);
+
+  const canSelectAnyMoreInView = useMemo(() => {
+    if (filteredBlocks.length === 0) return false;
+    return allFilteredBlockIds.some(id => !selectedBlockIds.includes(id));
+  }, [allFilteredBlockIds, selectedBlockIds, filteredBlocks.length]);
+
+  const handleSelectAllFilteredBlocks = () => {
+    if (filteredBlocks.length === 0) return;
+    setSelectedBlockIds(allFilteredBlockIds);
+    toast({
+      title: "All Visible Links Selected",
+      description: `${allFilteredBlockIds.length} link(s) in the current view have been selected.`,
+    });
+  };
+
+  const handleClearSelection = () => {
+    const count = selectedBlockIds.length;
+    setSelectedBlockIds([]);
+    if (count > 0) {
+      toast({
+        title: "Selection Cleared",
+        description: `${count} link(s) have been deselected.`,
+      });
+    }
+  };
+
 
   return (
     <>
@@ -485,6 +508,10 @@ export default function BentoLinkPage() {
           categories={categories}
           onDelete={handleDeleteSelectedBlocks}
           onMove={handleMoveSelectedBlocksToCategory}
+          onSelectAll={handleSelectAllFilteredBlocks}
+          onClearSelection={handleClearSelection}
+          canSelectAnyMore={canSelectAnyMoreInView}
+          hasSelection={selectedBlockIds.length > 0}
         />
       )}
     </>
