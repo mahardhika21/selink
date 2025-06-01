@@ -114,7 +114,7 @@ export default function LinkBlock({
         <Checkbox
           checked={isSelected}
           aria-label={`Select link ${title || 'Untitled'}`}
-          className="h-4 w-4 border-primary data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+          className="h-4 w-4 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
         />
       </div>
 
@@ -187,7 +187,7 @@ export default function LinkBlock({
               title="Delete link"
               className="h-7 w-7 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-              <Trash2 className="h-5 w-5 text-muted-foreground hover:text-destructive" />
+              <Trash2 className="h-5 w-5 hover:text-destructive" />
             </Button>
           )}
         </div>
