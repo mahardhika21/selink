@@ -6,7 +6,15 @@ export default function Footer() {
       <p className="text-sm text-muted-foreground flex items-center justify-center">
         Built with 
         <Heart className="w-4 h-4 mx-1 text-primary fill-primary" /> 
-        by @irfan.0z
+        by{' '}
+        <a 
+          href="https://bento.me/uiirfan" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="hover:text-primary hover:underline ml-1"
+        >
+          @irfan.0z
+        </a>
       </p>
     </footer>
   );
