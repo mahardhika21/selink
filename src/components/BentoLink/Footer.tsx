@@ -11,7 +11,7 @@ export default function Footer() {
           href="https://bento.me/uiirfan" 
           target="_blank" 
           rel="noopener noreferrer"
-          className="hover:text-primary hover:underline ml-1"
+          className="hover:text-primary ml-1"
         >
           @irfan.0z
         </a>
