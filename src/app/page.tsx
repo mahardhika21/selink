@@ -363,7 +363,7 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
             <SidebarHeader className="h-14 flex flex-col justify-center items-start px-4">
-              <h2 className="text-base font-semibold text-foreground">Categories</h2>
+              <h2 className="text-base font-medium text-foreground">Categories</h2>
             </SidebarHeader>
             <SidebarContent className="p-2 space-y-2">
                <div className="space-y-2 p-2">
@@ -515,6 +515,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
