@@ -34,7 +34,7 @@ export default function BulkActionsBar({
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-border shadow-lg">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl h-16 flex items-center justify-between">
           <span className="text-sm font-medium text-foreground">
             {count} item{count > 1 ? 's' : ''} selected
