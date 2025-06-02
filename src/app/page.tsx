@@ -52,7 +52,7 @@ const SelinkLogo = () => (
       role="img"
       fontFamily="var(--font-plus-jakarta-sans), Arial, Helvetica, sans-serif"
       fontSize="20"
-      fontWeight="800"
+      fontWeight="900"
       fill="hsl(var(--foreground))"
     >
       Selink
@@ -339,10 +339,21 @@ export default function BentoLinkPage() {
   const handleSelectAllFilteredBlocks = () => {
     if (filteredBlocks.length === 0) return;
     setSelectedBlockIds(allFilteredBlockIds);
+    // toast({
+    //   title: "All Visible Links Selected",
+    //   description: `${allFilteredBlockIds.length} link(s) in the current view have been selected.`,
+    // });
   };
 
   const handleClearSelection = () => {
+    const numCleared = selectedBlockIds.length;
     setSelectedBlockIds([]);
+    // if (numCleared > 0) {
+    //   toast({
+    //     title: "Selection Cleared",
+    //     description: `${numCleared} link(s) have been deselected.`,
+    //   });
+    // }
   };
 
 
@@ -504,4 +515,5 @@ export default function BentoLinkPage() {
     
 
     
+
 
