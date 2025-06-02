@@ -426,7 +426,7 @@ export default function BentoLinkPage() {
 
           <SidebarInset>
             <div className="flex flex-col min-h-screen bg-background text-foreground">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 sm:px-6">
+              <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-card px-4 sm:px-6">
                 <SidebarTrigger className="h-8 w-8" />
                 <div className="flex-1 flex items-center justify-center">
                   <SelinkLogo />
