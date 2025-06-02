@@ -52,7 +52,7 @@ const SelinkLogo = () => (
       role="img"
       fontFamily="var(--font-plus-jakarta-sans), Arial, Helvetica, sans-serif"
       fontSize="20"
-      fontWeight="900"
+      fontWeight="bold"
       fill="hsl(var(--foreground))"
     >
       Selink
@@ -515,6 +515,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
