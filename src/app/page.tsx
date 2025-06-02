@@ -437,7 +437,7 @@ export default function BentoLinkPage() {
               </header>
 
               <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow">
-                <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg border shadow-sm">
+                <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg shadow-sm bg-card">
                   <Input
                     type="url"
                     placeholder="Enter Link"
