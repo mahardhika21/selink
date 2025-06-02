@@ -117,7 +117,7 @@ export default function BentoLinkPage() {
   
   useEffect(() => {
     if (searchParamsString) {
-      console.log('BentoLinkPage current search params (via useSearchParams):', searchParamsString);
+      // console.log('BentoLinkPage current search params (via useSearchParams):', searchParamsString);
     }
   }, [searchParamsString]);
 
@@ -444,7 +444,7 @@ export default function BentoLinkPage() {
                     value={newLinkUrl}
                     onChange={(e) => setNewLinkUrl(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-                    className="flex-grow text-sm"
+                    className="flex-grow text-sm bg-[#F9FAFB]"
                     aria-label="Paste link URL to add"
                     disabled={isAddingLink}
                   />
