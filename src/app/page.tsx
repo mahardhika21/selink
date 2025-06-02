@@ -444,7 +444,7 @@ export default function BentoLinkPage() {
                     value={newLinkUrl}
                     onChange={(e) => setNewLinkUrl(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-                    className="flex-grow text-sm bg-[#F9FAFB]"
+                    className="flex-grow text-sm bg-[#F9FAFB] dark:bg-muted"
                     aria-label="Paste link URL to add"
                     disabled={isAddingLink}
                   />
