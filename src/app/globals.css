@@ -89,6 +89,12 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* Remove focus rings globally for focus-visible state */
+  *:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+  }
 }
 
 @layer utilities {
