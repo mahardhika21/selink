@@ -1,8 +1,8 @@
 
 "use client";
 
-import React, { useState } from 'react';
-import { Trash2, MoreVertical, QrCode, Copy } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Trash2, MoreVertical, QrCode, Copy, Download } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -65,6 +64,7 @@ export default function LinkBlock({
 }: LinkBlockProps) {
   const { toast } = useToast();
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const qrCodeSvgRef = useRef<HTMLDivElement>(null);
 
   if (!linkUrl && !isSelectionModeActive) return null;
 
@@ -120,6 +120,68 @@ export default function LinkBlock({
         description: "Could not copy the URL. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDownloadQrCode = () => {
+    if (qrCodeSvgRef.current) {
+      const svgElement = qrCodeSvgRef.current.querySelector('svg');
+      if (svgElement && linkUrl) {
+        const serializer = new XMLSerializer();
+        let svgString = serializer.serializeToString(svgElement);
+
+        // Ensure width and height are set on the SVG string for consistent rendering
+        // (qrcode.react should do this, but double-check)
+        if (!svgString.includes('width=') || !svgString.includes('height=')) {
+            const size = svgElement.getAttribute('width') || '200'; // Default if not found
+            svgString = svgString.replace('<svg', `<svg width="${size}px" height="${size}px"`);
+        }
+        
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          // Use naturalWidth/Height if available for more accurate sizing, else fallback
+          canvas.width = img.naturalWidth || img.width;
+          canvas.height = img.naturalHeight || img.height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.fillStyle = '#FFFFFF'; // Set background to white for the PNG
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            const pngUrl = canvas.toDataURL('image/png');
+
+            const downloadLink = document.createElement('a');
+            const safeTitle = (title || linkUrl.split('/').pop() || 'qrcode').replace(/[^a-z0-9_.-]/gi, '_').substring(0, 50);
+            downloadLink.href = pngUrl;
+            downloadLink.download = `${safeTitle}.png`;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            toast({
+              title: "QR Code Downloading",
+              description: "Your QR code image is being downloaded.",
+            });
+          } else {
+            toast({ title: "Download Error", description: "Could not create canvas context for QR code.", variant: "destructive" });
+          }
+        };
+        img.onerror = (e) => {
+          console.error("Image load error for QR download:", e);
+          toast({
+            title: "Download Failed",
+            description: "Could not load QR code image for download. Check console for errors.",
+            variant: "destructive",
+          });
+        };
+        // Using btoa(unescape(encodeURIComponent(svgString))) for better special character handling in SVG
+        img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+      } else {
+         toast({
+          title: "Download Failed",
+          description: "QR Code SVG element not found or link URL is missing.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -260,7 +322,7 @@ export default function LinkBlock({
                 Scan this code with your smartphone to open the link.
               </DialogDescription>
             </DialogHeader>
-            <div className="flex flex-col items-center justify-center py-4">
+            <div ref={qrCodeSvgRef} className="flex flex-col items-center justify-center py-4">
               <QRCodeSVG value={linkUrl} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
               <div className="mt-4 flex items-center justify-center w-full max-w-xs">
                 <p className="text-xs text-muted-foreground break-all text-center flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
@@ -272,12 +334,14 @@ export default function LinkBlock({
                 </Button>
               </div>
             </div>
-            <DialogFooter className="sm:justify-center">
-              <DialogClose asChild>
-                <Button type="button" variant="secondary">
-                  Close
-                </Button>
-              </DialogClose>
+            <DialogFooter className="sm:justify-center gap-2">
+              <Button type="button" variant="secondary" onClick={() => setIsQrModalOpen(false)}>
+                Close
+              </Button>
+              <Button type="button" onClick={handleDownloadQrCode} className="gap-1">
+                <Download className="h-4 w-4" />
+                Download QR
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
