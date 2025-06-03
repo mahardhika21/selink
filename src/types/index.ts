@@ -34,3 +34,12 @@ export interface BlockItem {
   categoryId?: string | null; // To associate block with a category
 }
 
+export interface Category {
+  id: string;
+  name: string;
+}
+
+export interface SyncPayload {
+  blocks: BlockItem[];
+  categories: Category[];
+}

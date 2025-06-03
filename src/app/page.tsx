@@ -1,16 +1,16 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
-import type { FormEvent } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import type { FormEvent, ChangeEvent } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import BulkActionsBar from '@/components/BentoLink/BulkActionsBar';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import type { BlockItem, Category } from '@/types';
+import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, ArrowRightLeft, Upload, Download as DownloadIcon } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +25,15 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   SidebarProvider,
   Sidebar,
   SidebarTrigger,
@@ -37,7 +46,9 @@ import {
   SidebarMenuButton,
   SidebarSeparator,
 } from '@/components/ui/sidebar';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { QRCodeSVG } from 'qrcode.react';
+import { format } from 'date-fns';
 
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
@@ -67,6 +78,7 @@ export default function BentoLinkPage() {
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -80,6 +92,11 @@ export default function BentoLinkPage() {
   const searchParams = useSearchParams();
   const searchParamsString = searchParams.toString();
 
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  const [currentQrValue, setCurrentQrValue] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+
   useEffect(() => {
     setIsMounted(true);
     try {
@@ -87,21 +104,49 @@ export default function BentoLinkPage() {
       if (storedBlocks) {
         setBlocks(JSON.parse(storedBlocks));
       }
-    } catch (error) {
-      console.error("Error loading blocks from localStorage:", error);
-      localStorage.removeItem('bentoLinkBlocks'); 
-    }
-
-    try {
       const storedCategories = localStorage.getItem('bentoLinkCategories');
       if (storedCategories) {
         setCategories(JSON.parse(storedCategories));
       }
     } catch (error) {
-      console.error("Error loading categories from localStorage:", error);
-      localStorage.removeItem('bentoLinkCategories'); 
+      console.error("Error loading data from localStorage:", error);
+      localStorage.removeItem('bentoLinkBlocks'); 
+      localStorage.removeItem('bentoLinkCategories');
     }
-  }, []);
+
+    // Handle syncData from URL
+    const syncDataParam = searchParams.get('syncData');
+    if (syncDataParam) {
+      try {
+        const decodedJson = decodeURIComponent(syncDataParam);
+        const parsedData = JSON.parse(decodedJson) as SyncPayload;
+        
+        if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
+          setBlocks(parsedData.blocks);
+          setCategories(parsedData.categories);
+          localStorage.setItem('bentoLinkBlocks', JSON.stringify(parsedData.blocks));
+          localStorage.setItem('bentoLinkCategories', JSON.stringify(parsedData.categories));
+          toast({
+            title: "Data Synced Successfully!",
+            description: "Your links and categories have been imported from the QR code.",
+          });
+        } else {
+          throw new Error("Invalid data structure in QR code.");
+        }
+      } catch (error: any) {
+        console.error("Error processing syncData from URL:", error);
+        toast({
+          title: "Sync Failed",
+          description: error.message || "Could not import data from QR code. The data might be corrupted.",
+          variant: "destructive",
+        });
+      } finally {
+         const newPath = window.location.pathname; // Get current path without query params
+         router.replace(newPath, undefined, { shallow: true });
+      }
+    }
+  }, [searchParams, router, toast]);
+
 
   useEffect(() => {
     if (isMounted) {
@@ -116,9 +161,9 @@ export default function BentoLinkPage() {
   }, [categories, isMounted]);
   
   useEffect(() => {
-    if (searchParamsString) {
+    // if (searchParamsString) {
       // console.log('BentoLinkPage current search params (via useSearchParams):', searchParamsString);
-    }
+    // }
   }, [searchParamsString]);
 
 
@@ -339,21 +384,92 @@ export default function BentoLinkPage() {
   const handleSelectAllFilteredBlocks = () => {
     if (filteredBlocks.length === 0) return;
     setSelectedBlockIds(allFilteredBlockIds);
-    // toast({
-    //   title: "All Visible Links Selected",
-    //   description: `${allFilteredBlockIds.length} link(s) in the current view have been selected.`,
-    // });
   };
 
   const handleClearSelection = () => {
-    const numCleared = selectedBlockIds.length;
     setSelectedBlockIds([]);
-    // if (numCleared > 0) {
-    //   toast({
-    //     title: "Selection Cleared",
-    //     description: `${numCleared} link(s) have been deselected.`,
-    //   });
-    // }
+  };
+
+  const handleOpenSyncModal = () => {
+    const syncData: SyncPayload = { blocks, categories };
+    const jsonDataString = JSON.stringify(syncData);
+    const baseUrl = window.location.href.split('?')[0];
+    const fullUrl = `${baseUrl}?syncData=${encodeURIComponent(jsonDataString)}`;
+    
+    if (fullUrl.length > 2000) { // Basic check for URL length
+        toast({
+            title: "Data Too Large for QR",
+            description: "Your data is too large to be synced via QR code. Please use the JSON export/import feature instead.",
+            variant: "destructive",
+            duration: 5000,
+        });
+        setCurrentQrValue(''); // Prevent QR generation
+    } else {
+        setCurrentQrValue(fullUrl);
+    }
+    setIsSyncModalOpen(true);
+  };
+
+  const handleExportData = () => {
+    const syncData: SyncPayload = { blocks, categories };
+    const jsonString = JSON.stringify(syncData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const currentDate = format(new Date(), 'yyyy-MM-dd');
+    link.href = url;
+    link.download = `selink_data_${currentDate}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({
+      title: "Data Exported",
+      description: "Your links and categories have been exported to a JSON file.",
+    });
+  };
+
+  const triggerImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonString = e.target?.result as string;
+        const parsedData = JSON.parse(jsonString) as SyncPayload;
+
+        if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
+          setBlocks(parsedData.blocks);
+          setCategories(parsedData.categories);
+          localStorage.setItem('bentoLinkBlocks', JSON.stringify(parsedData.blocks));
+          localStorage.setItem('bentoLinkCategories', JSON.stringify(parsedData.categories));
+          toast({
+            title: "Data Imported Successfully!",
+            description: "Your links and categories have been imported from the JSON file.",
+          });
+          setIsSyncModalOpen(false); // Close modal on successful import
+        } else {
+          throw new Error("Invalid JSON file structure.");
+        }
+      } catch (error: any) {
+        console.error("Error importing JSON file:", error);
+        toast({
+          title: "Import Failed",
+          description: error.message || "Could not import data from JSON file. Please check the file format.",
+          variant: "destructive",
+        });
+      } finally {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = ""; // Reset file input
+        }
+      }
+    };
+    reader.readAsText(file);
   };
 
 
@@ -361,7 +477,7 @@ export default function BentoLinkPage() {
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
-          <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
+          <Sidebar side="left" variant="sidebar" collapsible="offcanvas" className="shadow-lg">
             <SidebarHeader className="h-14 flex flex-col justify-center items-start px-4">
               <h2 className="text-base font-medium text-foreground">Categories</h2>
             </SidebarHeader>
@@ -443,6 +559,9 @@ export default function BentoLinkPage() {
                   <SelinkLogo />
                 </div>
                 <div className="ml-auto flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={handleOpenSyncModal} aria-label="Sync data">
+                    <ArrowRightLeft className="h-5 w-5" />
+                  </Button>
                   <ThemeToggle />
                 </div>
               </header>
@@ -497,6 +616,44 @@ export default function BentoLinkPage() {
         </AlertDialogContent>
       </AlertDialog>
 
+      <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Sync Data</DialogTitle>
+            <DialogDescription>
+              Scan the QR code with another device to sync your links and categories, or use the JSON import/export options.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center py-4 space-y-4">
+            {currentQrValue ? (
+              <QRCodeSVG value={currentQrValue} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
+            ) : (
+              <p className="text-sm text-destructive text-center">Data is too large for QR code. Please use JSON export/import.</p>
+            )}
+            <p className="text-xs text-muted-foreground break-all text-center max-w-xs truncate">
+              {currentQrValue ? 'Scan to sync or open URL' : 'QR not available'}
+            </p>
+          </div>
+          <DialogFooter className="sm:justify-center gap-2 flex-col sm:flex-row">
+            <Button type="button" variant="outline" onClick={triggerImportClick} className="w-full sm:w-auto gap-1.5">
+              <Upload className="h-4 w-4" />
+              Import JSON
+            </Button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleImportFileChange} 
+              style={{ display: 'none' }} 
+              accept=".json" 
+            />
+            <Button type="button" onClick={handleExportData} className="w-full sm:w-auto gap-1.5">
+              <DownloadIcon className="h-4 w-4" />
+              Export JSON
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {isSelectionModeActive && (
         <BulkActionsBar
           count={selectedBlockIds.length}
@@ -512,13 +669,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-    
-
-    
-
-
-
-
-
-
-
