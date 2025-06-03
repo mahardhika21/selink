@@ -1,12 +1,22 @@
 
 "use client";
 
-import { Trash2, MoreVertical } from 'lucide-react';
+import React, { useState } from 'react';
+import { Trash2, MoreVertical, QrCode } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,7 +28,8 @@ import {
 import { cn } from '@/lib/utils';
 import IconRenderer from '@/components/IconRenderer';
 import { useToast } from "@/hooks/use-toast";
-import type React from 'react';
+import { QRCodeSVG } from 'qrcode.react';
+
 
 interface LinkBlockProps extends BlockItem {
   onDelete?: (id: string) => void;
@@ -53,8 +64,9 @@ export default function LinkBlock({
   dragHandleProps,
 }: LinkBlockProps) {
   const { toast } = useToast();
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
-  if (!linkUrl && !isSelectionModeActive) return null; // Allow rendering if in selection mode even if linkUrl is somehow null
+  if (!linkUrl && !isSelectionModeActive) return null;
 
   const isSelected = selectedBlockIds.includes(id);
 
@@ -84,124 +96,166 @@ export default function LinkBlock({
   };
   
   const handleCheckboxWrapperClick = (event: React.MouseEvent) => {
-    event.stopPropagation(); // Important: Prevents card click (navigation or selection toggle)
+    event.stopPropagation(); 
     onToggleBlockSelection(id);
+  };
+
+  const handleQrCodeClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setIsQrModalOpen(true);
   };
 
 
   const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
 
   return (
-    <BaseBlock
-      pastelColor={pastelColor}
-      className={cn(
-        "flex flex-col",
-        className,
-        isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
-      )}
-      onClick={handleCardClick} // Updated to handle selection mode
-      innerRef={innerRef}
-      draggableProps={draggableProps}
-      dragHandleProps={dragHandleProps}
-    >
-      <div
+    <>
+      <BaseBlock
+        pastelColor={pastelColor}
         className={cn(
-          "absolute top-2 left-2 z-20 h-7 w-7 flex items-center justify-center rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
-          { "opacity-100": isSelected } // Show if selected
+          "flex flex-col",
+          className,
+          isSelected ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""
         )}
-        onClick={handleCheckboxWrapperClick} // Handles click on checkbox area
+        onClick={handleCardClick}
+        innerRef={innerRef}
+        draggableProps={draggableProps}
+        dragHandleProps={dragHandleProps}
       >
-        <Checkbox
-          checked={isSelected}
-          aria-label={`Select link ${title || 'Untitled'}`}
-          className="h-4 w-4 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-        />
-      </div>
-
-      {proxiedThumbnailUrl && (
-        <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10 overflow-hidden">
-          <img
-            src={proxiedThumbnailUrl}
-            alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = 'none';
-            }}
+        <div
+          className={cn(
+            "absolute top-2 left-2 z-20 h-7 w-7 flex items-center justify-center rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
+            { "opacity-100": isSelected } 
+          )}
+          onClick={handleCheckboxWrapperClick}
+        >
+          <Checkbox
+            checked={isSelected}
+            aria-label={`Select link ${title || 'Untitled'}`}
+            className="h-4 w-4 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
           />
         </div>
-      )}
-      <CardHeader
-        className={cn(
-          "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", 
-          thumbnailUrl ? "px-4" : "px-6" 
-        )}
-      >
-        <div className="flex-shrink-0 mt-0.5">
-          {faviconUrl ? (
+
+        {proxiedThumbnailUrl && (
+          <div className="relative w-full aspect-[2/1] border-b border-card-foreground/10 overflow-hidden">
             <img
-              src={faviconUrl}
-              alt=""
-              width={16}
-              height={16}
-              className="rounded"
+              src={proxiedThumbnailUrl}
+              alt={title ? `Thumbnail for ${title}` : 'Link thumbnail'}
+              className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
-          ) : iconName ? (
-            <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
-          ) : (
-            <div className="w-4 h-4" /> 
-          )}
-        </div>
-
-        <div className="flex-shrink-0 flex items-center gap-1">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={(e) => e.stopPropagation()}>
-                <MoreVertical className="h-4 w-4" />
-                <span className="sr-only">More options</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
-              <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              {categories.map((category) => (
-                <DropdownMenuItem key={category.id} onSelect={() => handleCategorySelect(category.id)}>
-                  {category.name}
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
-                Remove from Category
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {onDelete && id && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleDeleteClick}
-              aria-label="Delete link"
-              title="Delete link"
-              className="h-7 w-7 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            >
-              <Trash2 className="h-5 w-5 hover:text-destructive" />
-            </Button>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent
-        className={cn(
-          "flex-grow flex flex-col justify-end",
-          thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6"
+          </div>
         )}
-      >
-        {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}
-        {content && <p className="text-xs text-card-foreground/80 line-clamp-1 break-all">{content}</p>}
-      </CardContent>
-    </BaseBlock>
+        <CardHeader
+          className={cn(
+            "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", 
+            thumbnailUrl ? "px-4" : "px-6" 
+          )}
+        >
+          <div className="flex-shrink-0 mt-0.5">
+            {faviconUrl ? (
+              <img
+                src={faviconUrl}
+                alt=""
+                width={16}
+                height={16}
+                className="rounded"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            ) : iconName ? (
+              <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
+            ) : (
+              <div className="w-4 h-4" /> 
+            )}
+          </div>
+
+          <div className="flex-shrink-0 flex items-center gap-1">
+            {linkUrl && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                onClick={handleQrCodeClick}
+                aria-label="Show QR Code"
+                title="Show QR Code"
+              >
+                <QrCode className="h-4 w-4" />
+              </Button>
+            )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground" onClick={(e) => e.stopPropagation()}>
+                  <MoreVertical className="h-4 w-4" />
+                  <span className="sr-only">More options</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {categories.map((category) => (
+                  <DropdownMenuItem key={category.id} onSelect={() => handleCategorySelect(category.id)}>
+                    {category.name}
+                  </DropdownMenuItem>
+                ))}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
+                  Remove from Category
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {onDelete && id && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDeleteClick}
+                aria-label="Delete link"
+                title="Delete link"
+                className="h-7 w-7 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                <Trash2 className="h-5 w-5 hover:text-destructive" />
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent
+          className={cn(
+            "flex-grow flex flex-col justify-end",
+            thumbnailUrl ? "px-4 pb-4" : "px-6 pb-6"
+          )}
+        >
+          {title && <CardTitle className="text-xl font-semibold mb-1 text-card-foreground line-clamp-2">{title}</CardTitle>}
+          {content && <p className="text-xs text-card-foreground/80 line-clamp-1 break-all">{content}</p>}
+        </CardContent>
+      </BaseBlock>
+
+      {linkUrl && (
+        <Dialog open={isQrModalOpen} onOpenChange={setIsQrModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Scan QR Code</DialogTitle>
+              <DialogDescription>
+                Scan this code with your smartphone to open the link.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center py-4">
+              <QRCodeSVG value={linkUrl} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
+              <p className="mt-4 text-xs text-muted-foreground break-all text-center">{linkUrl}</p>
+            </div>
+            <DialogFooter className="sm:justify-center">
+              <DialogClose asChild>
+                <Button type="button" variant="secondary">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 }
-
