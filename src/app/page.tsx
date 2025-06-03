@@ -146,7 +146,7 @@ export default function BentoLinkPage() {
         });
       } finally {
          const newPath = window.location.pathname; 
-         router.replace(newPath, undefined, { shallow: true });
+         router.replace(newPath, { shallow: true });
       }
     }
   }, [searchParams, router, toast]);
@@ -397,21 +397,22 @@ export default function BentoLinkPage() {
   const handleOpenSyncModal = () => {
     const syncData: SyncPayload = { blocks, categories };
     const jsonDataString = JSON.stringify(syncData);
-    
     const compressedData = lzString.compressToEncodedURIComponent(jsonDataString);
 
-    const baseUrl = window.location.href.split('?')[0];
-    const fullUrl = `${baseUrl}?syncData=${compressedData}`;
+    // More conservative check for compressed data length to ensure QR scannability
+    const MAX_COMPRESSED_DATA_LENGTH = 2000; // Heuristic limit for scannable QR on 200px
     
-    if (fullUrl.length > 4000) { // Increased limit for QR, but lz-string helps a lot
+    if (compressedData.length > MAX_COMPRESSED_DATA_LENGTH) {
         toast({
             title: "Data Too Large for QR",
-            description: "Your data is too large to be synced via QR code even after compression. Please use the JSON export/import feature instead.",
+            description: `Your data (compressed: ${compressedData.length} chars) is too extensive for a reliable QR code. Please use JSON export/import.`,
             variant: "destructive",
             duration: 7000,
         });
         setCurrentQrValue(''); 
     } else {
+        const baseUrl = window.location.href.split('?')[0];
+        const fullUrl = `${baseUrl}?syncData=${compressedData}`;
         setCurrentQrValue(fullUrl);
     }
     setIsSyncModalOpen(true);
