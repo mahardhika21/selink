@@ -130,22 +130,19 @@ export default function LinkBlock({
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
 
-        // Ensure width and height are set on the SVG string for consistent rendering
-        // (qrcode.react should do this, but double-check)
         if (!svgString.includes('width=') || !svgString.includes('height=')) {
-            const size = svgElement.getAttribute('width') || '200'; // Default if not found
+            const size = svgElement.getAttribute('width') || '200'; 
             svgString = svgString.replace('<svg', `<svg width="${size}px" height="${size}px"`);
         }
         
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          // Use naturalWidth/Height if available for more accurate sizing, else fallback
           canvas.width = img.naturalWidth || img.width;
           canvas.height = img.naturalHeight || img.height;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = '#FFFFFF'; // Set background to white for the PNG
+            ctx.fillStyle = '#FFFFFF'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0);
             const pngUrl = canvas.toDataURL('image/png');
@@ -157,10 +154,7 @@ export default function LinkBlock({
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-            toast({
-              title: "QR Code Downloading",
-              description: "Your QR code image is being downloaded.",
-            });
+            
           } else {
             toast({ title: "Download Error", description: "Could not create canvas context for QR code.", variant: "destructive" });
           }
@@ -173,7 +167,6 @@ export default function LinkBlock({
             variant: "destructive",
           });
         };
-        // Using btoa(unescape(encodeURIComponent(svgString))) for better special character handling in SVG
         img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
       } else {
          toast({
