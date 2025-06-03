@@ -49,6 +49,7 @@ import {
 import { useSearchParams, useRouter } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
+import lzString from 'lz-string';
 
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
@@ -114,12 +115,15 @@ export default function BentoLinkPage() {
       localStorage.removeItem('bentoLinkCategories');
     }
 
-    // Handle syncData from URL
     const syncDataParam = searchParams.get('syncData');
     if (syncDataParam) {
       try {
-        const decodedJson = decodeURIComponent(syncDataParam);
-        const parsedData = JSON.parse(decodedJson) as SyncPayload;
+        const decompressedJson = lzString.decompressFromEncodedURIComponent(syncDataParam);
+        if (!decompressedJson) {
+          throw new Error("Failed to decompress data from QR code. The data might be corrupted or not a valid compressed string.");
+        }
+        
+        const parsedData = JSON.parse(decompressedJson) as SyncPayload;
         
         if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
           setBlocks(parsedData.blocks);
@@ -128,10 +132,10 @@ export default function BentoLinkPage() {
           localStorage.setItem('bentoLinkCategories', JSON.stringify(parsedData.categories));
           toast({
             title: "Data Synced Successfully!",
-            description: "Your links and categories have been imported from the QR code.",
+            description: "Your links and categories have been imported.",
           });
         } else {
-          throw new Error("Invalid data structure in QR code.");
+          throw new Error("Invalid data structure in QR code after decompression.");
         }
       } catch (error: any) {
         console.error("Error processing syncData from URL:", error);
@@ -141,7 +145,7 @@ export default function BentoLinkPage() {
           variant: "destructive",
         });
       } finally {
-         const newPath = window.location.pathname; // Get current path without query params
+         const newPath = window.location.pathname; 
          router.replace(newPath, undefined, { shallow: true });
       }
     }
@@ -393,17 +397,20 @@ export default function BentoLinkPage() {
   const handleOpenSyncModal = () => {
     const syncData: SyncPayload = { blocks, categories };
     const jsonDataString = JSON.stringify(syncData);
-    const baseUrl = window.location.href.split('?')[0];
-    const fullUrl = `${baseUrl}?syncData=${encodeURIComponent(jsonDataString)}`;
     
-    if (fullUrl.length > 2000) { // Basic check for URL length
+    const compressedData = lzString.compressToEncodedURIComponent(jsonDataString);
+
+    const baseUrl = window.location.href.split('?')[0];
+    const fullUrl = `${baseUrl}?syncData=${compressedData}`;
+    
+    if (fullUrl.length > 4000) { // Increased limit for QR, but lz-string helps a lot
         toast({
             title: "Data Too Large for QR",
-            description: "Your data is too large to be synced via QR code. Please use the JSON export/import feature instead.",
+            description: "Your data is too large to be synced via QR code even after compression. Please use the JSON export/import feature instead.",
             variant: "destructive",
-            duration: 5000,
+            duration: 7000,
         });
-        setCurrentQrValue(''); // Prevent QR generation
+        setCurrentQrValue(''); 
     } else {
         setCurrentQrValue(fullUrl);
     }
@@ -452,9 +459,9 @@ export default function BentoLinkPage() {
             title: "Data Imported Successfully!",
             description: "Your links and categories have been imported from the JSON file.",
           });
-          setIsSyncModalOpen(false); // Close modal on successful import
+          setIsSyncModalOpen(false); 
         } else {
-          throw new Error("Invalid JSON file structure.");
+          throw new Error("Invalid JSON file structure. The file should contain 'blocks' and 'categories' arrays.");
         }
       } catch (error: any) {
         console.error("Error importing JSON file:", error);
@@ -465,7 +472,7 @@ export default function BentoLinkPage() {
         });
       } finally {
         if (fileInputRef.current) {
-          fileInputRef.current.value = ""; // Reset file input
+          fileInputRef.current.value = ""; 
         }
       }
     };
@@ -477,7 +484,7 @@ export default function BentoLinkPage() {
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
-          <Sidebar side="left" variant="sidebar" collapsible="offcanvas" className="shadow-lg">
+          <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
             <SidebarHeader className="h-14 flex flex-col justify-center items-start px-4">
               <h2 className="text-base font-medium text-foreground">Categories</h2>
             </SidebarHeader>
@@ -669,3 +676,4 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
