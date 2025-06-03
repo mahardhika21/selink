@@ -78,7 +78,7 @@ export default function BentoLinkPage() {
 
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
   const searchParams = useSearchParams();
-  const searchParamsString = useMemo(() => searchParams.toString(), [searchParams]);
+  const searchParamsString = searchParams.toString();
 
   useEffect(() => {
     setIsMounted(true);
@@ -515,6 +515,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
