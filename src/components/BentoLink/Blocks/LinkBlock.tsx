@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Trash2, MoreVertical, QrCode } from 'lucide-react';
+import { Trash2, MoreVertical, QrCode, Copy } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,6 +103,24 @@ export default function LinkBlock({
   const handleQrCodeClick = (event: React.MouseEvent) => {
     event.stopPropagation();
     setIsQrModalOpen(true);
+  };
+
+  const handleCopyUrl = async () => {
+    if (!linkUrl) return;
+    try {
+      await navigator.clipboard.writeText(linkUrl);
+      toast({
+        title: "URL Copied!",
+        description: "The link URL has been copied to your clipboard.",
+      });
+    } catch (err) {
+      console.error('Failed to copy URL: ', err);
+      toast({
+        title: "Copy Failed",
+        description: "Could not copy the URL. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
 
@@ -244,7 +262,15 @@ export default function LinkBlock({
             </DialogHeader>
             <div className="flex flex-col items-center justify-center py-4">
               <QRCodeSVG value={linkUrl} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
-              <p className="mt-4 text-xs text-muted-foreground break-all text-center">{linkUrl}</p>
+              <div className="mt-4 flex items-center justify-center w-full max-w-xs">
+                <p className="text-xs text-muted-foreground break-all text-center flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
+                  {linkUrl}
+                </p>
+                <Button variant="ghost" size="icon" onClick={handleCopyUrl} className="ml-2 flex-shrink-0 h-7 w-7">
+                  <Copy className="h-4 w-4" />
+                  <span className="sr-only">Copy URL</span>
+                </Button>
+              </div>
             </div>
             <DialogFooter className="sm:justify-center">
               <DialogClose asChild>
@@ -259,3 +285,4 @@ export default function LinkBlock({
     </>
   );
 }
+
