@@ -328,9 +328,6 @@ export default function LinkBlock({
               </div>
             </div>
             <DialogFooter className="sm:justify-center gap-2">
-              <Button type="button" variant="secondary" onClick={() => setIsQrModalOpen(false)}>
-                Close
-              </Button>
               <Button type="button" onClick={handleDownloadQrCode} className="gap-1">
                 <Download className="h-4 w-4" />
                 Download QR
