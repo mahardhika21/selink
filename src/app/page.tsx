@@ -47,7 +47,6 @@ import {
   SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { QRCodeSVG } from 'qrcode.react';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
 
@@ -94,7 +93,6 @@ export default function BentoLinkPage() {
   const searchParamsString = searchParams.toString();
 
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
-  const [currentQrValue, setCurrentQrValue] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
 
@@ -115,41 +113,7 @@ export default function BentoLinkPage() {
       localStorage.removeItem('bentoLinkCategories');
     }
 
-    const syncDataParam = searchParams.get('syncData');
-    if (syncDataParam) {
-      try {
-        const decompressedJson = lzString.decompressFromEncodedURIComponent(syncDataParam);
-        if (!decompressedJson) {
-          throw new Error("Failed to decompress data from QR code. The data might be corrupted or not a valid compressed string.");
-        }
-        
-        const parsedData = JSON.parse(decompressedJson) as SyncPayload;
-        
-        if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
-          setBlocks(parsedData.blocks);
-          setCategories(parsedData.categories);
-          localStorage.setItem('bentoLinkBlocks', JSON.stringify(parsedData.blocks));
-          localStorage.setItem('bentoLinkCategories', JSON.stringify(parsedData.categories));
-          toast({
-            title: "Data Synced Successfully!",
-            description: "Your links and categories have been imported.",
-          });
-        } else {
-          throw new Error("Invalid data structure in QR code after decompression.");
-        }
-      } catch (error: any) {
-        console.error("Error processing syncData from URL:", error);
-        toast({
-          title: "Sync Failed",
-          description: error.message || "Could not import data from QR code. The data might be corrupted.",
-          variant: "destructive",
-        });
-      } finally {
-         const newPath = window.location.pathname; 
-         router.replace(newPath, { shallow: true });
-      }
-    }
-  }, [searchParams, router, toast]);
+  }, []);
 
 
   useEffect(() => {
@@ -395,26 +359,6 @@ export default function BentoLinkPage() {
   };
 
   const handleOpenSyncModal = () => {
-    const syncData: SyncPayload = { blocks, categories };
-    const jsonDataString = JSON.stringify(syncData);
-    const compressedData = lzString.compressToEncodedURIComponent(jsonDataString);
-
-    // More conservative check for compressed data length to ensure QR scannability
-    const MAX_COMPRESSED_DATA_LENGTH = 2000; // Heuristic limit for scannable QR on 200px
-    
-    if (compressedData.length > MAX_COMPRESSED_DATA_LENGTH) {
-        toast({
-            title: "Data Too Large for QR",
-            description: `Your data (compressed: ${compressedData.length} chars) is too extensive for a reliable QR code. Please use JSON export/import.`,
-            variant: "destructive",
-            duration: 7000,
-        });
-        setCurrentQrValue(''); 
-    } else {
-        const baseUrl = window.location.href.split('?')[0];
-        const fullUrl = `${baseUrl}?syncData=${compressedData}`;
-        setCurrentQrValue(fullUrl);
-    }
     setIsSyncModalOpen(true);
   };
 
@@ -629,17 +573,12 @@ export default function BentoLinkPage() {
           <DialogHeader>
             <DialogTitle>Sync Data</DialogTitle>
             <DialogDescription>
-              Scan the QR code with another device to sync your links and categories, or use the JSON import/export options.
+              Use the JSON import/export options to sync your links and categories.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center py-4 space-y-4">
-            {currentQrValue ? (
-              <QRCodeSVG value={currentQrValue} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
-            ) : (
-              <p className="text-sm text-destructive text-center">Data is too large for QR code. Please use JSON export/import.</p>
-            )}
-            <p className="text-xs text-muted-foreground break-all text-center max-w-xs truncate">
-              {currentQrValue ? 'Scan to sync or open URL' : 'QR not available'}
+            <p className="text-sm text-muted-foreground text-center">
+              Export your current data to a JSON file or import data from a previously exported JSON file.
             </p>
           </div>
           <DialogFooter className="sm:justify-center gap-2 flex-col sm:flex-row">
@@ -677,4 +616,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
