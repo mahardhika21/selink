@@ -584,7 +584,7 @@ export default function BentoLinkPage() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <DialogDescription>
+            <DialogDescription className="pt-2">
               Backup atau restore data tautan dan kategori Anda melalui file JSON.
             </DialogDescription>
           </DialogHeader>
@@ -625,5 +625,6 @@ export default function BentoLinkPage() {
 }
 
     
+
 
 
