@@ -391,7 +391,6 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
   };
 
   const triggerImportClick = () => {
@@ -488,6 +487,11 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
            <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
+              <div className="pt-2 pb-1">
+                <h3 className="text-sm font-semibold tracking-tight text-foreground px-1">
+                  Categories
+                </h3>
+              </div>
               <div className="space-y-2 py-2">
                 <Input
                   placeholder="New Category"
@@ -663,3 +667,5 @@ export default function BentoLinkPage() {
   );
 }
 
+
+    
