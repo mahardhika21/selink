@@ -60,6 +60,7 @@ import {
   SidebarMenuButton,
   SidebarSeparator,
   useSidebar,
+  SheetTitle, // Make sure SheetTitle is imported if it's from sidebar itself
 } from '@/components/ui/sidebar';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -451,7 +452,7 @@ export default function BentoLinkPage() {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="pt-2"> {/* Re-add DialogDescription/SheetDescription if needed here or pass as prop */}
+      <div className="pt-2"> 
         {clientIsMobile ? 
           <SheetDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</SheetDescription> : 
           <DialogDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</DialogDescription>
@@ -505,7 +506,7 @@ export default function BentoLinkPage() {
                   <SidebarMenuButton
                     onClick={() => setSelectedCategoryId(null)}
                     isActive={selectedCategoryId === null}
-                    className="w-full justify-start"
+                    className="w-full justify-start px-3"
                     tooltip="Show all links"
                   >
                     <Columns className="h-4 w-4" /> All Links
@@ -515,7 +516,7 @@ export default function BentoLinkPage() {
                   <SidebarMenuButton
                     onClick={() => setSelectedCategoryId(UNCATEGORIZED_ID)}
                     isActive={selectedCategoryId === UNCATEGORIZED_ID}
-                    className="w-full justify-start"
+                    className="w-full justify-start px-3"
                     tooltip="Show uncategorized links"
                   >
                     <ListFilter className="h-4 w-4" /> Uncategorized
@@ -535,7 +536,7 @@ export default function BentoLinkPage() {
                       tooltip={category.name}
                       onClick={() => setSelectedCategoryId(category.id)}
                       isActive={selectedCategoryId === category.id}
-                      className="flex-grow justify-start"
+                      className="flex-grow justify-start px-3"
                     >
                       <span className="truncate">{category.name}</span>
                     </SidebarMenuButton>
