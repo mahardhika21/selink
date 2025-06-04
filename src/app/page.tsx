@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, ArrowRightLeft, Upload, Download as DownloadIcon, Info } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -511,10 +511,11 @@ export default function BentoLinkPage() {
                   <SelinkLogo />
                 </div>
                 <div className="ml-auto flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={handleOpenSyncModal} aria-label="Sync data">
-                    <ArrowRightLeft className="h-5 w-5" />
-                  </Button>
                   <ThemeToggle />
+                  <Button variant="ghost" size="sm" onClick={handleOpenSyncModal} aria-label="Sync data" className="gap-1">
+                    <RefreshCw className="h-4 w-4" />
+                    Sync
+                  </Button>
                 </div>
               </header>
 
@@ -625,6 +626,7 @@ export default function BentoLinkPage() {
 }
 
     
+
 
 
 
