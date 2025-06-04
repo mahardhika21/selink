@@ -51,6 +51,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarSeparator,
+  SheetTitle, 
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -86,7 +88,6 @@ export default function BentoLinkPage() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
 
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -300,7 +301,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== blockId)
+        ? prevSelectedIds.filter(id => id !== blockId) 
         : [...prevSelectedIds, blockId]
     );
   };
@@ -509,7 +510,7 @@ export default function BentoLinkPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  <Button variant="ghost" size="sm" onClick={handleOpenSyncModal} aria-label="Sync data" className="gap-1">
+                  <Button size="sm" onClick={handleOpenSyncModal} aria-label="Sync data" className="gap-1">
                     <RefreshCw className="h-4 w-4" />
                     Sync
                   </Button>
