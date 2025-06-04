@@ -579,7 +579,7 @@ export default function BentoLinkPage() {
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs">
-                    <p>Data disimpan lokal di browser (localStorage). Ekspor berkala untuk backup & hindari kehilangan data.</p>
+                    <p>Backup data secara berkala untuk menghindari kehilangan data akibat cache</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -625,4 +625,5 @@ export default function BentoLinkPage() {
 }
 
     
+
 
