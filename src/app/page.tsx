@@ -573,15 +573,10 @@ export default function BentoLinkPage() {
           <DialogHeader>
             <DialogTitle>Sync Data</DialogTitle>
             <DialogDescription>
-              Use the JSON import/export options to sync your links and categories.
+              Backup or restore your links and categories via a JSON file.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col items-center justify-center py-4 space-y-4">
-            <p className="text-sm text-muted-foreground text-center">
-              Export your current data to a JSON file or import data from a previously exported JSON file.
-            </p>
-          </div>
-          <DialogFooter className="sm:justify-center gap-2 flex-col sm:flex-row">
+          <DialogFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
             <Button type="button" variant="outline" onClick={triggerImportClick} className="w-full sm:w-auto gap-1.5">
               <Upload className="h-4 w-4" />
               Import JSON
