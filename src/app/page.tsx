@@ -34,6 +34,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle as SheetTitleComponent,
+  SheetDescription,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -51,12 +59,13 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarSeparator,
-  SheetTitle, 
   useSidebar,
 } from '@/components/ui/sidebar';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
 
@@ -102,6 +111,12 @@ export default function BentoLinkPage() {
   
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
+  const [clientIsMobile, setClientIsMobile] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    setClientIsMobile(isMobile);
+  }, [isMobile]);
 
 
   useEffect(() => {
@@ -376,10 +391,6 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    toast({
-      title: "Data Exported",
-      description: "Your links and categories have been exported to a JSON file.",
-    });
   };
 
   const triggerImportClick = () => {
@@ -425,6 +436,50 @@ export default function BentoLinkPage() {
     reader.readAsText(file);
   };
 
+  const syncModalContent = (
+    <>
+      <div className="flex items-center gap-2">
+        {clientIsMobile ? <SheetTitleComponent>Sync Data</SheetTitleComponent> : <DialogTitle>Sync Data</DialogTitle>}
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent side={clientIsMobile ? "top" : "bottom"} className="max-w-xs">
+              <p>Backup data secara berkala untuk menghindari kehilangan data akibat cache</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+      <div className="pt-2"> {/* Re-add DialogDescription/SheetDescription if needed here or pass as prop */}
+        {clientIsMobile ? 
+          <SheetDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</SheetDescription> : 
+          <DialogDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</DialogDescription>
+        }
+      </div>
+    </>
+  );
+
+  const syncModalFooterContent = (
+    <>
+      <Button type="button" variant="outline" onClick={triggerImportClick} className="w-full sm:w-auto gap-1.5">
+        <Upload className="h-4 w-4" />
+        Import JSON
+      </Button>
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleImportFileChange} 
+        style={{ display: 'none' }} 
+        accept=".json" 
+      />
+      <Button type="button" onClick={handleExportData} className="w-full sm:w-auto gap-1.5">
+        <DownloadIcon className="h-4 w-4" />
+        Export JSON
+      </Button>
+    </>
+  );
+
 
   return (
     <>
@@ -432,7 +487,7 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="p-0">
-               <div className="space-y-2 p-2">
+              <div className="space-y-2 p-2">
                 <Input
                   placeholder="New Category"
                   value={newCategoryName}
@@ -567,45 +622,29 @@ export default function BentoLinkPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-2">
-              <DialogTitle>Sync Data</DialogTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p>Backup data secara berkala untuk menghindari kehilangan data akibat cache</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <DialogDescription className="pt-2">
-              Backup atau restore data tautan dan kategori Anda melalui file JSON.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
-            <Button type="button" variant="outline" onClick={triggerImportClick} className="w-full sm:w-auto gap-1.5">
-              <Upload className="h-4 w-4" />
-              Import JSON
-            </Button>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              onChange={handleImportFileChange} 
-              style={{ display: 'none' }} 
-              accept=".json" 
-            />
-            <Button type="button" onClick={handleExportData} className="w-full sm:w-auto gap-1.5">
-              <DownloadIcon className="h-4 w-4" />
-              Export JSON
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {clientIsMobile === undefined ? null : clientIsMobile ? (
+        <Sheet open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen} side="bottom">
+          <SheetContent className="sm:max-w-md">
+            <SheetHeader>
+              {syncModalContent}
+            </SheetHeader>
+            <SheetFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
+              {syncModalFooterContent}
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
+      ) : (
+        <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              {syncModalContent}
+            </DialogHeader>
+            <DialogFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
+              {syncModalFooterContent}
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {isSelectionModeActive && (
         <BulkActionsBar
@@ -622,15 +661,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-    
-
-
-
-
-
-
-
-    
-
-    
