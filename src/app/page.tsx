@@ -86,6 +86,8 @@ export default function BentoLinkPage() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -298,7 +300,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== blockId)
+        ? prevSelectedIds.filter(id => id !== idToDelete)
         : [...prevSelectedIds, blockId]
     );
   };
@@ -577,7 +579,7 @@ export default function BentoLinkPage() {
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-xs">
-                    <p>Data disimpan secara lokal di browser Anda (localStorage). Ekspor data Anda secara berkala untuk membuat cadangan dan menghindari kehilangan data jika cache browser dibersihkan.</p>
+                    <p>Data disimpan lokal di browser (localStorage). Ekspor berkala untuk backup & hindari kehilangan data.</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -623,3 +625,4 @@ export default function BentoLinkPage() {
 }
 
     
+
