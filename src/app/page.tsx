@@ -443,7 +443,7 @@ export default function BentoLinkPage() {
               <Info className="h-4 w-4 text-muted-foreground cursor-help" />
             </TooltipTrigger>
             <TooltipContent side={clientIsMobile ? "top" : "bottom"} className="max-w-xs">
-              <p>Backup data secara berkala untuk menghindari kehilangan data akibat cache</p>
+              <p>Periodically back up your data to avoid data loss due to cache.</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -487,6 +487,7 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
            <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
+              
               <div className="py-2">
                 <Input
                   placeholder="New Category"
