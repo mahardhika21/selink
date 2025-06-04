@@ -37,7 +37,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent, 
+  SheetTitle as SheetTitleComponent,
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
@@ -101,14 +101,14 @@ export default function BentoLinkPage() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null); 
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDeleteId, setCategoryToDeleteId] = useState<string | null>(null);
   const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
 
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
-  
+
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
@@ -132,7 +132,7 @@ export default function BentoLinkPage() {
       }
     } catch (error) {
       console.error("Error loading data from localStorage:", error);
-      localStorage.removeItem('bentoLinkBlocks'); 
+      localStorage.removeItem('bentoLinkBlocks');
       localStorage.removeItem('bentoLinkCategories');
     }
   }, []);
@@ -149,7 +149,7 @@ export default function BentoLinkPage() {
       localStorage.setItem('bentoLinkCategories', JSON.stringify(categories));
     }
   }, [categories, isMounted]);
-  
+
 
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) {
@@ -187,7 +187,7 @@ export default function BentoLinkPage() {
         )
       );
       if (selectedCategoryId === categoryToDeleteId) {
-        setSelectedCategoryId(null); 
+        setSelectedCategoryId(null);
       }
       toast({
         title: "Category Deleted",
@@ -215,7 +215,7 @@ export default function BentoLinkPage() {
     }
 
     try {
-      new URL(normalizedUrl); 
+      new URL(normalizedUrl);
     } catch (_) {
       toast({
         title: "Invalid Link",
@@ -240,12 +240,12 @@ export default function BentoLinkPage() {
         try {
           const urlObj = new URL(normalizedUrl);
           let hostnameForTitle = urlObj.hostname.replace(/^www\./, '');
-          if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname; 
+          if (!hostnameForTitle && urlObj.hostname) hostnameForTitle = urlObj.hostname;
           displayTitle = hostnameForTitle.length > 50 ? hostnameForTitle.substring(0, 47) + "..." : hostnameForTitle;
-          if (!displayTitle) { 
+          if (!displayTitle) {
              displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
           }
-        } catch (e) { 
+        } catch (e) {
           displayTitle = normalizedUrl.length > 50 ? normalizedUrl.substring(0, 47) + "..." : normalizedUrl;
         }
       }
@@ -255,13 +255,13 @@ export default function BentoLinkPage() {
         id: crypto.randomUUID(),
         type: 'link',
         title: displayTitle,
-        content: normalizedUrl, 
+        content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
         thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
-        categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId, 
+        categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
 
       setBlocks(prevBlocks => [...prevBlocks, newBlock]);
@@ -280,7 +280,7 @@ export default function BentoLinkPage() {
 
   const handleDeleteBlock = (idToDelete: string) => {
     setBlocks(currentBlocks => currentBlocks.filter(block => block && block.id !== idToDelete));
-    setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete)); 
+    setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete));
   };
 
   const handleOnDragEnd = (result: DropResult) => {
@@ -290,7 +290,7 @@ export default function BentoLinkPage() {
       const items = Array.from(currentBlocks);
       const [reorderedItem] = items.splice(source.index, 1);
       if (reorderedItem === undefined) {
-        return currentBlocks; 
+        return currentBlocks;
       }
       items.splice(destination.index, 0, reorderedItem);
       return items;
@@ -316,7 +316,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== blockId) 
+        ? prevSelectedIds.filter(id => id !== blockId)
         : [...prevSelectedIds, blockId]
     );
   };
@@ -339,7 +339,7 @@ export default function BentoLinkPage() {
     );
     const categoryName = newCategoryId ? categories.find(c => c.id === newCategoryId)?.name : 'Uncategorized';
     const numMoved = selectedBlockIds.length;
-    setSelectedBlockIds([]); 
+    setSelectedBlockIds([]);
     toast({
       title: "Links Moved",
       description: `${numMoved} link(s) moved to ${categoryName || 'Uncategorized'}.`,
@@ -347,10 +347,10 @@ export default function BentoLinkPage() {
   };
 
   const filteredBlocks = useMemo(() => {
-    if (selectedCategoryId === null) { 
+    if (selectedCategoryId === null) {
       return blocks;
     }
-    if (selectedCategoryId === UNCATEGORIZED_ID) { 
+    if (selectedCategoryId === UNCATEGORIZED_ID) {
       return blocks.filter(block => !block.categoryId);
     }
     return blocks.filter(block => block.categoryId === selectedCategoryId);
@@ -391,7 +391,7 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    
+
   };
 
   const triggerImportClick = () => {
@@ -417,7 +417,7 @@ export default function BentoLinkPage() {
             title: "Data Imported Successfully!",
             description: "Your links and categories have been imported from the JSON file.",
           });
-          setIsSyncModalOpen(false); 
+          setIsSyncModalOpen(false);
         } else {
           throw new Error("Invalid JSON file structure. The file should contain 'blocks' and 'categories' arrays.");
         }
@@ -430,7 +430,7 @@ export default function BentoLinkPage() {
         });
       } finally {
         if (fileInputRef.current) {
-          fileInputRef.current.value = ""; 
+          fileInputRef.current.value = "";
         }
       }
     };
@@ -452,10 +452,10 @@ export default function BentoLinkPage() {
           </Tooltip>
         </TooltipProvider>
       </div>
-      <div className="pt-2"> 
-        {clientIsMobile ? 
-          <SheetDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</SheetDescription> : 
-          <DialogDescription>Backup atau restore data tautan dan kategori Anda melalui file JSON.</DialogDescription>
+      <div className="pt-2">
+        {clientIsMobile ?
+          <SheetDescription>Backup or restore your link and category data via a JSON file.</SheetDescription> :
+          <DialogDescription>Backup or restore your link and category data via a JSON file.</DialogDescription>
         }
       </div>
     </>
@@ -467,12 +467,12 @@ export default function BentoLinkPage() {
         <Upload className="h-4 w-4" />
         Import JSON
       </Button>
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        onChange={handleImportFileChange} 
-        style={{ display: 'none' }} 
-        accept=".json" 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportFileChange}
+        style={{ display: 'none' }}
+        accept=".json"
       />
       <Button type="button" onClick={handleExportData} className="w-full sm:w-auto gap-1.5">
         <DownloadIcon className="h-4 w-4" />
@@ -486,7 +486,7 @@ export default function BentoLinkPage() {
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
-          <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
+           <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
               <div className="space-y-2 py-2">
                 <Input
@@ -592,7 +592,7 @@ export default function BentoLinkPage() {
                 </div>
 
                 <ContentGrid
-                  blocks={filteredBlocks} 
+                  blocks={filteredBlocks}
                   onDeleteBlock={handleDeleteBlock}
                   isDndEnabled={isMounted && !isSelectionModeActive}
                   categories={categories}
