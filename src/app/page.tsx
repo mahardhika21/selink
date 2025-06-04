@@ -22,7 +22,7 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
+  AlertDialogTitle as AlertDialogTitleComponent,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -429,11 +429,8 @@ export default function BentoLinkPage() {
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
         <SidebarProvider defaultOpen={false}>
-          <Sidebar side="left" variant="sidebar" collapsible="offcanvas">
-            <SidebarHeader className="h-14 flex flex-col justify-center items-start px-4">
-              <h2 className="text-base font-medium text-foreground">Categories</h2>
-            </SidebarHeader>
-            <SidebarContent className="p-2 space-y-2">
+          <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
+            <SidebarContent className="p-0">
                <div className="space-y-2 p-2">
                 <Input
                   placeholder="New Category"
@@ -557,7 +554,7 @@ export default function BentoLinkPage() {
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this category?</AlertDialogTitle>
+            <AlertDialogTitleComponent>Are you sure you want to delete this category?</AlertDialogTitleComponent>
             <AlertDialogDescription>
               This action cannot be undone. Deleting the category "{categoryToDeleteName}" will permanently remove it. Links previously in this category will become uncategorized.
             </AlertDialogDescription>
@@ -631,3 +628,8 @@ export default function BentoLinkPage() {
 
 
 
+
+
+    
+
+    

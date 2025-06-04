@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet" // Ensure SheetTitle is imported
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -163,6 +163,7 @@ const Sidebar = React.forwardRef<
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
     collapsible?: "offcanvas" | "icon" | "none"
+    mobileTitle?: string;
   }
 >(
   (
@@ -170,6 +171,7 @@ const Sidebar = React.forwardRef<
       side = "left",
       variant = "sidebar",
       collapsible = "offcanvas",
+      mobileTitle = "Menu", // Default title for mobile
       className,
       children,
       ...props
@@ -200,7 +202,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden shadow-lg"
+            className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden shadow-lg flex flex-col"
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -208,7 +210,12 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <SidebarHeader className="h-14 flex-shrink-0 flex flex-col justify-center items-start px-4 border-b border-sidebar-border">
+              <SheetTitle className="text-base font-medium text-sidebar-foreground">{mobileTitle}</SheetTitle>
+            </SidebarHeader>
+            <div className="flex-grow overflow-y-auto">
+              {children}
+            </div>
           </SheetContent>
         </Sheet>
       )
@@ -767,3 +774,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+    
