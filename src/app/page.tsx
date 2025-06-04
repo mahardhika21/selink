@@ -37,7 +37,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent,
+  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict with AlertDialogTitle
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
@@ -391,6 +391,7 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    // Toast notification for export was removed based on user request
   };
 
   const triggerImportClick = () => {
@@ -488,7 +489,7 @@ export default function BentoLinkPage() {
            <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
               <div className="pt-2 pb-1">
-                <h3 className="text-sm font-semibold tracking-tight text-foreground px-1">
+                <h3 className="text-sm font-semibold tracking-tight text-foreground">
                   Categories
                 </h3>
               </div>
@@ -666,6 +667,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-
-    
