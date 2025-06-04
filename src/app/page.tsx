@@ -300,7 +300,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== idToDelete)
+        ? prevSelectedIds.filter(id => id !== blockId)
         : [...prevSelectedIds, blockId]
     );
   };
@@ -625,6 +625,7 @@ export default function BentoLinkPage() {
 }
 
     
+
 
 
 
