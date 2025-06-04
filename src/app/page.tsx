@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, ArrowRightLeft, Upload, Download as DownloadIcon } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, ArrowRightLeft, Upload, Download as DownloadIcon, Info } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -33,6 +33,12 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   SidebarProvider,
   Sidebar,
@@ -79,6 +85,7 @@ export default function BentoLinkPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -89,9 +96,7 @@ export default function BentoLinkPage() {
   const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
 
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
-  const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
-
+  
   const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -112,7 +117,6 @@ export default function BentoLinkPage() {
       localStorage.removeItem('bentoLinkBlocks'); 
       localStorage.removeItem('bentoLinkCategories');
     }
-
   }, []);
 
 
@@ -128,12 +132,6 @@ export default function BentoLinkPage() {
     }
   }, [categories, isMounted]);
   
-  useEffect(() => {
-    // if (searchParamsString) {
-      // console.log('BentoLinkPage current search params (via useSearchParams):', searchParamsString);
-    // }
-  }, [searchParamsString]);
-
 
   const handleAddCategory = () => {
     if (!newCategoryName.trim()) {
@@ -571,9 +569,21 @@ export default function BentoLinkPage() {
       <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Sync Data</DialogTitle>
+            <div className="flex items-center gap-2">
+              <DialogTitle>Sync Data</DialogTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <p>Data disimpan secara lokal di browser Anda (localStorage). Ekspor data Anda secara berkala untuk membuat cadangan dan menghindari kehilangan data jika cache browser dibersihkan.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <DialogDescription>
-              Backup or restore your links and categories via a JSON file.
+              Backup atau restore data tautan dan kategori Anda melalui file JSON.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
@@ -611,3 +621,5 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
+    
