@@ -37,7 +37,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent, // Renamed to avoid conflict with DialogTitle if used directly
+  SheetTitle as SheetTitleComponent, 
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
@@ -60,7 +60,6 @@ import {
   SidebarMenuButton,
   SidebarSeparator,
   useSidebar,
-  // SheetTitle, // No longer aliasing from sidebar, using SheetTitleComponent from sheet directly
 } from '@/components/ui/sidebar';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { format } from 'date-fns';
@@ -392,6 +391,7 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
   };
 
   const triggerImportClick = () => {
@@ -488,7 +488,7 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
           <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
-              <div className="space-y-2 p-2">
+              <div className="space-y-2 py-2">
                 <Input
                   placeholder="New Category"
                   value={newCategoryName}
