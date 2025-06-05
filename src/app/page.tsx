@@ -37,7 +37,7 @@ import {
   Sheet,
   SheetContent,
   SheetHeader,
-  SheetTitle as SheetTitleComponent, 
+  SheetTitle as SheetTitleComponent,
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
@@ -280,6 +280,23 @@ export default function BentoLinkPage() {
     setSelectedBlockIds(prev => prev.filter(id => id !== idToDelete));
   };
 
+  const handleUpdateBlockThumbnail = (blockId: string, newThumbnailUrl: string | null) => {
+    setBlocks(prevBlocks =>
+      prevBlocks.map(block =>
+        block.id === blockId
+          ? { ...block, thumbnailUrl: newThumbnailUrl, thumbnailDataAiHint: undefined }
+          : block
+      )
+    );
+    const block = blocks.find(b => b.id === blockId);
+    if (block) {
+      toast({
+        title: "Thumbnail Updated",
+        description: `Thumbnail for "${block.title}" has been updated.`,
+      });
+    }
+  };
+
   const handleOnDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination } = result;
@@ -478,7 +495,7 @@ export default function BentoLinkPage() {
   );
 
   if (!isMounted) {
-    return null; 
+    return null;
   }
 
   return (
@@ -487,7 +504,6 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
            <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
-              
               <div className="py-2">
                 <Input
                   placeholder="New Category"
@@ -594,6 +610,7 @@ export default function BentoLinkPage() {
                 <ContentGrid
                   blocks={filteredBlocks}
                   onDeleteBlock={handleDeleteBlock}
+                  onUpdateBlockThumbnail={handleUpdateBlockThumbnail}
                   isDndEnabled={isMounted && !isSelectionModeActive}
                   categories={categories}
                   onAssignCategoryToBlock={handleAssignCategoryToBlock}
@@ -662,3 +679,4 @@ export default function BentoLinkPage() {
     </>
   );
 }
+

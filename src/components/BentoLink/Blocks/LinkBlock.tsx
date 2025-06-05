@@ -2,12 +2,13 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Trash2, MoreVertical, QrCode, Copy, Download } from 'lucide-react';
+import { Trash2, MoreVertical, QrCode, Copy, Download, Edit3 } from 'lucide-react';
 import BaseBlock from './BaseBlock';
 import type { BlockItem, Category } from '@/types';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -32,6 +34,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 interface LinkBlockProps extends BlockItem {
   onDelete?: (id: string) => void;
+  onUpdateThumbnail?: (blockId: string, newThumbnailUrl: string | null) => void;
   innerRef?: React.Ref<HTMLDivElement>;
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
@@ -53,6 +56,7 @@ export default function LinkBlock({
   thumbnailUrl,
   faviconUrl,
   onDelete,
+  onUpdateThumbnail,
   categories,
   onAssignCategoryToBlock,
   selectedBlockIds,
@@ -65,6 +69,9 @@ export default function LinkBlock({
   const { toast } = useToast();
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const qrCodeSvgRef = useRef<HTMLDivElement>(null);
+  const [isEditThumbnailModalOpen, setIsEditThumbnailModalOpen] = useState(false);
+  const [newThumbnailInputUrl, setNewThumbnailInputUrl] = useState(thumbnailUrl || '');
+
 
   if (!linkUrl && !isSelectionModeActive) return null;
 
@@ -94,9 +101,9 @@ export default function LinkBlock({
       onAssignCategoryToBlock(id, categoryId);
     }
   };
-  
+
   const handleCheckboxWrapperClick = (event: React.MouseEvent) => {
-    event.stopPropagation(); 
+    event.stopPropagation();
     onToggleBlockSelection(id);
   };
 
@@ -131,10 +138,10 @@ export default function LinkBlock({
         let svgString = serializer.serializeToString(svgElement);
 
         if (!svgString.includes('width=') || !svgString.includes('height=')) {
-            const size = svgElement.getAttribute('width') || '200'; 
+            const size = svgElement.getAttribute('width') || '200';
             svgString = svgString.replace('<svg', `<svg width="${size}px" height="${size}px"`);
         }
-        
+
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
@@ -142,7 +149,7 @@ export default function LinkBlock({
           canvas.height = img.naturalHeight || img.height;
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = '#FFFFFF'; 
+            ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, 0, 0);
             const pngUrl = canvas.toDataURL('image/png');
@@ -154,7 +161,7 @@ export default function LinkBlock({
             document.body.appendChild(downloadLink);
             downloadLink.click();
             document.body.removeChild(downloadLink);
-            
+
           } else {
             toast({ title: "Download Error", description: "Could not create canvas context for QR code.", variant: "destructive" });
           }
@@ -178,6 +185,17 @@ export default function LinkBlock({
     }
   };
 
+  const handleOpenEditThumbnailModal = () => {
+    setNewThumbnailInputUrl(thumbnailUrl || ''); // Pre-fill with current or empty
+    setIsEditThumbnailModalOpen(true);
+  };
+
+  const handleSaveThumbnail = () => {
+    if (onUpdateThumbnail && id) {
+      onUpdateThumbnail(id, newThumbnailInputUrl.trim() === '' ? null : newThumbnailInputUrl.trim());
+    }
+    setIsEditThumbnailModalOpen(false);
+  };
 
   const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
 
@@ -198,7 +216,7 @@ export default function LinkBlock({
         <div
           className={cn(
             "absolute top-2 left-2 z-20 h-7 w-7 flex items-center justify-center rounded-full bg-card/60 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100",
-            { "opacity-100": isSelected } 
+            { "opacity-100": isSelected }
           )}
           onClick={handleCheckboxWrapperClick}
         >
@@ -223,8 +241,8 @@ export default function LinkBlock({
         )}
         <CardHeader
           className={cn(
-            "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10", 
-            thumbnailUrl ? "px-4" : "px-6" 
+            "flex flex-row items-start justify-between space-y-0 pb-2 pt-4 z-10",
+            thumbnailUrl ? "px-4" : "px-6"
           )}
         >
           <div className="flex-shrink-0 mt-0.5">
@@ -242,7 +260,7 @@ export default function LinkBlock({
             ) : iconName ? (
               <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <div className="w-4 h-4" /> 
+              <div className="w-4 h-4" />
             )}
           </div>
 
@@ -267,6 +285,11 @@ export default function LinkBlock({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem onSelect={handleOpenEditThumbnailModal} className="gap-2">
+                  <Edit3 className="h-4 w-4" />
+                  Edit Thumbnail
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {categories.map((category) => (
@@ -274,7 +297,7 @@ export default function LinkBlock({
                     {category.name}
                   </DropdownMenuItem>
                 ))}
-                <DropdownMenuSeparator />
+                {categories.length > 0 && <DropdownMenuSeparator />}
                 <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
                   Remove from Category
                 </DropdownMenuItem>
@@ -336,6 +359,36 @@ export default function LinkBlock({
           </DialogContent>
         </Dialog>
       )}
+
+      <Dialog open={isEditThumbnailModalOpen} onOpenChange={setIsEditThumbnailModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Thumbnail</DialogTitle>
+            <DialogDescription>
+              Enter the URL for the new thumbnail image. Leave blank to remove the current thumbnail.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              type="url"
+              placeholder="https://example.com/image.png"
+              value={newThumbnailInputUrl}
+              onChange={(e) => setNewThumbnailInputUrl(e.target.value)}
+              className="text-sm"
+            />
+          </div>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="button" onClick={handleSaveThumbnail}>
+              Save Thumbnail
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

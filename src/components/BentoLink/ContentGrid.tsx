@@ -13,6 +13,7 @@ import type React from 'react';
 interface ContentGridProps {
   blocks: BlockItem[];
   onDeleteBlock?: (id: string) => void;
+  onUpdateBlockThumbnail?: (blockId: string, newThumbnailUrl: string | null) => void;
   isDndEnabled: boolean;
   categories: Category[];
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
@@ -25,6 +26,7 @@ const BlockRenderer = ({
   block,
   index,
   onDeleteBlock,
+  onUpdateBlockThumbnail,
   categories,
   onAssignCategoryToBlock,
   selectedBlockIds,
@@ -34,9 +36,10 @@ const BlockRenderer = ({
   draggableProps,
   dragHandleProps,
 }: {
-  block: BlockItem; 
+  block: BlockItem;
   index: number;
   onDeleteBlock?: (id: string) => void;
+  onUpdateBlockThumbnail?: (blockId: string, newThumbnailUrl: string | null) => void;
   categories: Category[];
   onAssignCategoryToBlock: (blockId: string, categoryId: string | null) => void;
   selectedBlockIds: string[];
@@ -46,12 +49,12 @@ const BlockRenderer = ({
   draggableProps?: Record<string, any>;
   dragHandleProps?: Record<string, any>;
 }) => {
-  if (block == null) { 
+  if (block == null) {
     console.warn(`ContentGrid (BlockRenderer): Encountered null/undefined block at index ${index} despite filtering. This should not happen.`);
     if (innerRef) {
       return <div ref={innerRef} {...draggableProps} {...dragHandleProps} className="hidden">Invalid block data (null/undefined)</div>;
     }
-    return null; 
+    return null;
   }
 
   if (typeof block.type !== 'string' || !block.type.trim()) {
@@ -75,16 +78,17 @@ const BlockRenderer = ({
     innerRef,
     draggableProps,
     dragHandleProps,
-    selectedBlockIds, 
-    onToggleBlockSelection, 
-    isSelectionModeActive, // Pass this down
+    selectedBlockIds,
+    onToggleBlockSelection,
+    isSelectionModeActive,
   };
 
   switch (block.type) {
     case 'link':
-      return <LinkBlock 
-                {...commonProps} 
-                onDelete={onDeleteBlock} 
+      return <LinkBlock
+                {...commonProps}
+                onDelete={onDeleteBlock}
+                onUpdateThumbnail={onUpdateBlockThumbnail}
                 categories={categories}
                 onAssignCategoryToBlock={onAssignCategoryToBlock}
               />;
@@ -104,9 +108,10 @@ const BlockRenderer = ({
   }
 };
 
-export default function ContentGrid({ 
-  blocks: initialBlocks, 
-  onDeleteBlock, 
+export default function ContentGrid({
+  blocks: initialBlocks,
+  onDeleteBlock,
+  onUpdateBlockThumbnail,
   isDndEnabled,
   categories,
   onAssignCategoryToBlock,
@@ -139,12 +144,13 @@ export default function ContentGrid({
   if (!isDndEnabled) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr">
-        {validBlocks.map((block, index) => ( 
+        {validBlocks.map((block, index) => (
           <BlockRenderer
-            key={block.id} 
-            block={block} 
-            index={index} 
+            key={block.id}
+            block={block}
+            index={index}
             onDeleteBlock={onDeleteBlock}
+            onUpdateBlockThumbnail={onUpdateBlockThumbnail}
             categories={categories}
             onAssignCategoryToBlock={onAssignCategoryToBlock}
             selectedBlockIds={selectedBlockIds}
@@ -159,7 +165,7 @@ export default function ContentGrid({
   return (
     <Droppable
       droppableId="contentGridBlocks"
-      isDropDisabled={!isDndEnabled} 
+      isDropDisabled={!isDndEnabled}
       isCombineEnabled={false}
       ignoreContainerClipping={false}
     >
@@ -169,13 +175,14 @@ export default function ContentGrid({
           ref={provided.innerRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 auto-rows-fr"
         >
-          {validBlocks.map((block, index) => ( 
+          {validBlocks.map((block, index) => (
             <Draggable key={block.id} draggableId={block.id} index={index} isDragDisabled={!isDndEnabled || selectedBlockIds.includes(block.id)}>
               {(providedDraggable) => (
                 <BlockRenderer
-                  block={block} 
+                  block={block}
                   index={index}
                   onDeleteBlock={onDeleteBlock}
+                  onUpdateBlockThumbnail={onUpdateBlockThumbnail}
                   categories={categories}
                   onAssignCategoryToBlock={onAssignCategoryToBlock}
                   selectedBlockIds={selectedBlockIds}
