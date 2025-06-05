@@ -323,7 +323,7 @@ export default function LinkBlock({
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={handleDeleteClick} className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive">
                         <Trash2 className="h-4 w-4" />
-                        Delete Link
+                        Delete
                     </DropdownMenuItem>
                    </>
                  )}
