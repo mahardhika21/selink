@@ -137,21 +137,28 @@ export default function LinkBlock({
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
 
-        if (!svgString.includes('width=') || !svgString.includes('height=')) {
-            const size = svgElement.getAttribute('width') || '200';
-            svgString = svgString.replace('<svg', `<svg width="${size}px" height="${size}px"`);
-        }
+        // Ensure width/height attributes are present for canvas rendering
+        const declaredWidth = svgElement.getAttribute('width');
+        const declaredHeight = svgElement.getAttribute('height');
+        const size = declaredWidth || '200'; // Fallback size
 
+        if (!svgString.includes('width=') || !svgString.includes('height=')) {
+            svgString = svgString.replace('<svg', `<svg width="${size}" height="${size}"`);
+        }
+        
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          canvas.width = img.naturalWidth || img.width;
-          canvas.height = img.naturalHeight || img.height;
+          // Use naturalWidth/Height if available, otherwise fallback to attribute or default
+          canvas.width = img.naturalWidth || parseInt(declaredWidth || '200', 10);
+          canvas.height = img.naturalHeight || parseInt(declaredHeight || '200', 10);
+
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = '#FFFFFF';
+            ctx.fillStyle = '#FFFFFF'; // Always fill background with white for PNG
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw image to fit canvas
+            
             const pngUrl = canvas.toDataURL('image/png');
 
             const downloadLink = document.createElement('a');
@@ -174,6 +181,7 @@ export default function LinkBlock({
             variant: "destructive",
           });
         };
+        // Use unescape(encodeURIComponent(svgString)) for proper UTF-8 handling if SVG contains special characters
         img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
       } else {
          toast({
@@ -185,8 +193,9 @@ export default function LinkBlock({
     }
   };
 
-  const handleOpenEditThumbnailModal = () => {
-    setNewThumbnailInputUrl(thumbnailUrl || ''); // Pre-fill with current or empty
+  const handleOpenEditThumbnailModal = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setNewThumbnailInputUrl(thumbnailUrl || ''); 
     setIsEditThumbnailModalOpen(true);
   };
 
@@ -235,6 +244,14 @@ export default function LinkBlock({
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
+                 if (onUpdateThumbnail && id) { // Optionally clear thumbnail if it fails to load
+                    onUpdateThumbnail(id, null);
+                    toast({
+                        title: "Thumbnail Error",
+                        description: `Could not load thumbnail for "${title}". It has been removed.`,
+                        variant: "destructive"
+                    });
+                }
               }}
             />
           </div>
@@ -260,7 +277,7 @@ export default function LinkBlock({
             ) : iconName ? (
               <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <div className="w-4 h-4" />
+              <div className="w-4 h-4" /> // Placeholder for alignment
             )}
           </div>
 
@@ -301,21 +318,18 @@ export default function LinkBlock({
                 <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
                   Remove from Category
                 </DropdownMenuItem>
+                 {onDelete && id && (
+                   <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={handleDeleteClick} className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive">
+                        <Trash2 className="h-4 w-4" />
+                        Delete Link
+                    </DropdownMenuItem>
+                   </>
+                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            {onDelete && id && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleDeleteClick}
-                aria-label="Delete link"
-                title="Delete link"
-                className="h-7 w-7 p-1 rounded-md hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <Trash2 className="h-5 w-5 hover:text-destructive" />
-              </Button>
-            )}
+            {/* Remove original delete button, it's now in dropdown */}
           </div>
         </CardHeader>
         <CardContent
@@ -339,7 +353,7 @@ export default function LinkBlock({
               </DialogDescription>
             </DialogHeader>
             <div ref={qrCodeSvgRef} className="flex flex-col items-center justify-center py-4">
-              <QRCodeSVG value={linkUrl} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={false} />
+              <QRCodeSVG value={linkUrl} size={200} bgColor={"#ffffff"} fgColor={"#000000"} level={"L"} includeMargin={true} />
               <div className="mt-4 flex items-center justify-center w-full max-w-xs">
                 <p className="text-xs text-muted-foreground break-all text-center flex-grow overflow-hidden text-ellipsis whitespace-nowrap">
                   {linkUrl}
