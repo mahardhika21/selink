@@ -107,7 +107,7 @@ const ProductHuntIconSVG = (props: SVGProps<SVGSVGElement>) => (
 const socialLinksData = [
   { name: 'Website', url: 'https://bento.me/uiirfan', IconComponent: Globe, iconColor: 'group-hover:text-sky-500' },
   { name: 'Dribbble', url: 'https://dribbble.com/uiirfan', IconComponent: Dribbble, iconColor: 'group-hover:text-pink-500' },
-  { name: 'GitHub', url: 'https://github.com/irfan-0z', IconComponent: Github, iconColor: 'group-hover:text-neutral-800 dark:group-hover:text-neutral-300' },
+  { name: 'GitHub', url: 'https://github.com/irfan7o', IconComponent: Github, iconColor: 'group-hover:text-neutral-800 dark:group-hover:text-neutral-300' },
   { name: 'Instagram', url: 'https://instagram.com/irfan.0z', IconComponent: Instagram, iconColor: 'group-hover:text-rose-500' },
   { name: 'LinkedIn', url: 'https://www.linkedin.com/in/uiirfan', IconComponent: Linkedin, iconColor: 'group-hover:text-blue-600' },
   { name: 'Product Hunt', url: 'https://www.producthunt.com/@uiirfan', IconComponent: ProductHuntIconSVG, iconColor: 'group-hover:text-orange-500' },
@@ -653,7 +653,7 @@ export default function BentoLinkPage() {
                           </div>
                       </div>
                        <DialogFooter>
-                          
+                          {/* Close button was here */}
                         </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -785,7 +785,7 @@ export default function BentoLinkPage() {
                     })}
                 </div>
                 <DialogFooter>
-                  
+                  {/* Close button was here */}
                 </DialogFooter>
             </DialogContent>
         </Dialog>
@@ -796,6 +796,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
