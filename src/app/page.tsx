@@ -791,14 +791,14 @@ export default function BentoLinkPage() {
                     })}
                 </div>
                 <DialogFooter>
-                  <DialogClose asChild>
-                    <Button variant="outline" type="button">Close</Button>
-                  </DialogClose>
+                  
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     </>
   );
 }
+
+    
 
     
