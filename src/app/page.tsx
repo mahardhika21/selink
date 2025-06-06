@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Globe, Dribbble, Github, Instagram, Linkedin } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Globe, Dribbble, Github, Instagram, Linkedin, Settings, ExternalLink } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -88,7 +88,7 @@ const SelinkLogo = () => (
 
 const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M14.708 10.292c0-1.065.867-1.932 1.932-1.932s1.932.867 1.932 1.932c0 1.065-.867 1.932-1.932 1.932s-1.932-.867-1.932-1.932zm-5.416 0c0-1.065.867-1.932 1.932-1.932s1.932.867 1.932 1.932c0 1.065-.867 1.932-1.932 1.932s-1.932-.867-1.932-1.932zM12 2a10 10 0 100 20 10 10 0 000-20zm0 17.846c-4.33 0-7.846-3.516-7.846-7.846S7.67 4.154 12 4.154s7.846 3.516 7.846 7.846-3.516 7.846-7.846 7.846zm5.887-6.805c.42 0 .76.34.76.76s-.34.76-.76.76h-1.526c-.42 0-.76-.34-.76-.76s.34-.76.76-.76zm-10.25.002c.42 0 .76.34.76.76s-.34.76-.76.76H6.11c-.42 0-.76-.34-.76-.76s.34-.76.76-.76z"></path>
+    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 17.846c-4.33 0-7.846-3.516-7.846-7.846S7.67 4.154 12 4.154s7.846 3.516 7.846 7.846-3.516 7.846-7.846 7.846zm5.887-6.805c.42 0 .76.34.76.76s-.34.76-.76.76h-1.526c-.42 0-.76-.34-.76-.76s.34-.76.76-.76zm-10.25.002c.42 0 .76.34.76.76s-.34.76-.76.76H6.11c-.42 0-.76-.34-.76-.76s.34-.76.76-.76z"></path>
   </svg>
 );
 
@@ -109,7 +109,6 @@ export default function BentoLinkPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -163,7 +162,7 @@ export default function BentoLinkPage() {
       }
     }
   }, [isMounted, toast]);
-
+  
   useEffect(() => {
     if (isMounted && !sharedLinkProcessed) {
       const shareDataFromUrl = new URLSearchParams(window.location.search).get('share');
@@ -201,7 +200,7 @@ export default function BentoLinkPage() {
           router.replace(newUrl.pathname + newUrl.search, { scroll: false });
         }
       }
-      setSharedLinkProcessed(true);
+      setSharedLinkProcessed(true); 
     }
   }, [isMounted, router, sharedLinkProcessed, toast]);
 
@@ -401,7 +400,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== idToDelete) // Error: idToDelete is not defined in this scope. Should be 'id' or 'blockId'
+        ? prevSelectedIds.filter(id => id !== blockId) 
         : [...prevSelectedIds, blockId]
     );
   };
@@ -616,8 +615,7 @@ export default function BentoLinkPage() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-md">
                        <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2">
-                           <RefreshCw className="h-5 w-5" />
+                        <DialogTitle>
                            Sync Data
                         </DialogTitle>
                         <DialogDescription>
@@ -785,7 +783,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-    
-
-    
