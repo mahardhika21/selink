@@ -4,7 +4,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { FormEvent, ChangeEvent, SVGProps } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
-import Footer from '@/components/BentoLink/Footer';
 import BulkActionsBar from '@/components/BentoLink/BulkActionsBar';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
@@ -698,7 +697,7 @@ export default function BentoLinkPage() {
                   isSelectionModeActive={isSelectionModeActive}
                 />
               </main>
-              <Footer />
+              
             </div>
           </SidebarInset>
         </SidebarProvider>
@@ -797,6 +796,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
