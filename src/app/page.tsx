@@ -73,7 +73,7 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -97,9 +97,10 @@ const SelinkLogo = () => (
   </div>
 );
 
-const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M11.934 16.231c-2.96 0-5.418-2.194-5.418-5.11S9.031 5.923 12.049 5.923c2.96 0 5.474 2.25 5.474 5.198 0 2.04-.925 3.793-2.363 4.696l.104 1.414h1.362c1.133 0 1.631-.695 1.362-1.708-.213-.805-.318-1.61-.318-2.415 0-3.602 2.577-6.278 5.848-6.278V5.5C19.987 5.5 17.5 8.007 17.5 11.122s2.487 5.622 5.61 5.622v1.385c-3.327 0-5.904-2.732-5.904-6.393 0-.861.161-1.666.422-2.415.213-.639-.268-1.414-.994-1.414h-1.418c.058.535.058 1.07.058 1.61 0 3.245-2.577 5.71-5.768 5.71zm-5.768-4.121c0-2.916 2.458-5.198 5.418-5.198S17.46 9.137 17.46 12.053c0 .925-.213 1.766-.695 2.577-.535.981.213 1.977 1.201 1.977h1.144c-.058-.479-.058-.958-.058-1.436 0-3.3-2.401-5.87-5.58-5.87s-5.522 2.577-5.522 5.87c0 .535.058 1.014.104 1.55.213.805-.374 1.708-1.144 1.708H5.553c.752-.058 1.201-.695.994-1.55a5.15 5.15 0 0 1-.374-2.25zM6.075 5.5c-3.327 0-5.904 2.732-5.904 6.393 0 .861.161 1.666.422 2.415.213.639-.268 1.414-.994 1.414H.237c.058-.535.058-1.07.058-1.61C.295 8.473 2.872 5.923 6.075 5.923V5.5zm11.859 12.622c3.327 0 5.904-2.732 5.904-6.393 0-.861-.161-1.666-.422-2.415-.213-.639.268-1.414.994-1.414h.938c-.058.535-.058 1.07-.058 1.61 0 3.654-2.577 6.204-5.768 6.204v1.385z"/>
+const ProductHuntIconSVG = (props: SVGProps<SVGSVGElement>) => (
+  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" {...props}>
+    <title>Product Hunt</title>
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 3.842c4.503 0 8.158 3.655 8.158 8.158s-3.655 8.158-8.158 8.158S3.842 16.503 3.842 12 7.497 3.842 12 3.842zM15.182 6.84H9.75v10.32h2.625V12.6h2.807c2.806 0 5.07-2.264 5.07-5.07s-2.264-5.07-5.07-5.07z"/>
   </svg>
 );
 
@@ -110,7 +111,7 @@ const socialLinksData = [
   { name: 'GitHub', url: 'https://github.com/irfan-0z', IconComponent: Github, iconColor: 'group-hover:text-neutral-800 dark:group-hover:text-neutral-300' },
   { name: 'Instagram', url: 'https://instagram.com/irfan.0z', IconComponent: Instagram, iconColor: 'group-hover:text-rose-500' },
   { name: 'LinkedIn', url: 'https://linkedin.com/in/irfan-oz', IconComponent: Linkedin, iconColor: 'group-hover:text-blue-600' },
-  { name: 'Threads', url: 'https://threads.net/@irfan.0z', IconComponent: ThreadsIconSVG, iconColor: 'group-hover:text-neutral-700 dark:group-hover:text-neutral-400' },
+  { name: 'Product Hunt', url: 'https://www.producthunt.com/@uiirfan', IconComponent: ProductHuntIconSVG, iconColor: 'group-hover:text-orange-500' },
 ];
 
 
@@ -121,7 +122,6 @@ export default function BentoLinkPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
 
   const [categories, setCategories] = useState<Category[]>([]);
