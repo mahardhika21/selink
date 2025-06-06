@@ -776,11 +776,10 @@ export default function BentoLinkPage() {
                                 className="group block"
                             >
                                 <Card className="hover:shadow-md transition-shadow hover:border-primary/50">
-                                    <CardHeaderUI className="flex flex-col items-start space-y-1 p-4">
+                                    <CardHeaderUI className="flex flex-col items-start space-y-2 p-4">
                                         <Icon className={`h-5 w-5 text-muted-foreground ${social.iconColor}`} />
                                         <h3 className="text-sm font-medium">{social.name}</h3>
                                     </CardHeaderUI>
-                                    {/* CardContent with URL was removed */}
                                 </Card>
                             </a>
                         );
@@ -798,6 +797,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
