@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Globe, Dribbble, Github, Instagram, Linkedin, Settings, ExternalLink } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Globe, Dribbble, Github, Instagram, Linkedin, Settings, ExternalLink, Heart } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -73,7 +73,7 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -99,7 +99,7 @@ const SelinkLogo = () => (
 
 const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M14.708 10.303h3.417c.21-.002.413.08.562.228.148.148.232.35.228.562v1.814c.004.21-.08.413-.228.562a.79.79 0 01-.562.228h-3.417c-.21.002-.413-.08-.562-.228a.79.79 0 01-.228-.562v-1.814c-.004-.21.08-.413.228-.562a.79.79 0 01.562-.228zM5.875 10.303h3.417c.21-.002.413.08.562.228.148.148.232.35.228.562v1.814c.004.21-.08.413-.228.562a.79.79 0 01-.562.228H5.875c-.21.002-.413-.08-.562-.228a.79.79 0 01-.228-.562v-1.814c-.004-.21.08-.413.228-.562a.79.79 0 01.562-.228zM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
+    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM7.984 15.281c-.507 0-.917-.41-.917-.917v-4.73c0-.507.41-.917.917-.917h.517c.507 0 .917.41.917.917v4.73c0 .507-.41.917-.917.917h-.517zm7.417 0c-.507 0-.917-.41-.917-.917v-4.73c0-.507.41-.917.917-.917h.517c.507 0 .917.41.917.917v4.73c0 .507-.41.917-.917.917h-.517zM12 13.125c-1.74 0-3.125-1.385-3.125-3.125S10.26 6.875 12 6.875s3.125 1.385 3.125 3.125-1.385 3.125-3.125 3.125z"></path>
   </svg>
 );
 
@@ -652,9 +652,7 @@ export default function BentoLinkPage() {
                           </div>
                       </div>
                        <DialogFooter>
-                          <DialogClose asChild>
-                            <Button variant="outline">Close</Button>
-                          </DialogClose>
+                          
                         </DialogFooter>
                     </DialogContent>
                   </Dialog>
@@ -798,3 +796,5 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
+    
