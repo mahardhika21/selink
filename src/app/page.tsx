@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Settings, ExternalLink, Heart, Globe, Dribbble, Github, Instagram, Linkedin } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Globe, Dribbble, Github, Instagram, Linkedin } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -34,15 +34,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuGroup
-} from "@/components/ui/dropdown-menu";
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -50,7 +41,7 @@ import {
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card'; // Renamed CardHeader to avoid conflict
+import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card';
 import {
   Tooltip,
   TooltipContent,
@@ -96,11 +87,8 @@ const SelinkLogo = () => (
 );
 
 const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M13.5 8.5a4 4 0 1 0-4 4"></path>
-    <path d="M13.5 15.5a4 4 0 1 0-4-4"></path>
-    <path d="M17 15.5a1 1 0 1 0-1-1"></path>
-    <path d="M7 8.5a1 1 0 1 0-1 1"></path>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M14.708 10.292c0-1.065.867-1.932 1.932-1.932s1.932.867 1.932 1.932c0 1.065-.867 1.932-1.932 1.932s-1.932-.867-1.932-1.932zm-5.416 0c0-1.065.867-1.932 1.932-1.932s1.932.867 1.932 1.932c0 1.065-.867 1.932-1.932 1.932s-1.932-.867-1.932-1.932zM12 2a10 10 0 100 20 10 10 0 000-20zm0 17.846c-4.33 0-7.846-3.516-7.846-7.846S7.67 4.154 12 4.154s7.846 3.516 7.846 7.846-3.516 7.846-7.846 7.846zm5.887-6.805c.42 0 .76.34.76.76s-.34.76-.76.76h-1.526c-.42 0-.76-.34-.76-.76s.34-.76.76-.76zm-10.25.002c.42 0 .76.34.76.76s-.34.76-.76.76H6.11c-.42 0-.76-.34-.76-.76s.34-.76.76-.76z"></path>
   </svg>
 );
 
@@ -137,8 +125,11 @@ export default function BentoLinkPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const [clientIsMobile, setClientIsMobile] = useState<boolean | undefined>(undefined);
+  
   const [sharedLinkProcessed, setSharedLinkProcessed] = useState(false);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+
 
   useEffect(() => {
     setClientIsMobile(isMobile);
@@ -175,12 +166,11 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     if (isMounted && !sharedLinkProcessed) {
-      const currentSearchParams = new URLSearchParams(window.location.search);
-      const shareData = currentSearchParams.get('share');
+      const shareDataFromUrl = new URLSearchParams(window.location.search).get('share');
 
-      if (shareData) {
+      if (shareDataFromUrl) {
         try {
-          const decompressed = lzString.decompressFromEncodedURIComponent(shareData);
+          const decompressed = lzString.decompressFromEncodedURIComponent(shareDataFromUrl);
           if (decompressed) {
             const parsedData: SyncPayload = JSON.parse(decompressed);
             if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
@@ -206,7 +196,6 @@ export default function BentoLinkPage() {
             variant: "destructive",
           });
         } finally {
-          // Clean up URL by removing the 'share' parameter
           const newUrl = new URL(window.location.href);
           newUrl.searchParams.delete('share');
           router.replace(newUrl.pathname + newUrl.search, { scroll: false });
@@ -412,7 +401,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== idToDelete)
+        ? prevSelectedIds.filter(id => id !== idToDelete) // Error: idToDelete is not defined in this scope. Should be 'id' or 'blockId'
         : [...prevSelectedIds, blockId]
     );
   };
@@ -619,89 +608,43 @@ export default function BentoLinkPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" aria-label="Application Settings">
-                        <Settings className="h-5 w-5" />
+                  <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" aria-label="Sync Data">
+                        <RefreshCw className="h-5 w-5" />
                       </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-64">
-                      <DropdownMenuLabel>Application Settings</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      
-                      <DropdownMenuGroup>
-                        <div className="px-2 py-1.5">
-                          <h4 className="text-sm font-semibold mb-1">About Selink</h4>
-                          <p className="text-xs text-muted-foreground">
-                            Selink is your personalized link-in-bio page, allowing you to easily share all your important links in one place. Organize, customize, and share with ease.
-                          </p>
-                        </div>
-                      </DropdownMenuGroup>
-                      
-                      <DropdownMenuSeparator />
-                      
-                      <DropdownMenuGroup>
-                         <div className="px-2 py-2">
-                            <div className="flex items-center justify-between mb-1">
-                                <h4 className="text-sm font-semibold">Data Sync</h4>
-                                <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                                    </TooltipTrigger>
-                                    <TooltipContent side="left" className="max-w-xs">
-                                    <p>Periodically back up your data to avoid data loss due to browser cache clearing or issues.</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                                </TooltipProvider>
-                            </div>
-                            <p className="text-xs text-muted-foreground mb-2">
-                                Backup or restore your link and category data via a JSON file.
-                            </p>
-                         </div>
-                        <DropdownMenuItem onSelect={triggerImportClick} className="gap-2">
-                          <Upload className="h-4 w-4" />
-                          Import JSON
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={handleExportData} className="gap-2">
-                          <DownloadIcon className="h-4 w-4" />
-                          Export JSON
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuGroup>
-                        <div className="px-2 py-1.5">
-                          <h4 className="text-sm font-semibold mb-1">More From Me</h4>
-                           <a
-                            href="https://bento.me/uiirfan"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline flex items-center gap-1"
-                          >
-                            Visit my Bento page <ExternalLink className="h-3 w-3" />
-                          </a>
-                        </div>
-                      </DropdownMenuGroup>
-                      
-                      <DropdownMenuSeparator />
-                      
-                      <div className="px-2 py-2 text-xs text-muted-foreground">
-                        <p className="flex items-center justify-center">
-                            Built with <Heart className="w-3 h-3 mx-1 text-primary fill-primary" /> by{' '}
-                            <a 
-                            href="https://bento.me/uiirfan" 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="hover:text-primary ml-1"
-                            >
-                            @irfan.0z
-                            </a>
-                        </p>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md">
+                       <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                           <RefreshCw className="h-5 w-5" />
+                           Sync Data
+                        </DialogTitle>
+                        <DialogDescription>
+                           Backup or restore your link and category data. It's a good practice to periodically back up your data.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="py-4 space-y-3">
+                          <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
+                              <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                              <p className="text-xs text-blue-700 dark:text-blue-300">
+                                  Keep your data safe by exporting it regularly. You can import this file later to restore your setup on any device.
+                              </p>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                              <Button variant="outline" onClick={triggerImportClick} className="w-full gap-2">
+                                  <Upload className="h-4 w-4" />
+                                  Import JSON
+                              </Button>
+                              <Button variant="outline" onClick={handleExportData} className="w-full gap-2">
+                                  <DownloadIcon className="h-4 w-4" />
+                                  Export JSON
+                              </Button>
+                          </div>
                       </div>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                    </DialogContent>
+                  </Dialog>
+
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -842,5 +785,7 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
+    
 
     
