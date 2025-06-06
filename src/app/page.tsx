@@ -98,9 +98,8 @@ const SelinkLogo = () => (
 );
 
 const ProductHuntIconSVG = (props: SVGProps<SVGSVGElement>) => (
-  <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="currentColor" {...props}>
-    <title>Product Hunt</title>
-    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 3.842c4.503 0 8.158 3.655 8.158 8.158s-3.655 8.158-8.158 8.158S3.842 16.503 3.842 12 7.497 3.842 12 3.842zM15.182 6.84H9.75v10.32h2.625V12.6h2.807c2.806 0 5.07-2.264 5.07-5.07s-2.264-5.07-5.07-5.07z"/>
+  <svg fill="currentColor" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <path d="M 16 3 C 8.832 3 3 8.832 3 16 C 3 23.168 8.832 29 16 29 C 23.168 29 29 23.168 29 16 C 29 8.832 23.168 3 16 3 z M 16 5 C 22.065 5 27 9.935 27 16 C 27 22.065 22.065 27 16 27 C 9.935 27 5 22.065 5 16 C 5 9.935 9.935 5 16 5 z M 13 11 L 13 22 L 15 22 L 15 18 L 17.5 18 C 19.431 18 21 16.431 21 14.5 C 21 12.569 19.431 11 17.5 11 L 13 11 z M 15 13 L 17.5 13 C 18.327 13 19 13.673 19 14.5 C 19 15.327 18.327 16 17.5 16 L 15 16 L 15 13 z"></path>
   </svg>
 );
 
@@ -802,3 +801,4 @@ export default function BentoLinkPage() {
     
 
     
+
