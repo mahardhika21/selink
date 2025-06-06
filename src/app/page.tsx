@@ -32,7 +32,18 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+
 import {
   Sheet,
   SheetContent,
@@ -88,7 +99,7 @@ const SelinkLogo = () => (
 
 const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 17.846c-4.33 0-7.846-3.516-7.846-7.846S7.67 4.154 12 4.154s7.846 3.516 7.846 7.846-3.516 7.846-7.846 7.846zm5.887-6.805c.42 0 .76.34.76.76s-.34.76-.76.76h-1.526c-.42 0-.76-.34-.76-.76s.34-.76.76-.76zm-10.25.002c.42 0 .76.34.76.76s-.34.76-.76.76H6.11c-.42 0-.76-.34-.76-.76s.34-.76.76-.76z"></path>
+    <path d="M14.708 10.303h3.417c.21-.002.413.08.562.228.148.148.232.35.228.562v1.814c.004.21-.08.413-.228.562a.79.79 0 01-.562.228h-3.417c-.21.002-.413-.08-.562-.228a.79.79 0 01-.228-.562v-1.814c-.004-.21.08-.413.228-.562a.79.79 0 01.562-.228zM5.875 10.303h3.417c.21-.002.413.08.562.228.148.148.232.35.228.562v1.814c.004.21-.08.413-.228.562a.79.79 0 01-.562.228H5.875c-.21.002-.413-.08-.562-.228a.79.79 0 01-.228-.562v-1.814c-.004-.21.08-.413.228-.562a.79.79 0 01.562-.228zM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"></path>
   </svg>
 );
 
@@ -634,15 +645,19 @@ export default function BentoLinkPage() {
                                   <Upload className="h-4 w-4" />
                                   Import JSON
                               </Button>
-                              <Button variant="outline" onClick={handleExportData} className="w-full gap-2">
+                              <Button variant="default" onClick={handleExportData} className="w-full gap-2">
                                   <DownloadIcon className="h-4 w-4" />
                                   Export JSON
                               </Button>
                           </div>
                       </div>
+                       <DialogFooter>
+                          <DialogClose asChild>
+                            <Button variant="outline">Close</Button>
+                          </DialogClose>
+                        </DialogFooter>
                     </DialogContent>
                   </Dialog>
-
                   <input
                     type="file"
                     ref={fileInputRef}
