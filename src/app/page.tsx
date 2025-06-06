@@ -109,7 +109,7 @@ const socialLinksData = [
   { name: 'Dribbble', url: 'https://dribbble.com/uiirfan', IconComponent: Dribbble, iconColor: 'group-hover:text-pink-500' },
   { name: 'GitHub', url: 'https://github.com/irfan-0z', IconComponent: Github, iconColor: 'group-hover:text-neutral-800 dark:group-hover:text-neutral-300' },
   { name: 'Instagram', url: 'https://instagram.com/irfan.0z', IconComponent: Instagram, iconColor: 'group-hover:text-rose-500' },
-  { name: 'LinkedIn', url: 'https://linkedin.com/in/irfan-oz', IconComponent: Linkedin, iconColor: 'group-hover:text-blue-600' },
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/uiirfan', IconComponent: Linkedin, iconColor: 'group-hover:text-blue-600' },
   { name: 'Product Hunt', url: 'https://www.producthunt.com/@uiirfan', IconComponent: ProductHuntIconSVG, iconColor: 'group-hover:text-orange-500' },
 ];
 
@@ -412,7 +412,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== blockId) 
+        ? prevSelectedIds.filter(id => id !== id) 
         : [...prevSelectedIds, blockId]
     );
   };
@@ -796,6 +796,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
