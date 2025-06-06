@@ -638,7 +638,7 @@ export default function BentoLinkPage() {
                           <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
                               <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                               <p className="text-xs text-blue-700 dark:text-blue-300">
-                                  Keep your data safe by exporting it regularly. You can import this file later to restore your setup on any device.
+                                  Keep your data safe by exporting it regularly. You can import the json file later to restore your setup on any device.
                               </p>
                           </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
@@ -801,4 +801,5 @@ export default function BentoLinkPage() {
     
 
     
+
 
