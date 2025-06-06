@@ -73,7 +73,7 @@ import {
   SidebarSeparator,
   useSidebar,
 } from '@/components/ui/sidebar';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -99,7 +99,7 @@ const SelinkLogo = () => (
 
 const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM7.984 15.281c-.507 0-.917-.41-.917-.917v-4.73c0-.507.41-.917.917-.917h.517c.507 0 .917.41.917.917v4.73c0 .507-.41.917-.917.917h-.517zm7.417 0c-.507 0-.917-.41-.917-.917v-4.73c0-.507.41-.917.917-.917h.517c.507 0 .917.41.917.917v4.73c0 .507-.41.917-.917.917h-.517zM12 13.125c-1.74 0-3.125-1.385-3.125-3.125S10.26 6.875 12 6.875s3.125 1.385 3.125 3.125-1.385 3.125-3.125 3.125z"></path>
+    <path d="M13.0001 1.99994C10.2761 1.99994 8.01611 3.08594 6.32011 4.78194C4.62411 6.47794 3.53613 8.73994 3.53613 11.4619C3.53613 12.9299 3.90413 14.3099 4.56013 15.5099C5.06413 16.4219 5.74413 17.2499 6.54413 17.9099L6.56013 17.9259C6.76013 18.0939 7.06413 18.1259 7.28813 18.0059C7.51213 17.8859 7.64813 17.6219 7.60013 17.3579C7.54413 17.0619 7.32013 16.8219 7.02413 16.7619C6.96813 16.7459 6.92013 16.7259 6.88013 16.7019C6.24013 16.1619 5.72013 15.4859 5.33613 14.6859C4.84813 13.6779 4.56013 12.5739 4.56013 11.4619C4.56013 9.18994 5.44813 7.26994 6.84813 5.86994C8.24813 4.46994 10.1681 3.58394 12.4641 3.53594L12.5841 3.53194C12.6561 3.53194 12.7201 3.53594 12.7761 3.53594C12.8401 3.53594 12.9041 3.53194 12.9681 3.53194C12.9841 3.53194 13.0001 3.53194 13.0241 3.53194C15.1601 3.58394 16.9841 4.41394 18.3201 5.75194C19.6561 7.08994 20.4881 8.91394 20.5361 11.0499V11.0739C20.5361 11.1939 20.5361 11.3139 20.5201 11.4339L20.5121 11.4819C20.4801 12.6219 20.1681 13.6659 19.6161 14.5659C19.0561 15.4579 18.2881 16.2019 17.4161 16.7179C17.1441 16.8819 17.0881 17.2219 17.2561 17.4899C17.3601 17.6499 17.5441 17.7419 17.7361 17.7419C17.8241 17.7419 17.9201 17.7099 17.9921 17.6459C18.9601 17.0539 19.7921 16.2179 20.4081 15.1979C21.0961 14.0859 21.4641 12.8259 21.4641 11.4819V11.4579C21.4641 8.55394 20.2801 6.13394 18.4641 4.31794C16.6481 2.50194 14.0721 1.99994 13.0001 1.99994ZM11.0001 1.99994C8.42411 1.99994 6.12011 2.98994 4.44011 4.66994C2.76011 6.34994 1.77613 8.65394 1.77613 11.2299L1.78413 11.2819C1.80013 12.7859 2.18413 14.1979 2.88013 15.4219C3.49613 16.4859 4.28813 17.4059 5.19213 18.1019C5.44813 18.2939 5.79213 18.3099 6.06413 18.1659C6.33613 18.0219 6.48013 17.7259 6.42413 17.4299C6.36813 17.1419 6.12813 16.9179 5.84013 16.8619C5.78413 16.8459 5.73613 16.8259 5.68813 16.7979C4.96013 16.2459 4.36013 15.5419 3.92013 14.7099C3.37613 13.6659 3.09613 12.5099 3.08813 11.3259L3.08013 11.2779C3.06413 8.96194 3.98413 7.00194 5.40813 5.57794C6.83213 4.15394 8.79211 3.23794 11.1121 3.21794L11.1681 3.21794C11.2881 3.21794 11.4081 3.21394 11.5281 3.21394C11.6481 3.21394 11.7681 3.21794 11.8881 3.21794L11.9441 3.21794C14.2641 3.23794 16.2241 4.15394 17.6481 5.57794C19.0721 7.00194 19.9921 8.96194 20.0081 11.2779L20.0161 11.3259C20.0081 12.5099 19.7281 13.6659 19.1841 14.7099C18.7441 15.5419 18.1441 16.2459 17.4161 16.7979C17.1441 16.9419 17.0001 17.2459 17.0481 17.5339C17.1121 17.8459 17.3681 18.0619 17.6801 18.0619C17.8321 18.0619 17.9761 18.0059 18.0881 17.9019L18.1281 17.8699C19.0481 17.2059 19.8081 16.3259 20.3841 15.2859C21.0481 14.0859 21.4081 12.7659 21.4081 11.3739L21.3921 11.2299C21.3921 8.65394 20.4081 6.34994 18.7281 4.66994C17.0481 2.98994 14.7521 1.99994 12.1761 1.99994H11.0001Z"></path>
   </svg>
 );
 
@@ -120,6 +120,7 @@ export default function BentoLinkPage() {
   const [isMounted, setIsMounted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -206,8 +207,12 @@ export default function BentoLinkPage() {
             variant: "destructive",
           });
         } finally {
+          // Create a new URL object from the current window.location.href
           const newUrl = new URL(window.location.href);
+          // Delete the 'share' search parameter
           newUrl.searchParams.delete('share');
+          // Use router.replace to update the URL without adding a new history entry
+          // Pass newUrl.pathname + newUrl.search for the 'url' and { scroll: false } for options
           router.replace(newUrl.pathname + newUrl.search, { scroll: false });
         }
       }
@@ -629,7 +634,7 @@ export default function BentoLinkPage() {
                         <DialogTitle>
                            Sync Data
                         </DialogTitle>
-                        <DialogDescription>
+                        <DialogDescription className="mt-2">
                            Backup or restore your link and category data. It's a good practice to periodically back up your data.
                         </DialogDescription>
                       </DialogHeader>
@@ -789,7 +794,9 @@ export default function BentoLinkPage() {
                     })}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsSocialModalOpen(false)}>Close</Button>
+                  <DialogClose asChild>
+                    <Button variant="outline" type="button">Close</Button>
+                  </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
