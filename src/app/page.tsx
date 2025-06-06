@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { FormEvent, ChangeEvent } from 'react';
+import type { FormEvent, ChangeEvent, SVGProps } from 'react';
 import ContentGrid from '@/components/BentoLink/ContentGrid';
 import Footer from '@/components/BentoLink/Footer';
 import BulkActionsBar from '@/components/BentoLink/BulkActionsBar';
@@ -10,7 +10,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 import type { BlockItem, Category, SyncPayload } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info } from 'lucide-react';
+import { Link2, PlusCircle, Trash2, ListFilter, Columns, CheckCheck, ListX, RefreshCw, Upload, Download as DownloadIcon, Info, Settings, ExternalLink, Heart, Globe, Dribbble, Github, Instagram, Linkedin } from 'lucide-react';
 import { getLinkMetadata } from './actions';
 import { DragDropContext, type DropResult } from 'react-beautiful-dnd';
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +34,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuGroup
+} from "@/components/ui/dropdown-menu";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -41,6 +50,7 @@ import {
   SheetDescription,
   SheetFooter,
 } from "@/components/ui/sheet";
+import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card'; // Renamed CardHeader to avoid conflict
 import {
   Tooltip,
   TooltipContent,
@@ -85,6 +95,24 @@ const SelinkLogo = () => (
   </div>
 );
 
+const ThreadsIconSVG = (props: SVGProps<SVGSVGElement>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M13.5 8.5a4 4 0 1 0-4 4"></path>
+    <path d="M13.5 15.5a4 4 0 1 0-4-4"></path>
+    <path d="M17 15.5a1 1 0 1 0-1-1"></path>
+    <path d="M7 8.5a1 1 0 1 0-1 1"></path>
+  </svg>
+);
+
+const socialLinksData = [
+  { name: 'Website', url: 'https://bento.me/uiirfan', IconComponent: Globe, iconColor: 'group-hover:text-sky-500' },
+  { name: 'Dribbble', url: 'https://dribbble.com/uiirfan', IconComponent: Dribbble, iconColor: 'group-hover:text-pink-500' },
+  { name: 'GitHub', url: 'https://github.com/irfan-0z', IconComponent: Github, iconColor: 'group-hover:text-neutral-800 dark:group-hover:text-neutral-300' },
+  { name: 'Instagram', url: 'https://instagram.com/irfan.0z', IconComponent: Instagram, iconColor: 'group-hover:text-rose-500' },
+  { name: 'LinkedIn', url: 'https://linkedin.com/in/irfan-oz', IconComponent: Linkedin, iconColor: 'group-hover:text-blue-600' },
+  { name: 'Threads', url: 'https://threads.net/@irfan.0z', IconComponent: ThreadsIconSVG, iconColor: 'group-hover:text-neutral-700 dark:group-hover:text-neutral-400' },
+];
+
 
 export default function BentoLinkPage() {
   const [blocks, setBlocks] = useState<BlockItem[]>([]);
@@ -105,11 +133,12 @@ export default function BentoLinkPage() {
   const [categoryToDeleteName, setCategoryToDeleteName] = useState<string | null>(null);
 
   const [selectedBlockIds, setSelectedBlockIds] = useState<string[]>([]);
-
-  const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useIsMobile();
   const [clientIsMobile, setClientIsMobile] = useState<boolean | undefined>(undefined);
+  const [sharedLinkProcessed, setSharedLinkProcessed] = useState(false);
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
 
   useEffect(() => {
     setClientIsMobile(isMobile);
@@ -118,21 +147,74 @@ export default function BentoLinkPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    try {
-      const storedBlocks = localStorage.getItem('bentoLinkBlocks');
-      if (storedBlocks) {
-        setBlocks(JSON.parse(storedBlocks));
-      }
-      const storedCategories = localStorage.getItem('bentoLinkCategories');
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories));
-      }
-    } catch (error) {
-      console.error("Error loading data from localStorage:", error);
-      localStorage.removeItem('bentoLinkBlocks');
-      localStorage.removeItem('bentoLinkCategories');
-    }
   }, []);
+
+  useEffect(() => {
+    if (isMounted) {
+      try {
+        const storedBlocks = localStorage.getItem('bentoLinkBlocks');
+        if (storedBlocks) {
+          setBlocks(JSON.parse(storedBlocks));
+        }
+        const storedCategories = localStorage.getItem('bentoLinkCategories');
+        if (storedCategories) {
+          setCategories(JSON.parse(storedCategories));
+        }
+      } catch (error) {
+        console.error("Error loading data from localStorage:", error);
+        localStorage.removeItem('bentoLinkBlocks');
+        localStorage.removeItem('bentoLinkCategories');
+        toast({
+          title: "Data Load Error",
+          description: "Could not load data from local storage. It might be corrupted.",
+          variant: "destructive",
+        });
+      }
+    }
+  }, [isMounted, toast]);
+
+  useEffect(() => {
+    if (isMounted && !sharedLinkProcessed) {
+      const currentSearchParams = new URLSearchParams(window.location.search);
+      const shareData = currentSearchParams.get('share');
+
+      if (shareData) {
+        try {
+          const decompressed = lzString.decompressFromEncodedURIComponent(shareData);
+          if (decompressed) {
+            const parsedData: SyncPayload = JSON.parse(decompressed);
+            if (parsedData && Array.isArray(parsedData.blocks) && Array.isArray(parsedData.categories)) {
+              setBlocks(parsedData.blocks);
+              setCategories(parsedData.categories);
+              localStorage.setItem('bentoLinkBlocks', JSON.stringify(parsedData.blocks));
+              localStorage.setItem('bentoLinkCategories', JSON.stringify(parsedData.categories));
+              toast({
+                title: "Shared Link Loaded!",
+                description: "Blocks and categories have been imported from the shared link.",
+              });
+            } else {
+              throw new Error("Invalid shared data structure.");
+            }
+          } else {
+            throw new Error("Failed to decompress shared data.");
+          }
+        } catch (error: any) {
+          console.error("Error processing share link:", error);
+          toast({
+            title: "Share Link Error",
+            description: error.message || "Could not load data from the share link. It might be invalid or corrupted.",
+            variant: "destructive",
+          });
+        } finally {
+          // Clean up URL by removing the 'share' parameter
+          const newUrl = new URL(window.location.href);
+          newUrl.searchParams.delete('share');
+          router.replace(newUrl.pathname + newUrl.search, { scroll: false });
+        }
+      }
+      setSharedLinkProcessed(true);
+    }
+  }, [isMounted, router, sharedLinkProcessed, toast]);
 
 
   useEffect(() => {
@@ -330,7 +412,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== blockId)
+        ? prevSelectedIds.filter(id => id !== idToDelete)
         : [...prevSelectedIds, blockId]
     );
   };
@@ -388,10 +470,6 @@ export default function BentoLinkPage() {
     setSelectedBlockIds([]);
   };
 
-  const handleOpenSyncModal = () => {
-    setIsSyncModalOpen(true);
-  };
-
   const handleExportData = () => {
     const syncData: SyncPayload = { blocks, categories };
     const jsonString = JSON.stringify(syncData, null, 2);
@@ -405,6 +483,10 @@ export default function BentoLinkPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast({
+        title: "Data Exported",
+        description: "Your links and categories have been exported to a JSON file.",
+    });
   };
 
   const triggerImportClick = () => {
@@ -430,7 +512,6 @@ export default function BentoLinkPage() {
             title: "Data Imported Successfully!",
             description: "Your links and categories have been imported from the JSON file.",
           });
-          setIsSyncModalOpen(false);
         } else {
           throw new Error("Invalid JSON file structure. The file should contain 'blocks' and 'categories' arrays.");
         }
@@ -449,50 +530,6 @@ export default function BentoLinkPage() {
     };
     reader.readAsText(file);
   };
-
-  const syncModalContent = (
-    <>
-      <div className="flex items-center gap-2">
-        {clientIsMobile ? <SheetTitleComponent>Sync Data</SheetTitleComponent> : <DialogTitle>Sync Data</DialogTitle>}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-            </TooltipTrigger>
-            <TooltipContent side={clientIsMobile ? "top" : "bottom"} className="max-w-xs">
-              <p>Periodically back up your data to avoid data loss due to cache.</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-      <div className="pt-2">
-        {clientIsMobile ?
-          <SheetDescription>Backup or restore your link and category data via a JSON file.</SheetDescription> :
-          <DialogDescription>Backup or restore your link and category data via a JSON file.</DialogDescription>
-        }
-      </div>
-    </>
-  );
-
-  const syncModalFooterContent = (
-    <>
-      <Button type="button" variant="outline" onClick={triggerImportClick} className="w-full sm:w-auto gap-1.5">
-        <Upload className="h-4 w-4" />
-        Import JSON
-      </Button>
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleImportFileChange}
-        style={{ display: 'none' }}
-        accept=".json"
-      />
-      <Button type="button" onClick={handleExportData} className="w-full sm:w-auto gap-1.5">
-        <DownloadIcon className="h-4 w-4" />
-        Export JSON
-      </Button>
-    </>
-  );
 
   if (!isMounted) {
     return null;
@@ -582,10 +619,96 @@ export default function BentoLinkPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  <Button onClick={handleOpenSyncModal} aria-label="Sync data" className="gap-1" size="sm">
-                    <RefreshCw className="h-4 w-4" />
-                    Sync
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" aria-label="Application Settings">
+                        <Settings className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64">
+                      <DropdownMenuLabel>Application Settings</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuGroup>
+                        <div className="px-2 py-1.5">
+                          <h4 className="text-sm font-semibold mb-1">About Selink</h4>
+                          <p className="text-xs text-muted-foreground">
+                            Selink is your personalized link-in-bio page, allowing you to easily share all your important links in one place. Organize, customize, and share with ease.
+                          </p>
+                        </div>
+                      </DropdownMenuGroup>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuGroup>
+                         <div className="px-2 py-2">
+                            <div className="flex items-center justify-between mb-1">
+                                <h4 className="text-sm font-semibold">Data Sync</h4>
+                                <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="left" className="max-w-xs">
+                                    <p>Periodically back up your data to avoid data loss due to browser cache clearing or issues.</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                                </TooltipProvider>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Backup or restore your link and category data via a JSON file.
+                            </p>
+                         </div>
+                        <DropdownMenuItem onSelect={triggerImportClick} className="gap-2">
+                          <Upload className="h-4 w-4" />
+                          Import JSON
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onSelect={handleExportData} className="gap-2">
+                          <DownloadIcon className="h-4 w-4" />
+                          Export JSON
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuGroup>
+                        <div className="px-2 py-1.5">
+                          <h4 className="text-sm font-semibold mb-1">More From Me</h4>
+                           <a
+                            href="https://bento.me/uiirfan"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline flex items-center gap-1"
+                          >
+                            Visit my Bento page <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                      </DropdownMenuGroup>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <div className="px-2 py-2 text-xs text-muted-foreground">
+                        <p className="flex items-center justify-center">
+                            Built with <Heart className="w-3 h-3 mx-1 text-primary fill-primary" /> by{' '}
+                            <a 
+                            href="https://bento.me/uiirfan" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:text-primary ml-1"
+                            >
+                            @irfan.0z
+                            </a>
+                        </p>
+                      </div>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleImportFileChange}
+                    style={{ display: 'none' }}
+                    accept=".json"
+                  />
                 </div>
               </header>
 
@@ -640,29 +763,6 @@ export default function BentoLinkPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {clientIsMobile === undefined ? null : clientIsMobile ? (
-        <Sheet open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen} side="bottom">
-          <SheetContent className="sm:max-w-md">
-            <SheetHeader>
-              {syncModalContent}
-            </SheetHeader>
-            <SheetFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
-              {syncModalFooterContent}
-            </SheetFooter>
-          </SheetContent>
-        </Sheet>
-      ) : (
-        <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              {syncModalContent}
-            </DialogHeader>
-            <DialogFooter className="pt-6 sm:justify-center gap-3 flex-col sm:flex-row">
-              {syncModalFooterContent}
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
 
       {isSelectionModeActive && (
         <BulkActionsBar
@@ -676,7 +776,71 @@ export default function BentoLinkPage() {
           hasSelection={selectedBlockIds.length > 0}
         />
       )}
+
+      {clientIsMobile === false && (
+        <div className="fixed bottom-6 right-6 z-50">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button
+                            variant="default"
+                            size="icon"
+                            className="rounded-full h-12 w-12 shadow-lg"
+                            onClick={() => setIsSocialModalOpen(true)}
+                            aria-label="Show social media links"
+                        >
+                            <Info className="h-6 w-6" />
+                        </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="left">
+                        <p>Connect with me</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </div>
+        )}
+
+        <Dialog open={isSocialModalOpen} onOpenChange={setIsSocialModalOpen}>
+            <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Connect with Me</DialogTitle>
+                    <DialogDescription>
+                        Check out my profiles on various platforms.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-4">
+                    {socialLinksData.map((social) => {
+                        const Icon = social.IconComponent;
+                        return (
+                            <a
+                                key={social.name}
+                                href={social.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group block"
+                            >
+                                <Card className="hover:shadow-md transition-shadow hover:border-primary/50">
+                                    <CardHeaderUI className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <h3 className="text-sm font-medium">{social.name}</h3>
+                                        <Icon className={`h-5 w-5 text-muted-foreground ${social.iconColor}`} />
+                                    </CardHeaderUI>
+                                    <CardContent>
+                                        <p className="text-xs text-muted-foreground truncate">
+                                            {social.url.replace(/^https?:\/\//, '')}
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            </a>
+                        );
+                    })}
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsSocialModalOpen(false)}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </>
   );
 }
 
+    
