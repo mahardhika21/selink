@@ -345,7 +345,7 @@ export default function BentoLinkPage() {
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
 
-      setBlocks(prevBlocks => [...prevBlocks, newBlock]);
+      setBlocks(prevBlocks => [newBlock, ...prevBlocks]);
       setNewLinkUrl('');
     } catch (error: any) {
         console.error("Failed to add link or fetch metadata:", error);
@@ -665,9 +665,7 @@ export default function BentoLinkPage() {
                           </SheetDescription>
                         </SheetHeader>
                         <SyncDataContent />
-                        <SheetFooterComponent className="mt-4">
-                           
-                        </SheetFooterComponent>
+                        {/* SheetFooterComponent removed */}
                       </SheetContent>
                     </Sheet>
                   ) : (
@@ -681,6 +679,7 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
+                        {/* DialogFooter for desktop potentially removed in a previous step */}
                       </DialogContent>
                     </Dialog>
                   )}
@@ -811,6 +810,7 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
+                {/* DialogFooter for "Connect with Me" potentially removed in a previous step */}
             </DialogContent>
         </Dialog>
     </>
