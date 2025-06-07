@@ -137,10 +137,9 @@ export default function LinkBlock({
         const serializer = new XMLSerializer();
         let svgString = serializer.serializeToString(svgElement);
 
-        // Ensure width/height attributes are present for canvas rendering
         const declaredWidth = svgElement.getAttribute('width');
         const declaredHeight = svgElement.getAttribute('height');
-        const size = declaredWidth || '200'; // Fallback size
+        const size = declaredWidth || '200'; 
 
         if (!svgString.includes('width=') || !svgString.includes('height=')) {
             svgString = svgString.replace('<svg', `<svg width="${size}" height="${size}"`);
@@ -149,15 +148,14 @@ export default function LinkBlock({
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          // Use naturalWidth/Height if available, otherwise fallback to attribute or default
           canvas.width = img.naturalWidth || parseInt(declaredWidth || '200', 10);
           canvas.height = img.naturalHeight || parseInt(declaredHeight || '200', 10);
 
           const ctx = canvas.getContext('2d');
           if (ctx) {
-            ctx.fillStyle = '#FFFFFF'; // Always fill background with white for PNG
+            ctx.fillStyle = '#FFFFFF'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw image to fit canvas
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height); 
             
             const pngUrl = canvas.toDataURL('image/png');
 
@@ -181,7 +179,6 @@ export default function LinkBlock({
             variant: "destructive",
           });
         };
-        // Use unescape(encodeURIComponent(svgString)) for proper UTF-8 handling if SVG contains special characters
         img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
       } else {
          toast({
@@ -244,14 +241,9 @@ export default function LinkBlock({
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
-                 if (onUpdateThumbnail && id) { // Optionally clear thumbnail if it fails to load
-                    onUpdateThumbnail(id, null);
-                    toast({
-                        title: "Thumbnail Error",
-                        description: `Could not load thumbnail for "${title}". It has been removed.`,
-                        variant: "destructive"
-                    });
-                }
+                console.warn(`Thumbnail failed to load for "${title || 'Untitled Link'}". URL: ${thumbnailUrl}`);
+                // Do NOT call onUpdateThumbnail(id, null) here, to prevent permanent removal on temporary errors.
+                // The user can use "Edit Thumbnail" if the issue persists.
               }}
             />
           </div>
@@ -277,7 +269,7 @@ export default function LinkBlock({
             ) : iconName ? (
               <IconRenderer iconName={iconName} className="h-5 w-5 text-muted-foreground" />
             ) : (
-              <div className="w-4 h-4" /> // Placeholder for alignment
+              <div className="w-4 h-4" /> 
             )}
           </div>
 
@@ -329,7 +321,6 @@ export default function LinkBlock({
                  )}
               </DropdownMenuContent>
             </DropdownMenu>
-            {/* Remove original delete button, it's now in dropdown */}
           </div>
         </CardHeader>
         <CardContent
@@ -406,4 +397,3 @@ export default function LinkBlock({
     </>
   );
 }
-
