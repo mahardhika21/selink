@@ -665,7 +665,6 @@ export default function BentoLinkPage() {
                           </SheetDescription>
                         </SheetHeader>
                         <SyncDataContent />
-                        {/* SheetFooterComponent removed */}
                       </SheetContent>
                     </Sheet>
                   ) : (
@@ -679,7 +678,6 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
-                        {/* DialogFooter for desktop potentially removed in a previous step */}
                       </DialogContent>
                     </Dialog>
                   )}
@@ -770,7 +768,7 @@ export default function BentoLinkPage() {
                             onClick={() => setIsSocialModalOpen(true)}
                             aria-label="Show social media links"
                         >
-                            <Info className="h-6 w-6" />
+                            <Info className="h-7 w-7" />
                         </Button>
                     </TooltipTrigger>
                     <TooltipContent side="left">
@@ -810,7 +808,6 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
-                {/* DialogFooter for "Connect with Me" potentially removed in a previous step */}
             </DialogContent>
         </Dialog>
     </>
