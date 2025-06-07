@@ -62,7 +62,7 @@ import {
 import {
   SidebarProvider,
   Sidebar,
-  SidebarTrigger,
+  SidebarTrigger as SidebarToggleTrigger,
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
@@ -330,6 +330,7 @@ export default function BentoLinkPage() {
         }
       }
        if (!displayTitle) displayTitle = "Untitled Link";
+
 
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
@@ -647,7 +648,7 @@ export default function BentoLinkPage() {
           <SidebarInset>
             <div className="flex flex-col min-h-screen bg-background text-foreground">
               <header className="sticky top-0 z-30 flex h-14 items-center gap-2 bg-card px-4 sm:px-6">
-                <SidebarTrigger className="h-8 w-8" />
+                <SidebarToggleTrigger className="h-8 w-8" />
                 <div className="flex-1 flex items-center justify-center">
                   <SelinkLogo />
                 </div>
@@ -665,9 +666,7 @@ export default function BentoLinkPage() {
                         </SheetHeader>
                         <SyncDataContent />
                         <SheetFooterComponent className="mt-4">
-                           <DialogClose asChild>
-                              <Button variant="outline" className="w-full">Close</Button>
-                           </DialogClose>
+                           
                         </SheetFooterComponent>
                       </SheetContent>
                     </Sheet>
@@ -682,6 +681,11 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
+                         <DialogFooter>
+                            <DialogClose asChild>
+                                <Button variant="outline">Close</Button>
+                            </DialogClose>
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   )}
@@ -824,6 +828,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-
-    
