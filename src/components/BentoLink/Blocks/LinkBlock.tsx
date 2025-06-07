@@ -242,8 +242,6 @@ export default function LinkBlock({
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
                 console.warn(`Thumbnail failed to load for "${title || 'Untitled Link'}". URL: ${thumbnailUrl}`);
-                // Do NOT call onUpdateThumbnail(id, null) here, to prevent permanent removal on temporary errors.
-                // The user can use "Edit Thumbnail" if the issue persists.
               }}
             />
           </div>
@@ -340,7 +338,7 @@ export default function LinkBlock({
             <DialogHeader>
               <DialogTitle>Scan QR Code</DialogTitle>
               <DialogDescription>
-                Scan this code with your smartphone to open the link.
+                Scan this QR code to access the URL
               </DialogDescription>
             </DialogHeader>
             <div ref={qrCodeSvgRef} className="flex flex-col items-center justify-center py-4">
