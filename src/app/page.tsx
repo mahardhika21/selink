@@ -681,11 +681,6 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
-                         <DialogFooter>
-                            <DialogClose asChild>
-                                <Button variant="outline">Close</Button>
-                            </DialogClose>
-                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   )}
