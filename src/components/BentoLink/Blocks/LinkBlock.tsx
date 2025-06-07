@@ -380,7 +380,7 @@ export default function LinkBlock({
               className="text-sm"
             />
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <DialogClose asChild>
               <Button type="button" variant="outline">
                 Cancel
@@ -395,3 +395,4 @@ export default function LinkBlock({
     </>
   );
 }
+
