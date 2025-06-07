@@ -307,7 +307,7 @@ export default function BentoLinkPage() {
 
     setIsAddingLink(true);
     try {
-      const {
+      let {
         thumbnailUrl: fetchedThumbnailUrl,
         pageTitle: fetchedPageTitle,
         faviconUrl: fetchedFaviconUrl
@@ -572,6 +572,9 @@ export default function BentoLinkPage() {
         <SidebarProvider defaultOpen={false}>
            <Sidebar side="left" variant="sidebar" collapsible="offcanvas" mobileTitle="Categories">
             <SidebarContent className="px-2">
+              {clientIsMobile === false && (
+                <h2 className="text-lg font-semibold text-foreground mb-3 px-2 pt-2">Categories</h2>
+              )}
               <div className="py-2">
                 <Input
                   placeholder="New Category"
@@ -810,6 +813,11 @@ export default function BentoLinkPage() {
                     })}
                 </div>
                 <DialogFooter>
+                     <DialogClose asChild>
+                        <Button type="button" variant="outline">
+                        Close
+                        </Button>
+                    </DialogClose>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
