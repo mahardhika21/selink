@@ -48,8 +48,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle as SheetTitleComponent,
-  // SheetDescription, // No longer used for settings, can be removed if not used elsewhere
-  SheetFooter,
+  SheetDescription,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card';
 import {
@@ -330,6 +330,14 @@ export default function BentoLinkPage() {
       }
        if (!displayTitle) displayTitle = "Untitled Link";
 
+      let finalThumbnailUrl = fetchedThumbnailUrl;
+      let finalThumbnailDataAiHint = fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined;
+
+      if (!finalThumbnailUrl && normalizedUrl.includes('dribbble.com')) {
+        finalThumbnailUrl = 'https://placehold.co/600x450.png';
+        finalThumbnailDataAiHint = 'dribbble design';
+      }
+
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
@@ -337,8 +345,8 @@ export default function BentoLinkPage() {
         content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
-        thumbnailUrl: fetchedThumbnailUrl,
-        thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
+        thumbnailUrl: finalThumbnailUrl,
+        thumbnailDataAiHint: finalThumbnailDataAiHint,
         faviconUrl: fetchedFaviconUrl,
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
@@ -535,6 +543,36 @@ export default function BentoLinkPage() {
     return null;
   }
 
+  const SyncTriggerButton = (
+      <Button variant="ghost" size="icon" aria-label="Sync Data">
+        <RefreshCw className="h-5 w-5" />
+      </Button>
+  );
+
+  const SyncDataContent = () => (
+    <>
+      <div className="py-4 space-y-3">
+        <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
+          <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-blue-700 dark:text-blue-300">
+            Keep your data safe by exporting it regularly. You can import the json file later to restore your setup on any device.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <Button variant="outline" onClick={triggerImportClick} className="w-full gap-2">
+            <Upload className="h-4 w-4" />
+            Import JSON
+          </Button>
+          <Button variant="default" onClick={handleExportData} className="w-full gap-2">
+            <DownloadIcon className="h-4 w-4" />
+            Export JSON
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+
+
   return (
     <>
       <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -619,44 +657,39 @@ export default function BentoLinkPage() {
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <ThemeToggle />
-                  <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
-                    <DialogTrigger asChild>
-                      <Button variant="ghost" size="icon" aria-label="Sync Data">
-                        <RefreshCw className="h-5 w-5" />
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-md">
-                       <DialogHeader>
-                        <DialogTitle>
-                           Sync Data
-                        </DialogTitle>
-                        <DialogDescription className="mt-2">
-                           Backup or restore your link and category
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="py-4 space-y-3">
-                          <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-200 dark:border-blue-800">
-                              <Info className="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                              <p className="text-xs text-blue-700 dark:text-blue-300">
-                                  Keep your data safe by exporting it regularly. You can import the json file later to restore your setup on any device.
-                              </p>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                              <Button variant="outline" onClick={triggerImportClick} className="w-full gap-2">
-                                  <Upload className="h-4 w-4" />
-                                  Import JSON
-                              </Button>
-                              <Button variant="default" onClick={handleExportData} className="w-full gap-2">
-                                  <DownloadIcon className="h-4 w-4" />
-                                  Export JSON
-                              </Button>
-                          </div>
-                      </div>
-                       <DialogFooter>
-                          {/* Close button was here */}
-                        </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                  {clientIsMobile ? (
+                    <Sheet open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
+                      <SheetTrigger asChild>{SyncTriggerButton}</SheetTrigger>
+                      <SheetContent side="bottom" className="rounded-t-lg pb-6">
+                        <SheetHeader className="text-left pt-4 pb-2">
+                          <SheetTitleComponent>Sync Data</SheetTitleComponent>
+                           <SheetDescription>
+                            Backup or restore your link and category data.
+                          </SheetDescription>
+                        </SheetHeader>
+                        <SyncDataContent />
+                        <SheetFooter className="mt-4">
+                           <DialogClose asChild>
+                              <Button variant="outline" className="w-full">Close</Button>
+                           </DialogClose>
+                        </SheetFooter>
+                      </SheetContent>
+                    </Sheet>
+                  ) : (
+                    <Dialog open={isSyncModalOpen} onOpenChange={setIsSyncModalOpen}>
+                      <DialogTrigger asChild>{SyncTriggerButton}</DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Sync Data</DialogTitle>
+                          <DialogDescription className="mt-2">
+                            Backup or restore your link and category
+                          </DialogDescription>
+                        </DialogHeader>
+                        <SyncDataContent />
+                        {/* DialogFooter can be omitted if close is handled by X icon or overlay click */}
+                      </DialogContent>
+                    </Dialog>
+                  )}
                   <input
                     type="file"
                     ref={fileInputRef}
@@ -796,6 +829,7 @@ export default function BentoLinkPage() {
     
 
     
+
 
 
 
