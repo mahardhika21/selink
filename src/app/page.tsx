@@ -678,8 +678,7 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
-                        <DialogFooter className="sm:justify-center gap-2 pt-2">
-                        </DialogFooter>
+                        
                       </DialogContent>
                     </Dialog>
                   )}
@@ -810,8 +809,7 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
-                 <DialogFooter className="sm:justify-center pt-2">
-                 </DialogFooter>
+                 
             </DialogContent>
         </Dialog>
     </>
