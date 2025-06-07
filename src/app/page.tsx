@@ -816,15 +816,10 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
-                <DialogFooter>
-                     <DialogClose asChild>
-                        <Button type="button" variant="outline">
-                        Close
-                        </Button>
-                    </DialogClose>
-                </DialogFooter>
             </DialogContent>
         </Dialog>
     </>
   );
 }
+
+    
