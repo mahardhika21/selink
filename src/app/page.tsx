@@ -678,6 +678,8 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
+                        <DialogFooter className="sm:justify-center gap-2 pt-2">
+                        </DialogFooter>
                       </DialogContent>
                     </Dialog>
                   )}
@@ -764,7 +766,7 @@ export default function BentoLinkPage() {
                         <Button
                             variant="default"
                             size="icon"
-                            className="rounded-full h-12 w-12 shadow-lg"
+                            className="rounded-full h-10 w-10 shadow-lg"
                             onClick={() => setIsSocialModalOpen(true)}
                             aria-label="Show social media links"
                         >
@@ -808,6 +810,8 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
+                 <DialogFooter className="sm:justify-center pt-2">
+                 </DialogFooter>
             </DialogContent>
         </Dialog>
     </>
