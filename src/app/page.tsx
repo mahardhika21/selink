@@ -50,6 +50,7 @@ import {
   SheetTitle as SheetTitleComponent,
   SheetDescription,
   SheetTrigger,
+  SheetFooter as SheetFooterComponent,
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card';
 import {
@@ -97,7 +98,7 @@ const SelinkLogo = () => (
 );
 
 const ProductHuntIconSVG = (props: SVGProps<SVGSVGElement>) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props} className={props.className}>
     <circle cx="12" cy="12" r="10"/>
     <path d="M9 17V7h4a3 3 0 0 1 0 6H9"/>
   </svg>
@@ -330,14 +331,6 @@ export default function BentoLinkPage() {
       }
        if (!displayTitle) displayTitle = "Untitled Link";
 
-      let finalThumbnailUrl = fetchedThumbnailUrl;
-      let finalThumbnailDataAiHint = fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined;
-
-      if (!finalThumbnailUrl && normalizedUrl.includes('dribbble.com')) {
-        finalThumbnailUrl = 'https://placehold.co/600x450.png';
-        finalThumbnailDataAiHint = 'dribbble design';
-      }
-
       const newBlock: BlockItem = {
         id: crypto.randomUUID(),
         type: 'link',
@@ -345,8 +338,8 @@ export default function BentoLinkPage() {
         content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
-        thumbnailUrl: finalThumbnailUrl,
-        thumbnailDataAiHint: finalThumbnailDataAiHint,
+        thumbnailUrl: fetchedThumbnailUrl,
+        thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
@@ -420,7 +413,7 @@ export default function BentoLinkPage() {
   const handleToggleBlockSelection = (blockId: string) => {
     setSelectedBlockIds(prevSelectedIds =>
       prevSelectedIds.includes(blockId)
-        ? prevSelectedIds.filter(id => id !== id) 
+        ? prevSelectedIds.filter(id => id !== blockId) 
         : [...prevSelectedIds, blockId]
     );
   };
@@ -668,11 +661,11 @@ export default function BentoLinkPage() {
                           </SheetDescription>
                         </SheetHeader>
                         <SyncDataContent />
-                        <SheetFooter className="mt-4">
+                        <SheetFooterComponent className="mt-4">
                            <DialogClose asChild>
                               <Button variant="outline" className="w-full">Close</Button>
                            </DialogClose>
-                        </SheetFooter>
+                        </SheetFooterComponent>
                       </SheetContent>
                     </Sheet>
                   ) : (
@@ -682,7 +675,7 @@ export default function BentoLinkPage() {
                         <DialogHeader>
                           <DialogTitle>Sync Data</DialogTitle>
                           <DialogDescription className="mt-2">
-                            Backup or restore your link and category
+                            Backup or restore your link and category data.
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
@@ -825,16 +818,3 @@ export default function BentoLinkPage() {
     </>
   );
 }
-
-    
-
-    
-
-
-
-
-
-
-
-
-
