@@ -679,7 +679,6 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
-                        {/* DialogFooter can be omitted if close is handled by X icon or overlay click */}
                       </DialogContent>
                     </Dialog>
                   )}
@@ -811,10 +810,12 @@ export default function BentoLinkPage() {
                     })}
                 </div>
                 <DialogFooter>
-                  {/* Close button was here */}
                 </DialogFooter>
             </DialogContent>
         </Dialog>
     </>
   );
 }
+
+
+    
