@@ -478,7 +478,7 @@ export default function BentoLinkPage() {
     const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const currentDate = format(new Date(), 'yyyy-MM-dd');
+    const currentDate = format(new Date(), 'yyyy-MM-dd_HH-mm-ss');
     link.href = url;
     link.download = `selink_data_${currentDate}.json`;
     document.body.appendChild(link);
