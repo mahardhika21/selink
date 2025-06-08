@@ -339,8 +339,8 @@ export default function BentoLinkPage() {
         content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
-        thumbnailUrl: fetchedThumbnailUrl,
-        faviconUrl: fetchedFaviconUrl,
+        thumbnailUrl: fetchedThumbnailUrl ?? undefined,
+        faviconUrl: fetchedFaviconUrl ?? undefined,
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
 
@@ -367,7 +367,7 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
         block.id === blockId
-          ? { ...block, thumbnailUrl: newThumbnailUrl }
+          ? { ...block, thumbnailUrl: newThumbnailUrl ?? undefined}
           : block
       )
     );
