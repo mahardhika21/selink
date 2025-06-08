@@ -59,6 +59,7 @@ export default function LinkBlock({
   onUpdateThumbnail,
   categories,
   onAssignCategoryToBlock,
+  categoryId, // Destructure categoryId from props
   selectedBlockIds,
   onToggleBlockSelection,
   isSelectionModeActive,
@@ -96,9 +97,9 @@ export default function LinkBlock({
     }
   };
 
-  const handleCategorySelect = (categoryId: string | null) => {
+  const handleCategorySelect = (newCatId: string | null) => { // Renamed to newCatId to avoid conflict
     if (id) {
-      onAssignCategoryToBlock(id, categoryId);
+      onAssignCategoryToBlock(id, newCatId);
     }
   };
 
@@ -205,6 +206,9 @@ export default function LinkBlock({
 
   const proxiedThumbnailUrl = thumbnailUrl ? `/api/image-proxy?url=${encodeURIComponent(thumbnailUrl)}` : null;
 
+  const hasCategories = categories.length > 0;
+  const isCategorized = !!categoryId;
+
   return (
     <>
       <BaseBlock
@@ -292,31 +296,49 @@ export default function LinkBlock({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+                {/* Group 1: Edit Thumbnail */}
                 <DropdownMenuItem onSelect={handleOpenEditThumbnailModal} className="gap-2">
                   <Edit3 className="h-4 w-4" />
                   Edit Thumbnail
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {categories.map((category) => (
-                  <DropdownMenuItem key={category.id} onSelect={() => handleCategorySelect(category.id)}>
-                    {category.name}
-                  </DropdownMenuItem>
-                ))}
-                {categories.length > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
-                  Remove from Category
-                </DropdownMenuItem>
-                 {onDelete && id && (
-                   <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={handleDeleteClick} className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive">
+
+                {/* Separator if Category Management or Delete section will be rendered */}
+                { (hasCategories || isCategorized || (onDelete && id)) && <DropdownMenuSeparator /> }
+
+                {/* Group 2: Category Management */}
+                {/* Part A: Move to Category (only if categories exist) */}
+                {hasCategories && (
+                    <>
+                        <DropdownMenuLabel>Move to Category</DropdownMenuLabel>
+                        {categories.map((categoryItem) => (
+                            <DropdownMenuItem key={categoryItem.id} onSelect={() => handleCategorySelect(categoryItem.id)}>
+                                {categoryItem.name}
+                            </DropdownMenuItem>
+                        ))}
+                    </>
+                )}
+
+                {/* Part B: Remove from Category (only if block is categorized) */}
+                {isCategorized && (
+                    <>
+                        {/* Add separator if "Move to Category" (Part A) was also rendered */}
+                        {hasCategories && <DropdownMenuSeparator />}
+                        <DropdownMenuItem onSelect={() => handleCategorySelect(null)}>
+                            Remove from Category
+                        </DropdownMenuItem>
+                    </>
+                )}
+
+                {/* Separator if Delete section will be rendered AND Category Management was rendered */}
+                {(onDelete && id && (hasCategories || isCategorized)) && <DropdownMenuSeparator />}
+                
+                {/* Group 3: Delete */}
+                {onDelete && id && (
+                     <DropdownMenuItem onSelect={handleDeleteClick} className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive">
                         <Trash2 className="h-4 w-4" />
                         Delete
                     </DropdownMenuItem>
-                   </>
-                 )}
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
