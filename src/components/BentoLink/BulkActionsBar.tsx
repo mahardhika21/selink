@@ -17,7 +17,7 @@ interface BulkActionsBarProps {
   onSelectAll: () => void;
   onClearSelection: () => void;
   canSelectAnyMore: boolean;
-  hasSelection: boolean; 
+  hasSelection: boolean;
   currentFilterCategoryId?: string | null;
   uncategorizedIdConstant: string;
 }
@@ -37,18 +37,18 @@ export default function BulkActionsBar({
   if (count === 0 && !hasSelection) return null;
 
   const displayableCategories = categories.filter(category => category.id !== currentFilterCategoryId);
-  const showUncategorizedOption = currentFilterCategoryId !== uncategorizedIdConstant;
+  const showUncategorizedOptionForMove = currentFilterCategoryId !== null && currentFilterCategoryId !== uncategorizedIdConstant;
 
-  const canMoveToAnyCategory = displayableCategories.length > 0 || showUncategorizedOption;
+  const canMoveToAnyCategory = displayableCategories.length > 0 || showUncategorizedOptionForMove;
 
   return (
     <TooltipProvider delayDuration={100}>
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-border shadow-lg">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl h-16 flex items-center justify-between">
-          <span className="text-sm font-medium text-foreground">
+      <div className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border shadow-lg">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl h-auto sm:h-16 py-3 sm:py-0 flex flex-col items-center gap-2 sm:flex-row sm:justify-between sm:gap-0">
+          <span className="text-sm font-medium text-foreground text-center sm:text-left">
             {count} item{count > 1 ? 's' : ''} selected
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap justify-center sm:flex-nowrap">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -84,8 +84,8 @@ export default function BulkActionsBar({
                 <p>Clear current selection</p>
               </TooltipContent>
             </Tooltip>
-            
-            <span className="h-6 w-px bg-border mx-1"></span>
+
+            <span className="h-6 w-px bg-border mx-1 hidden sm:inline-block"></span>
 
             {canMoveToAnyCategory && (
               <DropdownMenu>
@@ -110,8 +110,8 @@ export default function BulkActionsBar({
                       {category.name}
                     </DropdownMenuItem>
                   ))}
-                  {displayableCategories.length > 0 && showUncategorizedOption && <DropdownMenuSeparator />}
-                  {showUncategorizedOption && (
+                  {displayableCategories.length > 0 && showUncategorizedOptionForMove && <DropdownMenuSeparator />}
+                  {showUncategorizedOptionForMove && (
                     <DropdownMenuItem onSelect={() => onMove(null)}>
                       Uncategorized
                     </DropdownMenuItem>
@@ -138,3 +138,4 @@ export default function BulkActionsBar({
     </TooltipProvider>
   );
 }
+
