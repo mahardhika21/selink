@@ -367,7 +367,7 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
         block.id === blockId
-          ? { ...block, thumbnailUrl: newThumbnailUrl, thumbnailDataAiHint: undefined }
+          ? { ...block, thumbnailUrl: newThumbnailUrl }
           : block
       )
     );
@@ -808,6 +808,7 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
+                
             </DialogContent>
         </Dialog>
     </>
