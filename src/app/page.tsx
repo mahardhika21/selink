@@ -50,7 +50,6 @@ import {
   SheetTitle as SheetTitleComponent,
   SheetDescription,
   SheetTrigger,
-  SheetFooter as SheetFooterComponent,
 } from "@/components/ui/sheet";
 import { Card, CardContent, CardHeader as CardHeaderUI } from '@/components/ui/card';
 import {
@@ -339,8 +338,8 @@ export default function BentoLinkPage() {
         content: normalizedUrl,
         linkUrl: normalizedUrl,
         colSpan: 1,
-        thumbnailUrl: fetchedThumbnailUrl,
-        faviconUrl: fetchedFaviconUrl,
+        thumbnailUrl: fetchedThumbnailUrl ?? undefined,
+        faviconUrl: fetchedFaviconUrl ?? undefined,
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
 
@@ -367,7 +366,7 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
         block.id === blockId
-          ? { ...block, thumbnailUrl: newThumbnailUrl }
+          ? { ...block, thumbnailUrl: newThumbnailUrl ?? undefined }
           : block
       )
     );
@@ -581,7 +580,7 @@ export default function BentoLinkPage() {
                   value={newCategoryName}
                   onChange={(e) => setNewCategoryName(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAddCategory(); }}
-                  className="h-9 text-sm bg-[#F9FAFB] dark:bg-muted"
+                  className="h-9 text-sm"
                 />
                 <Button onClick={handleAddCategory} size="sm" className="w-full gap-1 mt-2">
                   <PlusCircle className="h-4 w-4" />
@@ -677,7 +676,6 @@ export default function BentoLinkPage() {
                           </DialogDescription>
                         </DialogHeader>
                         <SyncDataContent />
-                        
                       </DialogContent>
                     </Dialog>
                   )}
@@ -699,7 +697,7 @@ export default function BentoLinkPage() {
                     value={newLinkUrl}
                     onChange={(e) => setNewLinkUrl(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter' && !isAddingLink) handleAddLink(); }}
-                    className="flex-grow text-sm bg-[#F9FAFB] dark:bg-muted"
+                    className="flex-grow text-sm"
                     aria-label="Paste link URL to add"
                     disabled={isAddingLink}
                   />
@@ -808,7 +806,6 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
-                
             </DialogContent>
         </Dialog>
     </>
