@@ -78,35 +78,36 @@ export default function BulkActionsBar({
             
             <span className="h-6 w-px bg-border mx-1"></span>
 
-
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1.5" disabled={!hasSelection}>
-                        <FolderOutput className="h-4 w-4" />
-                        Move to
-                      </Button>
-                    </DropdownMenuTrigger>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Move selected items to a category</p>
-                </TooltipContent>
-              </Tooltip>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Move selected to</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {categories.map((category) => (
-                  <DropdownMenuItem key={category.id} onSelect={() => onMove(category.id)}>
-                    {category.name}
+            {categories.length > 0 && (
+              <DropdownMenu>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="gap-1.5" disabled={!hasSelection}>
+                          <FolderOutput className="h-4 w-4" />
+                          Move to
+                        </Button>
+                      </DropdownMenuTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Move selected items to a category</p>
+                  </TooltipContent>
+                </Tooltip>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Move selected to</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {categories.map((category) => (
+                    <DropdownMenuItem key={category.id} onSelect={() => onMove(category.id)}>
+                      {category.name}
+                    </DropdownMenuItem>
+                  ))}
+                  {categories.length > 0 && <DropdownMenuSeparator />}
+                  <DropdownMenuItem onSelect={() => onMove(null)}>
+                    Uncategorized
                   </DropdownMenuItem>
-                ))}
-                {categories.length > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuItem onSelect={() => onMove(null)}>
-                  Uncategorized
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
 
             <Tooltip>
               <TooltipTrigger asChild>
@@ -126,3 +127,4 @@ export default function BulkActionsBar({
     </TooltipProvider>
   );
 }
+
