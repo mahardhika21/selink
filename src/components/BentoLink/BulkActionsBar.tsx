@@ -17,7 +17,9 @@ interface BulkActionsBarProps {
   onSelectAll: () => void;
   onClearSelection: () => void;
   canSelectAnyMore: boolean;
-  hasSelection: boolean; // To ensure "Clear Selection" is only active if there's a selection
+  hasSelection: boolean; 
+  currentFilterCategoryId?: string | null;
+  uncategorizedIdConstant: string;
 }
 
 export default function BulkActionsBar({
@@ -29,8 +31,15 @@ export default function BulkActionsBar({
   onClearSelection,
   canSelectAnyMore,
   hasSelection,
+  currentFilterCategoryId,
+  uncategorizedIdConstant,
 }: BulkActionsBarProps) {
-  if (count === 0 && !hasSelection) return null; // Keep bar if hasSelection is true even if count is 0 (e.g. after deselect all)
+  if (count === 0 && !hasSelection) return null;
+
+  const displayableCategories = categories.filter(category => category.id !== currentFilterCategoryId);
+  const showUncategorizedOption = currentFilterCategoryId !== uncategorizedIdConstant;
+
+  const canMoveToAnyCategory = displayableCategories.length > 0 || showUncategorizedOption;
 
   return (
     <TooltipProvider delayDuration={100}>
@@ -78,7 +87,7 @@ export default function BulkActionsBar({
             
             <span className="h-6 w-px bg-border mx-1"></span>
 
-            {categories.length > 0 && (
+            {canMoveToAnyCategory && (
               <DropdownMenu>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -96,15 +105,17 @@ export default function BulkActionsBar({
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Move selected to</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {categories.map((category) => (
+                  {displayableCategories.map((category) => (
                     <DropdownMenuItem key={category.id} onSelect={() => onMove(category.id)}>
                       {category.name}
                     </DropdownMenuItem>
                   ))}
-                  {categories.length > 0 && <DropdownMenuSeparator />}
-                  <DropdownMenuItem onSelect={() => onMove(null)}>
-                    Uncategorized
-                  </DropdownMenuItem>
+                  {displayableCategories.length > 0 && showUncategorizedOption && <DropdownMenuSeparator />}
+                  {showUncategorizedOption && (
+                    <DropdownMenuItem onSelect={() => onMove(null)}>
+                      Uncategorized
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             )}
@@ -127,4 +138,3 @@ export default function BulkActionsBar({
     </TooltipProvider>
   );
 }
-

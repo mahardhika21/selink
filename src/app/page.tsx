@@ -366,7 +366,7 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
         block.id === blockId
-          ? { ...block, thumbnailUrl: newThumbnailUrl ?? undefined}
+          ? { ...block, thumbnailUrl: newThumbnailUrl ?? undefined }
           : block
       )
     );
@@ -751,6 +751,8 @@ export default function BentoLinkPage() {
           onClearSelection={handleClearSelection}
           canSelectAnyMore={canSelectAnyMoreInView}
           hasSelection={selectedBlockIds.length > 0}
+          currentFilterCategoryId={selectedCategoryId}
+          uncategorizedIdConstant={UNCATEGORIZED_ID}
         />
       )}
 
