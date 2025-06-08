@@ -29,7 +29,6 @@ export interface BlockItem {
   className?: string; // Additional classes for custom styling / grid spanning
   dataAiHint?: string; // For ImageBlock's main image
   thumbnailUrl?: string; // For LinkBlock's thumbnail
-  thumbnailDataAiHint?: string; // For LinkBlock's thumbnail AI hint
   faviconUrl?: string; // For LinkBlock's favicon
   categoryId?: string | null; // To associate block with a category
 }

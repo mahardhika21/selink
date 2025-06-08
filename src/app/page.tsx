@@ -340,7 +340,6 @@ export default function BentoLinkPage() {
         linkUrl: normalizedUrl,
         colSpan: 1,
         thumbnailUrl: fetchedThumbnailUrl,
- thumbnailDataAiHint: fetchedThumbnailUrl ? 'retrieved thumbnail' : undefined,
         faviconUrl: fetchedFaviconUrl,
         categoryId: selectedCategoryId === UNCATEGORIZED_ID ? null : selectedCategoryId,
       };
@@ -809,11 +808,8 @@ export default function BentoLinkPage() {
                         );
                     })}
                 </div>
-                 
             </DialogContent>
         </Dialog>
     </>
   );
 }
-
-    
