@@ -366,7 +366,7 @@ export default function BentoLinkPage() {
     setBlocks(prevBlocks =>
       prevBlocks.map(block =>
         block.id === blockId
-          ? { ...block, thumbnailUrl: newThumbnailUrl }
+          ? { ...block, thumbnailUrl: newThumbnailUrl ?? undefined}
           : block
       )
     );
