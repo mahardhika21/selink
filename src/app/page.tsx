@@ -76,6 +76,7 @@ import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import lzString from 'lz-string';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 
 const UNCATEGORIZED_ID = "__UNCATEGORIZED__";
@@ -757,7 +758,10 @@ export default function BentoLinkPage() {
       )}
 
       {clientIsMobile === false && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className={cn(
+          "fixed right-6 z-50 transition-all duration-300 ease-in-out",
+          isSelectionModeActive ? "bottom-24" : "bottom-6"
+        )}>
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
@@ -813,3 +817,4 @@ export default function BentoLinkPage() {
     </>
   );
 }
+
