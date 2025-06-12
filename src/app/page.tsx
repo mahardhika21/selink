@@ -690,7 +690,13 @@ export default function BentoLinkPage() {
                 </div>
               </header>
 
-              <main className="container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow">
+              <main className={cn(
+                "container mx-auto px-4 py-8 md:py-12 max-w-5xl w-full animate-fadeInUp flex-grow transition-all duration-300 ease-in-out",
+                isSelectionModeActive ? "pb-24 sm:pb-16" : "pb-8 md:pb-12" 
+                // Adjusted default bottom padding to match initial values
+                // pb-8 md:pb-12 will be applied when not in selection mode.
+                // pb-24 sm:pb-16 will be applied when in selection mode.
+              )}>
                 <div className="my-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-xl mx-auto p-4 rounded-lg shadow-sm bg-card">
                   <Input
                     type="url"
