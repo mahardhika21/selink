@@ -78,9 +78,8 @@ _Tambahkan tangkapan layar UI Selink di sini jika ada._
 
 ## 💡 Roadmap (Opsional)
 
-- [ ] Tambah fitur bookmark
-- [ ] Autentikasi pengguna (login/register)
-- [ ] Statistik klik link
+- [ ] Tambah kategori baru
+- [ ] Fitur download dan copy link
 - [ ] Mode gelap
 - [ ] Export dan import data
 
