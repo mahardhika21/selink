@@ -10,8 +10,8 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'BentoLink',
-  description: 'Your personalized link-in-bio page.',
+  title: 'Selink - Link Manager',
+  description: 'Manage your links in one place.',
   icons: {
     icon: '/favicon.ico', // Standard path for favicon
   },
